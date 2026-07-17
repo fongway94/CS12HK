@@ -6,6 +6,7 @@ const langButtons = document.querySelectorAll('.lang-btn');
 const i18nNodes = document.querySelectorAll('[data-i18n]');
 const i18nPlaceholders = document.querySelectorAll('[data-i18n-placeholder]');
 const newsletterForm = document.querySelector('.newsletter-form');
+const revealElements = document.querySelectorAll('.reveal');
 
 if (year) {
   year.textContent = new Date().getFullYear();
@@ -48,6 +49,7 @@ const setLanguage = (lang) => {
 
   langButtons.forEach((button) => {
     button.classList.toggle('is-active', button.dataset.lang === lang);
+    button.setAttribute('aria-pressed', button.dataset.lang === lang);
   });
 
   localStorage.setItem('cs12-language', lang);
@@ -77,3 +79,51 @@ newsletterForm?.addEventListener('submit', (event) => {
       : 'This is a placeholder form. Next, it can be connected to WordPress or your email platform.'
   );
 });
+
+const handleHeaderScroll = () => {
+  if (!header) return;
+  if (window.scrollY > 20) {
+    header.classList.add('scrolled');
+  } else {
+    header.classList.remove('scrolled');
+  }
+};
+
+const handleReveal = () => {
+  revealElements.forEach((el) => {
+    const rect = el.getBoundingClientRect();
+    const windowHeight = window.innerHeight || document.documentElement.clientHeight;
+    if (rect.top < windowHeight * 0.85) {
+      el.classList.add('visible');
+    }
+  });
+};
+
+let ticking = false;
+const onScroll = () => {
+  if (!ticking) {
+    window.requestAnimationFrame(() => {
+      handleHeaderScroll();
+      handleReveal();
+      ticking = false;
+    });
+    ticking = true;
+  }
+};
+
+window.addEventListener('scroll', onScroll, { passive: true });
+handleHeaderScroll();
+handleReveal();
+
+if ('IntersectionObserver' in window) {
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach((entry) => {
+      if (entry.isIntersecting) {
+        entry.target.classList.add('visible');
+        observer.unobserve(entry.target);
+      }
+    });
+  }, { rootMargin: '0px 0px -10% 0px', threshold: 0.1 });
+
+  revealElements.forEach((el) => observer.observe(el));
+}
