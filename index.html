@@ -3,21 +3,21 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>CS12 Skincare Hong Kong — Luxury Minimal Homepage</title>
+    <title>CS12 Skincare Hong Kong — Luxury Sensitive Skin Repair</title>
     <meta
       name="description"
-      content="Luxury minimal homepage redesign for CS12 Skincare Hong Kong, focused on premium sensitive-skin repair, product visibility, and bilingual-ready presentation."
+      content="CS12 Hong Kong — Luxury sensitive skin repair rituals. Discover CalmEX, SoCalm, CellRevEX collections and the iconic Miracle Mask. Editorial storytelling meets clinical efficacy."
     />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
-      href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600;700&family=Inter:wght@400;500;600;700&family=Noto+Sans+TC:wght@400;500;700;900&display=swap"
+      href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600;700&family=Inter:wght@400;500;600;700&family=Noto+Sans+TC:wght@400;500;700;900&display=swap"
       rel="stylesheet"
     />
     <link rel="stylesheet" href="styles.css" />
   </head>
   <body>
-    <div class="announcement-bar">
+    <div class="announcement-bar" aria-live="polite">
       <div class="container announcement-inner">
         <p
           data-i18n
@@ -29,20 +29,20 @@
       </div>
     </div>
 
-    <header class="site-header" id="top">
+    <header class="site-header" id="top" role="banner">
       <div class="container header-inner">
-        <a href="#top" class="brand" aria-label="CS12 homepage">
+        <a href="#top" class="brand" aria-label="CS12 Skincare Hong Kong homepage">
           <span class="brand-mark">CS12</span>
           <span class="brand-copy">Sensitive Skin Experts</span>
         </a>
 
-        <button class="menu-toggle" type="button" aria-label="Open menu" aria-expanded="false">
-          <span></span>
-          <span></span>
-          <span></span>
+        <button class="menu-toggle" type="button" aria-label="Open menu" aria-expanded="false" aria-controls="primary-nav">
+          <span aria-hidden="true"></span>
+          <span aria-hidden="true"></span>
+          <span aria-hidden="true"></span>
         </button>
 
-        <nav class="site-nav" aria-label="Primary navigation">
+        <nav class="site-nav" id="primary-nav" aria-label="Primary navigation">
           <a href="#collections" data-i18n data-zh="產品系列" data-en="Collections">產品系列</a>
           <a href="#spotlight" data-i18n data-zh="焦點產品" data-en="Highlights">焦點產品</a>
           <a href="#solutions" data-i18n data-zh="肌膚方案" data-en="Skin Solutions">肌膚方案</a>
@@ -52,154 +52,155 @@
 
         <div class="header-tools">
           <div class="language-switch" role="group" aria-label="Language switcher">
-            <button class="lang-btn is-active" type="button" data-lang="zh">繁</button>
-            <button class="lang-btn" type="button" data-lang="en">EN</button>
+            <button class="lang-btn is-active" type="button" data-lang="zh" aria-pressed="true">繁</button>
+            <button class="lang-btn" type="button" data-lang="en" aria-pressed="false">EN</button>
           </div>
-          <a class="header-cta" href="#collections" data-i18n data-zh="立即選購" data-en="Shop Now">立即選購</a>
+          <a class="header-cta" href="#collections" data-i18n data-zh="探索產品" data-en="Discover">探索產品</a>
         </div>
       </div>
     </header>
 
     <main>
-      <section class="hero section">
+      <section class="hero section reveal" aria-labelledby="hero-title">
         <div class="container hero-grid">
-          <div class="hero-copy">
-            <p class="eyebrow" data-i18n data-zh="重新定義首頁方向" data-en="A new homepage direction">重新定義首頁方向</p>
-            <h1
+          <div class="hero-copy reveal reveal-delay-1">
+            <p class="eyebrow" data-i18n data-zh="敏感肌修護專家" data-en="Sensitive Skin Repair Experts">敏感肌修護專家</p>
+            <h1 id="hero-title"
               data-i18n
-              data-zh="敏感肌的高級修護方案"
-              data-en="A refined repair ritual for sensitive skin"
+              data-zh="高級修護儀式，從此開始"
+              data-en="Where refined repair rituals begin"
             >
-              敏感肌的高級修護方案
+              高級修護儀式，從此開始
             </h1>
             <p
               class="hero-text"
               data-i18n
-              data-zh="這個版本走 luxury minimal 路線：更少雜訊、更大留白、更清晰的產品主線，先讓顧客看見系列與明星產品，再帶入修護方案與信任內容。"
-              data-en="This direction follows a luxury minimal approach: less noise, more breathing room, and a much clearer product story. Customers first see the collections and hero products, then the repair journey and trust-building content."
+              data-zh="針對敏感泛紅、屏障受損、熟齡疲倦肌膚，以臨床級成分重塑膚質韌性。四大核心系列，一站式解決敏感肌煩惱。"
+              data-en="Targeting sensitivity, compromised barriers, and mature fatigue with clinical-grade ingredients to rebuild skin resilience. Four core collections — one complete sensitive skin solution."
             >
-              這個版本走 luxury minimal 路線：更少雜訊、更大留白、更清晰的產品主線，先讓顧客看見系列與明星產品，再帶入修護方案與信任內容。
+              針對敏感泛紅、屏障受損、熟齡疲倦肌膚，以臨床級成分重塑膚質韌性。四大核心系列，一站式解決敏感肌煩惱。
             </p>
 
             <div class="hero-actions">
               <a class="button button-primary" href="#collections" data-i18n data-zh="探索產品系列" data-en="Explore Collections">探索產品系列</a>
-              <a class="button button-secondary" href="#spotlight" data-i18n data-zh="查看焦點產品" data-en="View Highlights">查看焦點產品</a>
+              <a class="button button-secondary" href="#spotlight" data-i18n data-zh="明星產品" data-en="Hero Products">明星產品</a>
             </div>
 
             <div class="hero-metrics">
-              <article>
+              <article class="reveal reveal-delay-2">
                 <strong>01</strong>
-                <span data-i18n data-zh="先看系列" data-en="See collections first">先看系列</span>
+                <span data-i18n data-zh="急救舒敏" data-en="Instant Calming">急救舒敏</span>
               </article>
-              <article>
+              <article class="reveal reveal-delay-3">
                 <strong>02</strong>
-                <span data-i18n data-zh="再看明星產品" data-en="Then star products">再看明星產品</span>
+                <span data-i18n data-zh="屏障修護" data-en="Barrier Repair">屏障修護</span>
               </article>
-              <article>
+              <article class="reveal reveal-delay-4">
                 <strong>03</strong>
-                <span data-i18n data-zh="最後推動轉換" data-en="Then convert with offers">最後推動轉換</span>
+                <span data-i18n data-zh="彈潤煥新" data-en="Renewal &amp; Firmness">彈潤煥新</span>
               </article>
             </div>
           </div>
 
-          <div class="hero-media">
+          <div class="hero-media reveal reveal-delay-1">
             <figure class="hero-visual hero-visual-main">
               <img
                 src="https://cs12skincare.com.hk/wp-content/uploads/2025/03/March-2025-Banner-1400x788.jpg"
-                alt="CS12 hero campaign"
+                alt="CS12 hero campaign — Luxury sensitive skin repair ritual"
+                loading="eager"
               />
             </figure>
 
-            <aside class="hero-product-card">
-              <p class="mini-label" data-i18n data-zh="本月主推" data-en="Featured this month">本月主推</p>
-              <h2 data-i18n data-zh="奇蹟面膜" data-en="Miracle Mask">奇蹟面膜</h2>
+            <aside class="hero-product-card reveal reveal-delay-2">
+              <p class="mini-label" data-i18n data-zh="本月主推" data-en="Featured This Month">本月主推</p>
+              <h2 data-i18n data-zh="奇蹟面膜 Miracle Mask" data-en="Miracle Mask">奇蹟面膜 Miracle Mask</h2>
               <p
                 data-i18n
-                data-zh="以急救舒敏作為首頁第一成交入口。"
-                data-en="Positioned as the first conversion point for instant soothing care."
+                data-zh="冰感急救舒敏，5 分鐘鎮靜泛紅與不適。敏感肌的隨身守護者。"
+                data-en="Instant cooling relief in 5 minutes. The sensitive skin essential for flare-ups and post-sun stress."
               >
-                以急救舒敏作為首頁第一成交入口。
+                冰感急救舒敏，5 分鐘鎮靜泛紅與不適。敏感肌的隨身守護者。
               </p>
-              <a href="#spotlight" class="inline-link" data-i18n data-zh="查看產品亮點" data-en="See product details">查看產品亮點</a>
+              <a href="#spotlight" class="inline-link" data-i18n data-zh="發現產品亮點" data-en="Discover Details">發現產品亮點</a>
             </aside>
           </div>
         </div>
       </section>
 
-      <section class="section editorial-intro">
-        <div class="container editorial-panel">
-          <div class="editorial-copy">
-            <p class="eyebrow" data-i18n data-zh="品牌主軸" data-en="Brand focus">品牌主軸</p>
-            <h2 data-i18n data-zh="不是堆內容，而是讓顧客更快找到適合自己的產品。" data-en="Not more content — just a faster path to the right product.">
-              不是堆內容，而是讓顧客更快找到適合自己的產品。
+      <section class="section editorial-intro reveal">
+        <div class="container editorial-panel reveal reveal-delay-1">
+          <div class="editorial-copy reveal reveal-delay-2">
+            <p class="eyebrow" data-i18n data-zh="品牌哲學" data-en="Our Philosophy">品牌哲學</p>
+            <h2 data-i18n data-zh="不堆砌成分，只專注敏感肌真正需要的修護邏輯。" data-en="Not ingredient stacking — just the repair logic sensitive skin truly needs.">
+              不堆砌成分，只專注敏感肌真正需要的修護邏輯。
             </h2>
           </div>
           <div class="editorial-points">
-            <div>
+            <div class="reveal reveal-delay-2">
               <span>01</span>
-              <p data-i18n data-zh="首頁先展示四大系列，產品可見度更高。" data-en="Lead with the four core collections for stronger product visibility.">首頁先展示四大系列，產品可見度更高。</p>
+              <p data-i18n data-zh="臨床驗證配方，針對性解決敏感根因。" data-en="Clinically validated formulas targeting the root causes of sensitivity.">臨床驗證配方，針對性解決敏感根因。</p>
             </div>
-            <div>
+            <div class="reveal reveal-delay-3">
               <span>02</span>
-              <p data-i18n data-zh="減少凌亂促銷感，改用高級簡潔的排版節奏。" data-en="Reduce cluttered promotional noise with a cleaner premium rhythm.">減少凌亂促銷感，改用高級簡潔的排版節奏。</p>
+              <p data-i18n data-zh="極簡儀式感，早晚三步驟建立膚質韌性。" data-en="Minimalist rituals — three steps morning and night to build skin resilience.">極簡儀式感，早晚三步驟建立膚質韌性。</p>
             </div>
-            <div>
+            <div class="reveal reveal-delay-4">
               <span>03</span>
-              <p data-i18n data-zh="已預留中英切換邏輯，之後可正式接入 WordPress。" data-en="Bilingual switching logic is already planned and ready for WordPress integration.">已預留中英切換邏輯，之後可正式接入 WordPress。</p>
+              <p data-i18n data-zh="醫美級成分濃度，居家即享專業療效。" data-en="Medical-aesthetic ingredient concentrations for professional results at home.">醫美級成分濃度，居家即享專業療效。</p>
             </div>
           </div>
         </div>
       </section>
 
-      <section class="section collections" id="collections">
+      <section class="section collections" id="collections" aria-labelledby="collections-title">
         <div class="container">
-          <div class="section-heading split">
-            <div>
-              <p class="eyebrow" data-i18n data-zh="產品系列" data-en="Collections">產品系列</p>
-              <h2 data-i18n data-zh="一進首頁，就先看到產品。" data-en="Put products first, the moment customers land.">
-                一進首頁，就先看到產品。
+          <div class="section-heading split reveal">
+            <div class="reveal reveal-delay-1">
+              <p class="eyebrow" data-i18n data-zh="核心系列" data-en="Core Collections">核心系列</p>
+              <h2 id="collections-title" data-i18n data-zh="四大系列，精準對應每一種敏感肌狀態。" data-en="Four collections, precisely matched to every sensitive skin state.">
+                四大系列，精準對應每一種敏感肌狀態。
               </h2>
             </div>
             <p
-              class="section-note"
+              class="section-note reveal reveal-delay-2"
               data-i18n
-              data-zh="這一段比現有首頁更直接，方便之後串接 WooCommerce 分類。"
-              data-en="This section is more direct than the current homepage and can later map cleanly to WooCommerce categories."
+              data-zh="點進系列頁，看見完整修護方案與產品組合。"
+              data-en="Enter each collection to discover complete repair rituals and product pairings."
             >
-              這一段比現有首頁更直接，方便之後串接 WooCommerce 分類。
+              點進系列頁，看見完整修護方案與產品組合。
             </p>
           </div>
 
           <div class="collection-grid">
-            <a class="collection-card collection-card-dark" href="https://cs12skincare.com.hk/product-category/clam-ex/" target="_blank" rel="noreferrer">
-              <img src="https://cs12skincare.com.hk/wp-content/uploads/2026/03/CalmEX1200-1-1200x1200.png" alt="CalmEX collection" />
+            <a class="collection-card collection-card-dark reveal reveal-delay-1" href="https://cs12skincare.com.hk/product-category/clam-ex/" target="_blank" rel="noreferrer" aria-label="CalmEX Instant Calming Repair collection">
+              <img src="https://cs12skincare.com.hk/wp-content/uploads/2026/03/CalmEX1200-1-1200x1200.png" alt="CalmEX collection — Instant calming repair" loading="lazy" />
               <div class="collection-copy">
                 <p>#CalmEX</p>
-                <h3 data-i18n data-zh="急救舒敏" data-en="Instant calming repair">急救舒敏</h3>
-                <span data-i18n data-zh="泛紅、敏感、突發不適" data-en="Redness, sensitivity, visible discomfort">泛紅、敏感、突發不適</span>
+                <h3 data-i18n data-zh="急救舒敏" data-en="Instant Calming Repair">急救舒敏</h3>
+                <span data-i18n data-zh="泛紅、敏感、突發不適" data-en="Redness, sensitivity, sudden flare-ups">泛紅、敏感、突發不適</span>
               </div>
             </a>
-            <a class="collection-card" href="https://cs12skincare.com.hk/product-category/so-calm/" target="_blank" rel="noreferrer">
-              <img src="https://cs12skincare.com.hk/wp-content/uploads/2026/03/SoClam1200-1200x1200.png" alt="SoCalm collection" />
+            <a class="collection-card reveal reveal-delay-2" href="https://cs12skincare.com.hk/product-category/so-calm/" target="_blank" rel="noreferrer" aria-label="SoCalm Barrier Strengthening collection">
+              <img src="https://cs12skincare.com.hk/wp-content/uploads/2026/03/SoClam1200-1200x1200.png" alt="SoCalm collection — Barrier strengthening" loading="lazy" />
               <div class="collection-copy">
                 <p>#SoCalm</p>
-                <h3 data-i18n data-zh="屏障修護" data-en="Barrier strengthening">屏障修護</h3>
-                <span data-i18n data-zh="穩定膚況、建立日常" data-en="Stabilise skin and build a daily routine">穩定膚況、建立日常</span>
+                <h3 data-i18n data-zh="屏障修護" data-en="Barrier Strengthening">屏障修護</h3>
+                <span data-i18n data-zh="穩定膚況、建立日常" data-en="Stabilise skin, build daily ritual">穩定膚況、建立日常</span>
               </div>
             </a>
-            <a class="collection-card" href="https://cs12skincare.com.hk/product-category/cell-rev-ex/" target="_blank" rel="noreferrer">
-              <img src="https://cs12skincare.com.hk/wp-content/uploads/2025/01/CNY-banner-1-1-scaled.jpg" alt="CellRevEX collection" />
+            <a class="collection-card reveal reveal-delay-3" href="https://cs12skincare.com.hk/product-category/cell-rev-ex/" target="_blank" rel="noreferrer" aria-label="CellRevEX Renewal and Firmness collection">
+              <img src="https://cs12skincare.com.hk/wp-content/uploads/2025/01/CNY-banner-1-1-scaled.jpg" alt="CellRevEX collection — Renewal and firmness" loading="lazy" />
               <div class="collection-copy">
                 <p>#CellRevEX</p>
-                <h3 data-i18n data-zh="彈潤修護" data-en="Renewal and firmness">彈潤修護</h3>
+                <h3 data-i18n data-zh="彈潤修護" data-en="Renewal &amp; Firmness">彈潤修護</h3>
                 <span data-i18n data-zh="熟齡與疲倦肌保養" data-en="For mature and tired-looking skin">熟齡與疲倦肌保養</span>
               </div>
             </a>
-            <a class="collection-card collection-card-soft" href="https://cs12skincare.com.hk/product-category/%E9%98%B2%E6%9B%AC/" target="_blank" rel="noreferrer">
-              <img src="https://cs12skincare.com.hk/wp-content/uploads/2024/03/CS12-SUN-CUSHION-IVORY-PINK-7-SAND-BEIGE-9-scaled.jpg" alt="Sunscreen collection" />
+            <a class="collection-card collection-card-soft reveal reveal-delay-4" href="https://cs12skincare.com.hk/product-category/%E9%98%B2%E6%9B%AC/" target="_blank" rel="noreferrer" aria-label="Suncare Daily Protection collection">
+              <img src="https://cs12skincare.com.hk/wp-content/uploads/2024/03/CS12-SUN-CUSHION-IVORY-PINK-7-SAND-BEIGE-9-scaled.jpg" alt="Suncare collection — Daily protection" loading="lazy" />
               <div class="collection-copy">
                 <p data-i18n data-zh="防曬" data-en="Suncare">防曬</p>
-                <h3 data-i18n data-zh="日間防護" data-en="Daily protection">日間防護</h3>
+                <h3 data-i18n data-zh="日間防護" data-en="Daily Protection">日間防護</h3>
                 <span data-i18n data-zh="修護之後，補上完整保護" data-en="Complete the ritual with breathable protection">修護之後，補上完整保護</span>
               </div>
             </a>
@@ -207,192 +208,207 @@
         </div>
       </section>
 
-      <section class="section spotlight" id="spotlight">
+      <section class="section spotlight" id="spotlight" aria-labelledby="spotlight-title">
         <div class="container spotlight-stack">
-          <article class="spotlight-card spotlight-card-primary">
-            <div class="spotlight-media">
-              <img src="https://cs12skincare.com.hk/wp-content/uploads/2026/03/cs-12-253-E-720x1080.jpg" alt="CS12 Miracle Mask" />
+          <article class="spotlight-card spotlight-card-primary reveal">
+            <div class="spotlight-media reveal reveal-delay-1">
+              <img src="https://cs12skincare.com.hk/wp-content/uploads/2026/03/cs-12-253-E-720x1080.jpg" alt="CS12 Miracle Mask — Instant cooling relief" loading="lazy" />
             </div>
-            <div class="spotlight-copy">
-              <p class="eyebrow" data-i18n data-zh="焦點產品 01" data-en="Highlight 01">焦點產品 01</p>
-              <h2 data-i18n data-zh="奇蹟面膜 Miracle Mask" data-en="Miracle Mask">奇蹟面膜 Miracle Mask</h2>
+            <div class="spotlight-copy reveal reveal-delay-2">
+              <p class="eyebrow" data-i18n data-zh="明星產品 01" data-en="Hero Product 01">明星產品 01</p>
+              <h2 id="spotlight-title" data-i18n data-zh="奇蹟面膜 Miracle Mask" data-en="Miracle Mask">奇蹟面膜 Miracle Mask</h2>
               <p
                 data-i18n
-                data-zh="如果只保留一個首頁主打，我會保留這款。它最容易理解、最容易成交，也最能代表品牌在敏感急救上的記憶點。"
-                data-en="If only one hero product stays above the fold, this should be it. It is the easiest to understand, the easiest to convert, and the clearest expression of the brand's soothing expertise."
+                data-zh="品牌創始之作。冰感膠囊科技瞬間降溫 5°C，5 分鐘快速鎮靜泛紅、刺痛、曬後不適。醫美級舒敏肽複合物，從源頭修護屏障功能。"
+                data-en="The brand's founding hero. Ice-capsule technology delivers instant 5°C cooling, soothing redness, stinging, and post-sun stress in 5 minutes. Medical-grade soothing peptide complex repairs barrier function at the source."
               >
-                如果只保留一個首頁主打，我會保留這款。它最容易理解、最容易成交，也最能代表品牌在敏感急救上的記憶點。
+                品牌創始之作。冰感膠囊科技瞬間降溫 5°C，5 分鐘快速鎮靜泛紅、刺痛、曬後不適。醫美級舒敏肽複合物，從源頭修護屏障功能。
               </p>
               <ul class="bullet-list">
-                <li data-i18n data-zh="冰感舒緩，適合轉季、曬後、突發敏感" data-en="Cooling relief for weather changes, post-sun stress, and flare-ups">冰感舒緩，適合轉季、曬後、突發敏感</li>
-                <li data-i18n data-zh="可作首頁第一個強 CTA 區塊" data-en="Works well as the homepage's first strong CTA block">可作首頁第一個強 CTA 區塊</li>
-                <li data-i18n data-zh="很適合結合用家見證與 before-after" data-en="Ideal when paired with testimonials and before-after proof">很適合結合用家見證與 before-after</li>
+                <li data-i18n data-zh="冰感降溫 5°C，即時舒緩泛紅刺痛" data-en="Instant 5°C cooling, soothes redness and stinging">冰感降溫 5°C，即時舒緩泛紅刺痛</li>
+                <li data-i18n data-zh="醫美級舒敏肽複合物，修護屏障根源" data-en="Medical-grade soothing peptides repair barrier at source">醫美級舒敏肽複合物，修護屏障根源</li>
+                <li data-i18n data-zh="適合轉季、曬後、醫美術後、突發敏感" data-en="Ideal for seasonal changes, post-sun, post-procedure, sudden flare-ups">適合轉季、曬後、醫美術後、突發敏感</li>
               </ul>
-              <a class="inline-link" href="#results" data-i18n data-zh="查看真實用家效果" data-en="See customer results">查看真實用家效果</a>
+              <a class="inline-link" href="#results" data-i18n data-zh="查看真實用家效果" data-en="See Real Results">查看真實用家效果</a>
             </div>
           </article>
 
-          <article class="spotlight-card spotlight-card-secondary">
-            <div class="spotlight-copy">
-              <p class="eyebrow" data-i18n data-zh="焦點產品 02" data-en="Highlight 02">焦點產品 02</p>
-              <h2 data-i18n data-zh="#SOCALM 屏障修護日常" data-en="#SOCALM daily barrier ritual">#SOCALM 屏障修護日常</h2>
+          <article class="spotlight-card spotlight-card-secondary reveal">
+            <div class="spotlight-copy reveal reveal-delay-1">
+              <p class="eyebrow" data-i18n data-zh="明星產品 02" data-en="Hero Product 02">明星產品 02</p>
+              <h2 data-i18n data-zh="#SOCALM 屏障修護日常儀式" data-en="#SOCALM Daily Barrier Ritual">#SOCALM 屏障修護日常儀式</h2>
               <p
                 data-i18n
-                data-zh="首頁第二段不只賣單品，而是把產品包成日常方案，幫助顧客理解如何長期穩定膚況。"
-                data-en="The second hero block should not only sell a product — it should package a daily ritual that helps customers understand long-term skin stability."
+                data-zh="不只是單品，而是一套早晚三步驟的屏障建立方案。從潔面喚醒、精華修護、乳霜鎖水，系統性重建角質層脂質結構，讓敏感肌長期穩定。"
+                data-en="Not just a product — a complete 3-step morning and evening barrier-building ritual. From cleansing awakening to serum repair to cream sealing, systematically rebuilds stratum corneum lipid structure for long-term stability."
               >
-                首頁第二段不只賣單品，而是把產品包成日常方案，幫助顧客理解如何長期穩定膚況。
+                不只是單品，而是一套早晚三步驟的屏障建立方案。從潔面喚醒、精華修護、乳霜鎖水，系統性重建角質層脂質結構，讓敏感肌長期穩定。
               </p>
               <div class="mini-steps">
-                <span data-i18n data-zh="醒膚" data-en="Awaken">醒膚</span>
-                <span data-i18n data-zh="修護" data-en="Repair">修護</span>
-                <span data-i18n data-zh="鎖水" data-en="Seal">鎖水</span>
+                <span data-i18n data-zh="喚醒潔面" data-en="Awaken Cleanse">喚醒潔面</span>
+                <span data-i18n data-zh="精華修護" data-en="Serum Repair">精華修護</span>
+                <span data-i18n data-zh="乳霜鎖水" data-en="Cream Seal">乳霜鎖水</span>
               </div>
             </div>
-            <div class="spotlight-media">
-              <img src="https://cs12skincare.com.hk/wp-content/uploads/2026/03/1O1A7491-E-scaled.jpg" alt="CS12 SoCalm routine" />
+            <div class="spotlight-media reveal reveal-delay-2">
+              <img src="https://cs12skincare.com.hk/wp-content/uploads/2026/03/1O1A7491-E-scaled.jpg" alt="CS12 SoCalm daily barrier ritual" loading="lazy" />
             </div>
           </article>
         </div>
       </section>
 
-      <section class="section solutions" id="solutions">
+      <section class="section solutions" id="solutions" aria-labelledby="solutions-title">
         <div class="container">
-          <div class="section-heading center">
-            <p class="eyebrow" data-i18n data-zh="肌膚方案" data-en="Skin solutions">肌膚方案</p>
-            <h2 data-i18n data-zh="讓顧客用膚況選產品，而不是在目錄中迷路。" data-en="Guide customers by skin condition, not by a crowded catalogue.">
-              讓顧客用膚況選產品，而不是在目錄中迷路。
+          <div class="section-heading center reveal">
+            <p class="eyebrow reveal reveal-delay-1" data-i18n data-zh="肌膚方案" data-en="Skin Solutions">肌膚方案</p>
+            <h2 id="solutions-title" class="reveal reveal-delay-2" data-i18n data-zh="依膚況尋找專屬修護路徑，不再在產品目錄中迷路。" data-en="Find your personal repair path by skin condition — no more getting lost in catalogues.">
+              依膚況尋找專屬修護路徑，不再在產品目錄中迷路。
             </h2>
           </div>
 
           <div class="solution-grid">
-            <article class="solution-card">
+            <article class="solution-card reveal reveal-delay-1">
               <span>01</span>
-              <h3 data-i18n data-zh="轉季泛紅" data-en="Seasonal redness">轉季泛紅</h3>
-              <p data-i18n data-zh="先推 Miracle Mask，快速建立產品信心。" data-en="Lead with Miracle Mask to create immediate confidence.">先推 Miracle Mask，快速建立產品信心。</p>
+              <h3 data-i18n data-zh="轉季泛紅敏感" data-en="Seasonal Redness &amp; Sensitivity">轉季泛紅敏感</h3>
+              <p data-i18n data-zh="首選 Miracle Mask 急救，搭配 CalmEX 系列建立舒緩基底。" data-en="Start with Miracle Mask for instant relief, pair with CalmEX for lasting calm.">首選 Miracle Mask 急救，搭配 CalmEX 系列建立舒緩基底。</p>
             </article>
-            <article class="solution-card">
+            <article class="solution-card reveal reveal-delay-2">
               <span>02</span>
-              <h3 data-i18n data-zh="屏障脆弱" data-en="Compromised barrier">屏障脆弱</h3>
-              <p data-i18n data-zh="導向 #SOCALM，強化日常穩定與保濕。" data-en="Guide shoppers into #SOCALM for daily stability and hydration.">導向 #SOCALM，強化日常穩定與保濕。</p>
+              <h3 data-i18n data-zh="屏障受損脆弱" data-en="Compromised Fragile Barrier">屏障受損脆弱</h3>
+              <p data-i18n data-zh="導向 #SOCALM 三步驟儀式，系統性重建脂質屏障。" data-en="Guide into #SOCALM 3-step ritual for systematic lipid barrier reconstruction.">導向 #SOCALM 三步驟儀式，系統性重建脂質屏障。</p>
             </article>
-            <article class="solution-card">
+            <article class="solution-card reveal reveal-delay-3">
               <span>03</span>
-              <h3 data-i18n data-zh="熟齡疲倦" data-en="Mature and tired skin">熟齡疲倦</h3>
-              <p data-i18n data-zh="以 #CellRevEX 作第二層升級選擇。" data-en="Position #CellRevEX as the next-level upgrade path.">以 #CellRevEX 作第二層升級選擇。</p>
+              <h3 data-i18n data-zh="熟齡疲倦缺乏彈性" data-en="Mature, Tired, Loss of Firmness">熟齡疲倦缺乏彈性</h3>
+              <p data-i18n data-zh="以 #CellRevEX 升級抗老修護，活化膠原新生。" data-en="Upgrade to #CellRevEX for advanced renewal, activating collagen regeneration.">以 #CellRevEX 升級抗老修護，活化膠原新生。</p>
             </article>
-            <article class="solution-card">
+            <article class="solution-card reveal reveal-delay-4">
               <span>04</span>
-              <h3 data-i18n data-zh="日間保護" data-en="Daily protection">日間保護</h3>
-              <p data-i18n data-zh="以防曬完成整個護膚流程，提高客單。" data-en="Complete the ritual with suncare and raise basket value.">以防曬完成整個護膚流程，提高客單。</p>
+              <h3 data-i18n data-zh="日間防曬隔離" data-en="Daily UV Protection">日間防曬隔離</h3>
+              <p data-i18n data-zh="防曬系列完成修護閉環，物理化學雙重防護不悶痘。" data-en="Suncare completes the repair loop — hybrid physical-chemical protection, non-comedogenic.">防曬系列完成修護閉環，物理化學雙重防護不悶痘。</p>
             </article>
           </div>
         </div>
       </section>
 
-      <section class="section results" id="results">
+      <section class="section results" id="results" aria-labelledby="results-title">
         <div class="container results-grid">
-          <div class="results-visual">
-            <img src="https://cs12skincare.com.hk/wp-content/uploads/2026/03/CS12-Before-After_2021-Salon-Customer-Sabrina.png" alt="CS12 before and after" />
+          <div class="results-visual reveal reveal-delay-1">
+            <img src="https://cs12skincare.com.hk/wp-content/uploads/2026/03/CS12-Before-After_2021-Salon-Customer-Sabrina.png" alt="CS12 Before &amp; After — Real customer results" loading="lazy" />
           </div>
-          <div class="results-copy">
-            <p class="eyebrow" data-i18n data-zh="用家效果" data-en="Results">用家效果</p>
-            <h2 data-i18n data-zh="信任內容保留，但改成更高級的展示方式。" data-en="Keep the proof, but present it in a more premium way.">
-              信任內容保留，但改成更高級的展示方式。
+          <div class="results-copy reveal reveal-delay-2">
+            <p class="eyebrow" data-i18n data-zh="真實見證" data-en="Real Testimonials">真實見證</p>
+            <h2 id="results-title" data-i18n data-zh="不只前後對比，是敏感肌重拾自信的過程。" data-en="Not just before-and-after — it's the journey of sensitive skin reclaiming confidence.">
+              不只前後對比，是敏感肌重拾自信的過程。
             </h2>
             <blockquote>
-              <p data-i18n data-zh="「消除紅腫、鎮靜敏感、止痕。」" data-en="“Reduced redness, soothed irritation, and relieved itchiness.”">
-                「消除紅腫、鎮靜敏感、止痕。」
+              <p data-i18n data-zh="「消除紅腫、鎮靜敏感、止痕。敷完臉瞬間降溫，紅腫明顯退下去，隔天妝容都更服帖。」" data-en="&ldquo;Eliminated swelling, soothed sensitivity, relieved itch. Instant cooling on application, visible redness reduction overnight, makeup sits perfectly the next day.&rdquo;">
+                「消除紅腫、鎮靜敏感、止痕。敷完臉瞬間降溫，紅腫明顯退下去，隔天妝容都更服帖。」
               </p>
-              <cite>Sabrina</cite>
+              <cite>Sabrina · 敏感泛紅肌 3 年</cite>
             </blockquote>
 
             <div class="quote-stack">
-              <article>
+              <article class="reveal reveal-delay-3">
                 <strong>Vince</strong>
-                <p data-i18n data-zh="曬傷、起敏感時必備，敷上臉有明顯降溫和退紅感。" data-en="A must-have for sun stress and flare-ups, with an instant cooling and redness-relief feel.">曬傷、起敏感時必備，敷上臉有明顯降溫和退紅感。</p>
+                <p data-i18n data-zh="曬傷、起敏感時必備，敷上臉有明顯降溫和退紅感。術後修復也超快。" data-en="Essential for sunburn and flare-ups — instant cooling and visible redness reduction. Post-procedure recovery is remarkably fast.">曬傷、起敏感時必備，敷上臉有明顯降溫和退紅感。術後修復也超快。</p>
               </article>
-              <article>
+              <article class="reveal reveal-delay-4">
                 <strong>Ting Ting</strong>
-                <p data-i18n data-zh="用後更滋潤、更有光澤，連乾燥粗糙感也改善。" data-en="Skin felt more nourished and radiant, with dryness and roughness visibly improved.">用後更滋潤、更有光澤，連乾燥粗糙感也改善。</p>
+                <p data-i18n data-zh="用後更滋潤、更有光澤，連乾燥粗糙感也改善。#SOCALM 早晚用下來，膚質明顯變厚實了。" data-en="Skin more hydrated and radiant, dryness and roughness improved. After using #SOCALM day and night, skin texture visibly strengthened.">用後更滋潤、更有光澤，連乾燥粗糙感也改善。#SOCALM 早晚用下來，膚質明顯變厚實了。</p>
               </article>
             </div>
           </div>
         </div>
       </section>
 
-      <section class="section campaign" id="offers">
-        <div class="container campaign-box">
-          <div class="campaign-copy">
-            <p class="eyebrow" data-i18n data-zh="官網限定禮遇" data-en="Online exclusive offers">官網限定禮遇</p>
-            <h2 data-i18n data-zh="最後才放優惠，讓價值先成立。" data-en="Let value lead first, and place the offers later.">
-              最後才放優惠，讓價值先成立。
+      <section class="section campaign" id="offers" aria-labelledby="offers-title">
+        <div class="container campaign-box reveal">
+          <div class="campaign-copy reveal reveal-delay-1">
+            <p class="eyebrow" data-i18n data-zh="官網限定禮遇" data-en="Online Exclusive Offers">官網限定禮遇</p>
+            <h2 id="offers-title" data-i18n data-zh="讓價值先成立，禮遇自然隨行。" data-en="Let value lead, and the offers follow naturally.">
+              讓價值先成立，禮遇自然隨行。
             </h2>
-            <div class="offer-list">
-              <div>
-                <strong data-i18n data-zh="首購 15% OFF" data-en="15% OFF first purchase">首購 15% OFF</strong>
-                <span data-i18n data-zh="滿 HK$1,500 可用優惠碼 NEWCS12" data-en="Use code NEWCS12 on orders over HK$1,500">滿 HK$1,500 可用優惠碼 NEWCS12</span>
-              </div>
-              <div>
-                <strong data-i18n data-zh="滿 HK$800 免運費" data-en="Free shipping over HK$800">滿 HK$800 免運費</strong>
-                <span data-i18n data-zh="降低首次下單門檻" data-en="Lower the barrier to first purchase">降低首次下單門檻</span>
-              </div>
-              <div>
-                <strong data-i18n data-zh="滿額贈療敏禮品" data-en="Threshold gifts for sensitive skin care">滿額贈療敏禮品</strong>
-                <span data-i18n data-zh="提高客單與試用觸達" data-en="Increase basket size and product trial">提高客單與試用觸達</span>
-              </div>
-            </div>
+            <ul class="offer-list">
+              <li class="reveal reveal-delay-2">
+                <strong data-i18n data-zh="首購 15% OFF" data-en="15% OFF First Order">首購 15% OFF</strong>
+                <span data-i18n data-zh="滿 HK$1,500 輸入優惠碼 NEWCS12" data-en="Enter code NEWCS12 on orders over HK$1,500">滿 HK$1,500 輸入優惠碼 NEWCS12</span>
+              </li>
+              <li class="reveal reveal-delay-3">
+                <strong data-i18n data-zh="滿 HK$800 免運費" data-en="Free Shipping over HK$800">滿 HK$800 免運費</strong>
+                <span data-i18n data-zh="降低首次體驗門檻，輕鬆開啟修護之旅" data-en="Lower the barrier to first experience, start your repair journey easily">降低首次體驗門檻，輕鬆開啟修護之旅</span>
+              </li>
+              <li class="reveal reveal-delay-4">
+                <strong data-i18n data-zh="滿額贈療敏禮品" data-en="Threshold Gift with Purchase">滿額贈療敏禮品</strong>
+                <span data-i18n data-zh="精選體驗裝，讓您完整體驗修護儀式" data-en="Curated trial sizes to experience the complete repair ritual">精選體驗裝，讓您完整體驗修護儀式</span>
+              </li>
+            </ul>
           </div>
 
-          <form class="newsletter-form">
-            <p class="mini-label" data-i18n data-zh="訂閱通訊" data-en="Newsletter sign-up">訂閱通訊</p>
-            <h3 data-i18n data-zh="獲取新品、優惠與敏感肌護膚資訊" data-en="Get launches, offers, and sensitive-skin tips">
-              獲取新品、優惠與敏感肌護膚資訊
+          <form class="newsletter-form reveal reveal-delay-2" aria-label="Newsletter subscription">
+            <p class="mini-label" data-i18n data-zh="訂閱通訊" data-en="Newsletter">訂閱通訊</p>
+            <h3 data-i18n data-zh="獲取新品資訊、獨家優惠與敏感肌護膚專業指南" data-en="Get new launches, exclusive offers, and expert sensitive skin guides">
+              獲取新品資訊、獨家優惠與敏感肌護膚專業指南
             </h3>
-            <label class="sr-only" for="email">Email</label>
-            <input
-              id="email"
-              type="email"
-              placeholder="輸入您的電郵"
-              data-i18n-placeholder
-              data-placeholder-zh="輸入您的電郵"
-              data-placeholder-en="Enter your email"
-            />
-            <button type="submit" data-i18n data-zh="立即訂閱" data-en="Subscribe now">立即訂閱</button>
+            <div class="input-group">
+              <label class="sr-only" for="email">Email</label>
+              <input
+                id="email"
+                type="email"
+                placeholder="輸入您的電郵"
+                data-i18n-placeholder
+                data-placeholder-zh="輸入您的電郵"
+                data-placeholder-en="Enter your email"
+                required
+                autocomplete="email"
+              />
+              <button type="submit" data-i18n data-zh="立即訂閱" data-en="Subscribe Now">立即訂閱</button>
+            </div>
           </form>
         </div>
       </section>
     </main>
 
-    <footer class="site-footer">
+    <footer class="site-footer" role="contentinfo">
       <div class="container footer-grid">
         <div>
-          <a href="#top" class="brand footer-brand">
+          <a href="#top" class="brand footer-brand" aria-label="CS12 Skincare Hong Kong homepage">
             <span class="brand-mark">CS12</span>
             <span class="brand-copy">Sensitive Skin Experts</span>
           </a>
           <p
             data-i18n
-            data-zh="Luxury minimal 首頁概念版，已加入產品優先架構與中英切換方向。"
-            data-en="Luxury minimal homepage concept with a product-first structure and bilingual-ready direction."
+            data-zh="專注敏感肌修護的臨床級護膚品牌，以極簡儀式感重塑膚質韌性。"
+            data-en="A clinical-grade skincare brand dedicated to sensitive skin repair, rebuilding resilience through minimalist rituals."
           >
-            Luxury minimal 首頁概念版，已加入產品優先架構與中英切換方向。
+            專注敏感肌修護的臨床級護膚品牌，以極簡儀式感重塑膚質韌性。
           </p>
         </div>
         <div>
-          <h3 data-i18n data-zh="首頁重點" data-en="Homepage focus">首頁重點</h3>
+          <h3 data-i18n data-zh="快速連結" data-en="Quick Links">快速連結</h3>
           <ul>
-            <li data-i18n data-zh="產品系列優先" data-en="Collections first">產品系列優先</li>
-            <li data-i18n data-zh="明星產品清晰化" data-en="Clear hero product storytelling">明星產品清晰化</li>
-            <li data-i18n data-zh="優惠放在後段轉換" data-en="Offers placed later for conversion">優惠放在後段轉換</li>
+            <li><a href="#collections" data-i18n data-zh="產品系列" data-en="Collections">產品系列</a></li>
+            <li><a href="#spotlight" data-i18n data-zh="明星產品" data-en="Hero Products">明星產品</a></li>
+            <li><a href="#solutions" data-i18n data-zh="肌膚方案" data-en="Skin Solutions">肌膚方案</a></li>
+            <li><a href="#results" data-i18n data-zh="用家見證" data-en="Testimonials">用家見證</a></li>
           </ul>
         </div>
         <div>
-          <h3 data-i18n data-zh="下一步" data-en="Next step">下一步</h3>
+          <h3 data-i18n data-zh="核心系列" data-en="Core Collections">核心系列</h3>
           <ul>
-            <li data-i18n data-zh="切成 WordPress 模組" data-en="Turn this into WordPress modules">切成 WordPress 模組</li>
-            <li data-i18n data-zh="接 WooCommerce 商品分類" data-en="Connect WooCommerce categories">接 WooCommerce 商品分類</li>
-            <li data-i18n data-zh="完善正式中英雙語內容" data-en="Refine final Chinese and English copy">完善正式中英雙語內容</li>
+            <li><a href="https://cs12skincare.com.hk/product-category/clam-ex/" target="_blank" rel="noreferrer" data-i18n data-zh="CalmEX 急救舒敏" data-en="CalmEX Instant Calming">CalmEX 急救舒敏</a></li>
+            <li><a href="https://cs12skincare.com.hk/product-category/so-calm/" target="_blank" rel="noreferrer" data-i18n data-zh="SoCalm 屏障修護" data-en="SoCalm Barrier Repair">SoCalm 屏障修護</a></li>
+            <li><a href="https://cs12skincare.com.hk/product-category/cell-rev-ex/" target="_blank" rel="noreferrer" data-i18n data-zh="CellRevEX 彈潤修護" data-en="CellRevEX Renewal">CellRevEX 彈潤修護</a></li>
+            <li><a href="https://cs12skincare.com.hk/product-category/%E9%98%B2%E6%9B%AC/" target="_blank" rel="noreferrer" data-i18n data-zh="防曬系列" data-en="Suncare">防曬系列</a></li>
+          </ul>
+        </div>
+        <div>
+          <h3 data-i18n data-zh="客戶支援" data-en="Support">客戶支援</h3>
+          <ul>
+            <li><a href="#" data-i18n data-zh="常見問題" data-en="FAQ">常見問題</a></li>
+            <li><a href="#" data-i18n data-zh="聯絡我們" data-en="Contact Us">聯絡我們</a></li>
+            <li><a href="#" data-i18n data-zh="運送與退換" data-en="Shipping &amp; Returns">運送與退換</a></li>
+            <li><a href="#" data-i18n data-zh="隱私條款" data-en="Privacy Policy">隱私條款</a></li>
           </ul>
         </div>
       </div>
