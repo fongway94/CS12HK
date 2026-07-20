@@ -1130,3 +1130,64 @@ html.js .reveal {
 }
 
 .footer-brand .brand-copy { display: block; }
+
+/* Light couture direction: porcelain, champagne and a quiet rose accent. */
+:root {
+  --paper: #fdfcf9;
+  --paper-deep: #f4f0eb;
+  --paper-warm: #eee5dc;
+  --ink: #292522;
+  --ink-soft: #4e4741;
+  --muted: #817871;
+  --muted-light: #aaa098;
+  --line: #e3ddd6;
+  --line-dark: #ddd4cb;
+  --accent: #a4776e;
+  --accent-soft: #eadbd4;
+  --blush: #f3e9e3;
+  --white: #fffefa;
+  --shadow: 0 22px 60px rgba(71, 56, 45, 0.09);
+  --shadow-small: 0 8px 28px rgba(71, 56, 45, 0.07);
+}
+
+/* Keep every brand touchpoint airy rather than using a black block. */
+.announcement-bar {
+  background: var(--paper-warm);
+  color: var(--ink-soft);
+}
+.button-primary,
+.newsletter-form button {
+  background: var(--accent);
+  color: var(--white);
+}
+.button-primary::before { background: var(--ink); }
+
+.newsletter-form {
+  background: var(--blush);
+  color: var(--ink);
+  border: 1px solid var(--line);
+}
+.newsletter-form .mini-label,
+.newsletter-form h3,
+.newsletter-form p { color: var(--ink); }
+.newsletter-form input {
+  border-color: var(--line);
+  color: var(--ink);
+}
+.newsletter-form input::placeholder { color: var(--muted); }
+.newsletter-form button { border-color: var(--accent); }
+.newsletter-form button:hover { background: var(--ink); color: var(--white); }
+.form-status { color: var(--accent) !important; }
+
+.site-footer {
+  background: var(--paper-deep);
+  color: var(--muted);
+  border-top: 1px solid var(--line);
+}
+.footer-grid { border-bottom-color: var(--line); }
+.footer-brand .brand-mark { color: var(--ink); }
+.footer-brand .brand-copy,
+.site-footer li,
+.footer-bottom { color: var(--muted); }
+.site-footer h3 { color: var(--accent); }
+.site-footer li:hover { color: var(--ink); }
