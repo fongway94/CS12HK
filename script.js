@@ -14,6 +14,9 @@ const revealElements = document.querySelectorAll('.reveal');
 const sectionLinks = [...navLinks].filter((link) => link.hash);
 const sections = [...document.querySelectorAll('main section[id]')];
 
+// Premium smooth scroll behavior
+document.documentElement.style.scrollBehavior = 'smooth';
+
 if (year) {
   year.textContent = new Date().getFullYear();
 }
@@ -148,6 +151,7 @@ window.addEventListener('scroll', onScroll, { passive: true });
 handleHeaderScroll();
 handleReveal();
 
+// Premium reveal observer (more refined)
 if ('IntersectionObserver' in window) {
   const revealObserver = new IntersectionObserver((entries) => {
     entries.forEach((entry) => {
@@ -156,7 +160,56 @@ if ('IntersectionObserver' in window) {
         revealObserver.unobserve(entry.target);
       }
     });
-  }, { rootMargin: '0px 0px -8% 0px', threshold: 0.08 });
+  }, { rootMargin: '0px 0px -6% 0px', threshold: 0.07 });
 
   revealElements.forEach((element) => revealObserver.observe(element));
 }
+
+// Premium hero visual parallax
+const heroVisual = document.querySelector('.hero-visual');
+if (heroVisual) {
+  const heroImg = heroVisual.querySelector('img');
+  let rafId = null;
+
+  const handleParallax = () => {
+    if (!heroImg) return;
+    const rect = heroVisual.getBoundingClientRect();
+    const scrollProgress = Math.max(0, Math.min(1, (window.innerHeight - rect.top) / (window.innerHeight + rect.height)));
+    
+    const yOffset = (scrollProgress - 0.5) * 32;
+    const scale = 1 + (scrollProgress * 0.02);
+    
+    heroImg.style.transform = `translateY(${yOffset}px) scale(${scale})`;
+  };
+
+  const throttledParallax = () => {
+    if (rafId) cancelAnimationFrame(rafId);
+    rafId = requestAnimationFrame(handleParallax);
+  };
+
+  window.addEventListener('scroll', throttledParallax, { passive: true });
+  
+  // Initial position
+  setTimeout(handleParallax, 180);
+}
+
+// Elegant product card hover micro-interaction
+const productCards = document.querySelectorAll('.collection-card, .spotlight-card');
+productCards.forEach(card => {
+  card.addEventListener('mouseenter', () => {
+    const copy = card.querySelector('.collection-copy, .spotlight-copy');
+    if (copy) {
+      copy.style.transition = 'transform 0.55s var(--ease-out-expo), padding 0.55s var(--ease)';
+    }
+  });
+});
+
+// Premium cursor-follow accent line on inline links
+const inlineLinks = document.querySelectorAll('.inline-link');
+inlineLinks.forEach(link => {
+  link.addEventListener('mousemove', (e) => {
+    const rect = link.getBoundingClientRect();
+    const x = ((e.clientX - rect.left) / rect.width) * 100;
+    link.style.setProperty('--mouse-x', `${x}%`);
+  });
+});
