@@ -23,7 +23,8 @@
   --ease-out-expo: cubic-bezier(0.19, 1, 0.22, 1);
   --header-h: 76px;
   --warm-gradient-soft: linear-gradient(135deg, #fdfbf8 0%, #f5efe8 50%, #f0e6d8 100%);
-  --hero-gradient: linear-gradient(180deg, rgba(17,17,17,0.12) 0%, rgba(17,17,17,0.30) 60%, rgba(17,17,17,0.55) 100%);
+  --hero-gradient: linear-gradient(180deg, rgba(17,17,17,0.05) 0%, rgba(17,17,17,0.18) 55%, rgba(17,17,17,0.35) 100%);
+  --campaign-gradient: linear-gradient(135deg, #fdfbf8 0%, #faf3e9 35%, #f4e8d6 70%, #ead8be 100%);
 }
 
 *{box-sizing:border-box}
@@ -293,13 +294,15 @@ h3{
 .section-campaign-banner{
   position:relative;
   overflow:hidden;
-  background: var(--ink);
+  background: var(--campaign-gradient);
 }
 .section-campaign-banner::before{
   content:"";
   position:absolute;
   inset:0;
-  background: linear-gradient(135deg, rgba(253,251,248,.92) 0%, rgba(245,239,232,.88) 60%, rgba(240,230,216,.85) 100%);
+  background:
+    radial-gradient(80% 60% at 50% 0%, rgba(255,255,255,.55) 0%, rgba(255,255,255,0) 60%),
+    linear-gradient(135deg, rgba(253,251,248,.70) 0%, rgba(250,243,233,.55) 60%, rgba(234,216,190,.45) 100%);
   z-index:1;
 }
 .campaign-banner-inner{
@@ -332,7 +335,7 @@ h3{
   object-fit: contain;
   object-position: center;
   display:block;
-  filter: contrast(1.02) brightness(1.01);
+  filter: contrast(1.01) brightness(1.04) saturate(1.04);
 }
 .campaign-banner-caption{
   position:relative;
@@ -381,6 +384,7 @@ h3{
   object-position:center 38%;
   transition: transform 8s ease-out;
   animation: heroSlowZoom 12s ease-out forwards;
+  filter: contrast(1.01) brightness(1.03) saturate(1.05);
 }
 @keyframes heroSlowZoom{
   from{transform:scale(1)}
