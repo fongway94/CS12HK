@@ -4,10 +4,12 @@
    ───────────────────────────────────────── */
 :root{
   --bg: #fdfbf8;
+  --bg-gradient: linear-gradient(135deg, #fdfbf8 0%, #f7f3eb 40%, #f5efe8 70%, #f0e8d8 100%);
   --paper: #ffffff;
   --paper-2: #fbf6f0;
-  --ink: #121212;
+  --ink: #111111;
   --ink-2: #3a3734;
+  --ink-soft: #5c5651;
   --muted: #8f8881;
   --muted-2: #bbb5ad;
   --line: #ece6df;
@@ -18,7 +20,10 @@
   --container: 1440px;
   --ease: cubic-bezier(0.22, 1, 0.36, 1);
   --ease-slow: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-out-expo: cubic-bezier(0.19, 1, 0.22, 1);
   --header-h: 76px;
+  --warm-gradient-soft: linear-gradient(135deg, #fdfbf8 0%, #f5efe8 50%, #f0e6d8 100%);
+  --hero-gradient: linear-gradient(180deg, rgba(17,17,17,0.12) 0%, rgba(17,17,17,0.30) 60%, rgba(17,17,17,0.55) 100%);
 }
 
 *{box-sizing:border-box}
@@ -51,7 +56,7 @@ ul{list-style:none}
 .top-announcement{
   position:relative;
   z-index:20;
-  background:#f4ece1;
+  background: linear-gradient(135deg, #f4ece1 0%, #f7f3eb 50%, #f0e8d8 100%);
   border-bottom:1px solid var(--line);
   text-align:center;
   padding:10px 0;
@@ -284,21 +289,73 @@ h3{
 .link-underline::before{content:"↗"; margin-right:8px; font-size:12px}
 .link-underline:hover::after{transform:scaleX(0); transform-origin:right}
 
-/* ── Campaign Banner (restored summer image) ── */
+/* ── Campaign Banner — refined editorial banner ── */
 .section-campaign-banner{
-  background:var(--paper-2);
-  padding:18px 0;
-  border-bottom:1px solid var(--line);
+  position:relative;
+  overflow:hidden;
+  background: var(--ink);
+}
+.section-campaign-banner::before{
+  content:"";
+  position:absolute;
+  inset:0;
+  background: linear-gradient(135deg, rgba(253,251,248,.92) 0%, rgba(245,239,232,.88) 60%, rgba(240,230,216,.85) 100%);
+  z-index:1;
+}
+.campaign-banner-inner{
+  position:relative;
+  z-index:2;
+  padding: 72px 0 60px;
+}
+.campaign-label{
+  text-align:center;
+  margin-bottom: 28px;
+}
+.campaign-label .label{
+  color: var(--ink-2);
+  letter-spacing:.35em;
+  font-size: 11px;
 }
 .campaign-banner-figure{
+  position:relative;
   overflow:hidden;
-  background:var(--paper);
+  border-radius: 2px;
+  box-shadow: 0 20px 60px rgba(17,17,17,.08), 0 8px 24px rgba(17,17,17,.05);
+  background: var(--paper);
+  max-width: 1200px;
+  margin: 0 auto;
 }
 .campaign-banner-figure img{
   width:100%;
-  max-height:120px;
-  object-fit:contain;
-  object-position:center;
+  height:auto;
+  max-height: 520px;
+  object-fit: contain;
+  object-position: center;
+  display:block;
+  filter: contrast(1.02) brightness(1.01);
+}
+.campaign-banner-caption{
+  position:relative;
+  z-index:2;
+  text-align:center;
+  padding: 28px 24px 0;
+  max-width: 640px;
+  margin: 0 auto;
+}
+.campaign-banner-caption h3{
+  font-family: var(--serif);
+  font-size: clamp(20px, 3vw, 32px);
+  font-weight: 300;
+  line-height: 1.15;
+  letter-spacing: -.02em;
+  color: var(--ink);
+  margin-bottom: 10px;
+}
+.campaign-banner-caption p{
+  font-size: 12px;
+  color: var(--ink-soft);
+  letter-spacing: .06em;
+  line-height: 1.8;
 }
 
 /* ── Hero Full (Dior editorial) ── */
@@ -322,18 +379,29 @@ h3{
   height:100%;
   object-fit:cover;
   object-position:center 38%;
+  transition: transform 8s ease-out;
+  animation: heroSlowZoom 12s ease-out forwards;
+}
+@keyframes heroSlowZoom{
+  from{transform:scale(1)}
+  to{transform:scale(1.06)}
 }
 .hero-full-media::after{
   content:"";
   position:absolute;
   inset:0;
-  background: linear-gradient(to bottom, rgba(253,251,248,.10) 0%, rgba(253,251,248,.55) 55%, rgba(253,251,248,.85) 100%);
+  background: var(--hero-gradient);
 }
 .hero-full-content{
   position:relative;
   z-index:2;
   max-width:680px;
   padding: 40px 24px;
+  animation: heroContentFadeIn 1.2s var(--ease-out-expo) .3s both;
+}
+@keyframes heroContentFadeIn{
+  from{opacity:0; transform:translateY(24px)}
+  to{opacity:1; transform:translateY(0)}
 }
 .hero-full-content h1{margin-bottom:20px}
 .hero-lead{
@@ -437,7 +505,7 @@ h3{
 /* ── Philosophy ── */
 .philosophy{
   padding:120px 0;
-  background:var(--bg);
+  background: var(--bg-gradient);
   border-top:1px solid var(--line);
   border-bottom:1px solid var(--line);
 }
@@ -488,10 +556,17 @@ h3{
   display:flex;
   justify-content:space-between;
   align-items:flex-end;
-  gap:40px;
-  margin-bottom:56px;
+  gap:48px;
+  margin-bottom:64px;
 }
-.section-head h2{max-width:14ch; margin-bottom:0}
+.section-head > div:first-child{
+  max-width: 24ch;
+}
+.section-head h2{max-width:24ch; margin-bottom:6px; line-height:1.05}
+.section-head .label{
+  margin-bottom: 16px;
+  letter-spacing: .22em;
+}
 .section-note{
   max-width:28ch;
   font-size:13px;
@@ -540,51 +615,66 @@ h3{
   line-height:1.6;
 }
 
-/* ── Results ── */
+/* ── Results — refined editorial testimonials ── */
 .results{
-  padding:110px 0;
-  background:var(--paper);
+  padding:120px 0;
+  background: var(--warm-gradient-soft);
   border-top:1px solid var(--line);
+  border-bottom:1px solid var(--line);
 }
 .results-grid{
   display:grid;
-  grid-template-columns:repeat(4,1fr);
-  gap:24px;
+  grid-template-columns:repeat(3,1fr);
+  gap:30px;
   align-items:start;
 }
 .result-card{
   background:var(--paper);
+  border:1px solid var(--line);
+  border-radius:2px;
+  padding:28px 28px 28px;
+  transition: box-shadow .6s var(--ease), transform .6s var(--ease);
+}
+.result-card:hover{
+  box-shadow: 0 24px 48px rgba(17,17,17,.06), 0 8px 16px rgba(17,17,17,.04);
+  transform: translateY(-2px);
 }
 .result-figure{
-  aspect-ratio:3 / 4;
+  aspect-ratio:4 / 3;
   overflow:hidden;
   background:var(--paper-2);
-  margin-bottom:18px;
+  margin-bottom:22px;
+  border-radius:2px;
 }
 .result-figure img{
   width:100%;
   height:100%;
   object-fit:cover;
-  transition: transform 1s var(--ease-slow);
+  transition: transform 1.2s var(--ease-slow);
 }
-.result-card:hover .result-figure img{transform:scale(1.02)}
+.result-card:hover .result-figure img{transform:scale(1.03)}
 .result-body p{
-  font-size:12.5px;
-  line-height:1.75;
+  font-size:13px;
+  line-height:1.85;
   color:var(--ink-2);
 }
+.result-body .label.tiny{
+  margin-bottom:14px;
+  display:block;
+}
 .result-card blockquote{
-  border-left:0;
   padding:0;
-  margin:0 0 14px;
+  margin:0 0 18px;
+  border-left:0;
 }
 .result-card blockquote p{
   font-family:var(--serif);
-  font-size:22px;
+  font-size:clamp(18px, 2.2vw, 26px);
   font-style:italic;
-  line-height:1.15;
+  line-height:1.25;
   letter-spacing:-.015em;
   color:var(--ink);
+  max-width:28ch;
 }
 .result-card cite{
   display:block;
@@ -594,10 +684,42 @@ h3{
   text-transform:uppercase;
   font-weight:700;
   color:var(--muted);
-  margin-top:8px;
+  margin-top:14px;
+  padding-top:14px;
+  border-top:1px solid var(--line);
 }
-.result-card.featured .result-figure{aspect-ratio:4 / 5}
-.result-card.featured blockquote p{font-size:26px}
+
+/* Featured testimonial — spans 2 columns, refined editorial layout */
+.result-card.featured{
+  grid-column: span 3;
+  display:grid;
+  grid-template-columns: 1fr 1.2fr;
+  gap:32px;
+  align-items:center;
+  padding:36px 36px 36px;
+  background: var(--paper);
+  border-color: var(--line-strong);
+}
+.result-card.featured .result-figure{
+  aspect-ratio: 4 / 5;
+  margin-bottom:0;
+}
+.result-card.featured .result-body{
+  padding-left:16px;
+  border-left:1px solid var(--line-2);
+}
+.result-card.featured blockquote p{
+  font-size:clamp(22px, 2.8vw, 34px);
+  line-height:1.2;
+  max-width:22ch;
+  color: var(--ink);
+}
+.result-card.featured cite{
+  font-size:10px;
+  letter-spacing:.18em;
+  margin-top:18px;
+  padding-top:18px;
+}
 
 /* ── Offers ── */
 .offers{
@@ -756,16 +878,16 @@ h3{
 /* ── Reveal — Dior minimal ── */
 .reveal{
   opacity:0;
-  transform:translateY(14px);
-  transition: opacity .9s var(--ease-slow), transform .9s var(--ease-slow);
+  transform:translateY(16px);
+  transition: opacity 1s var(--ease-out-expo), transform 1s var(--ease-out-expo);
 }
 .reveal.visible{
   opacity:1;
   transform:translateY(0);
 }
-.reveal[data-delay="1"]{transition-delay:.08s}
-.reveal[data-delay="2"]{transition-delay:.14s}
-.reveal[data-delay="3"]{transition-delay:.20s}
+.reveal[data-delay="1"]{transition-delay:.1s}
+.reveal[data-delay="2"]{transition-delay:.18s}
+.reveal[data-delay="3"]{transition-delay:.26s}
 
 /* ── Responsive ── */
 @media (max-width:1180px){
@@ -821,6 +943,7 @@ h3{
   .section-head{flex-direction:column; align-items:flex-start; gap:16px}
   .coll-grid{grid-template-columns:repeat(2,1fr)}
   .results-grid{grid-template-columns:repeat(2,1fr)}
+  .result-card.featured{grid-column: span 2; grid-template-columns: 1fr 1fr}
   .offers-grid{grid-template-columns:1fr}
   .offer-item{border-right:0; padding-right:0}
   .newsletter-grid{grid-template-columns:1fr; gap:40px}
@@ -831,6 +954,8 @@ h3{
 @media (max-width:600px){
   .container{width:calc(100% - 32px)}
   .section-campaign-banner{padding:12px 0}
+  .campaign-banner-inner{padding:24px 0 16px}
+  .campaign-banner-caption h3{font-size:clamp(18px, 5vw, 26px)}
   .hero-full{height:auto; min-height:auto; padding:0 0 40px; display:block; text-align:left; background:var(--paper)}
   .hero-full-media{position:relative; height:68vw; min-height:420px}
   .hero-full-media::after{display:none}
@@ -848,6 +973,9 @@ h3{
   .coll-figure{aspect-ratio:1 / 1}
   .results{padding:72px 0}
   .results-grid{grid-template-columns:1fr; gap:48px}
+  .result-card.featured{grid-column: span 1; grid-template-columns: 1fr; gap:28px; padding:28px}
+  .result-card.featured .result-figure{aspect-ratio: 16/10; margin-bottom:24px}
+  .result-card.featured .result-body{padding-left:0; border-left:0; padding-top:24px; border-top:1px solid var(--line-2)}
   .result-figure{aspect-ratio:4 / 3}
   .offers{padding:72px 0}
   .newsletter{padding:64px 0}
