@@ -990,10 +990,16 @@ blockquote cite {
   letter-spacing: 0.05em;
 }
 
-/* Motion */
-html.js .reveal {
-  opacity: 0;
-  transform: translateY(28px);
+/* Motion
+   Content must remain visible before JavaScript is available.  Previously every
+   `.reveal` element was made transparent as soon as the script added `.js` to
+   the document. Any script error or delayed execution then left the entire
+   page blank, with only the background colours showing. Keep the page
+   progressively enhanced: the `visible` class may still be used by the
+   observer, but it is never required for content to be readable. */
+.reveal {
+  opacity: 1;
+  transform: none;
   transition: opacity 0.9s var(--ease), transform 0.9s var(--ease);
 }
 
