@@ -294,7 +294,7 @@ h3{
 .section-campaign-banner{
   position:relative;
   overflow:hidden;
-  background: var(--campaign-gradient);
+  background: var(--bg-gradient);
 }
 .section-campaign-banner::before{
   content:"";
