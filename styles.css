@@ -1,23 +1,24 @@
 :root {
-  --paper: #f8f6f2;
-  --paper-deep: #efebe5;
-  --paper-warm: #f2e7e1;
-  --ink: #171716;
-  --ink-soft: #292826;
-  --muted: #716e69;
-  --muted-light: #9a948d;
-  --line: #d9d4cd;
-  --line-dark: rgba(255, 255, 255, 0.2);
-  --sage: #69756e;
-  --sage-soft: #dfe6e1;
-  --blush: #eadbd4;
-  --white: #fffefa;
+  /* Light luxury palette: porcelain, champagne and restrained rosewood. */
+  --paper: #faf8f4;
+  --paper-deep: #f0ebe3;
+  --paper-warm: #eadfd3;
+  --ink: #211c19;
+  --ink-soft: #3b322d;
+  --muted: #756b63;
+  --muted-light: #9c9187;
+  --line: #ddd3c7;
+  --line-dark: rgba(255, 253, 249, 0.22);
+  --accent: #825f59;
+  --accent-soft: #e8d8d0;
+  --blush: #f0e3dc;
+  --white: #fffdf9;
   --serif: "Cormorant Garamond", "Noto Serif TC", Georgia, serif;
   --sans: "Inter", "Noto Sans TC", Arial, sans-serif;
   --container: 1400px;
   --header-h: 82px;
-  --shadow: 0 22px 60px rgba(34, 29, 24, 0.12);
-  --shadow-small: 0 8px 28px rgba(34, 29, 24, 0.09);
+  --shadow: 0 22px 60px rgba(46, 35, 29, 0.12);
+  --shadow-small: 0 8px 28px rgba(46, 35, 29, 0.09);
   --ease: cubic-bezier(0.22, 1, 0.36, 1);
 }
 
@@ -93,7 +94,7 @@ button { cursor: pointer; }
   padding: 7px 0;
   overflow: hidden;
   background: var(--ink);
-  color: rgba(255, 254, 250, 0.84);
+  color: rgba(255, 253, 249, 0.84);
   font-size: 10px;
   font-weight: 500;
   letter-spacing: 0.16em;
@@ -110,14 +111,14 @@ button { cursor: pointer; }
   top: 0;
   z-index: 100;
   height: var(--header-h);
-  background: rgba(255, 254, 250, 0.96);
+  background: rgba(255, 253, 249, 0.96);
   border-bottom: 1px solid var(--line);
   transition: box-shadow 0.45s ease, background 0.45s ease;
 }
 
 .site-header.scrolled {
-  background: rgba(255, 254, 250, 0.88);
-  box-shadow: 0 8px 28px rgba(34, 29, 24, 0.08);
+  background: rgba(255, 253, 249, 0.88);
+  box-shadow: 0 8px 28px rgba(46, 35, 29, 0.08);
   backdrop-filter: blur(16px);
 }
 
@@ -207,7 +208,7 @@ button { cursor: pointer; }
 .header-cta:focus-visible,
 .header-text-link:hover,
 .header-text-link:focus-visible {
-  color: var(--sage);
+  color: var(--accent);
 }
 
 .site-nav a:hover::after,
@@ -299,7 +300,7 @@ button { cursor: pointer; }
   align-items: center;
   gap: 13px;
   margin: 0 0 22px;
-  color: var(--sage);
+  color: var(--accent);
   font-size: 10px;
   font-weight: 700;
   letter-spacing: 0.22em;
@@ -349,7 +350,7 @@ h3 { font-size: 30px; line-height: 1.08; }
   padding: 86px 0 110px;
   overflow: hidden;
   background:
-    radial-gradient(circle at 8% 20%, rgba(234, 219, 212, 0.7), transparent 26%),
+    radial-gradient(circle at 8% 20%, rgba(232, 216, 208, 0.72), transparent 26%),
     var(--paper);
 }
 
@@ -359,7 +360,7 @@ h3 { font-size: 30px; line-height: 1.08; }
   right: -10%;
   width: 360px;
   height: 360px;
-  border: 1px solid rgba(105, 117, 110, 0.17);
+  border: 1px solid rgba(130, 95, 89, 0.18);
   border-radius: 50%;
   content: "";
   pointer-events: none;
@@ -429,7 +430,7 @@ h3 { font-size: 30px; line-height: 1.08; }
 .button:focus-visible::before { transform: scaleY(1); }
 
 .button-primary { background: var(--ink); color: var(--white); }
-.button-primary::before { background: var(--sage); }
+.button-primary::before { background: var(--accent); }
 .button-secondary { border-color: transparent; color: var(--ink); }
 .button-secondary::after { content: "↗"; margin-left: 10px; font-size: 14px; }
 .button-secondary:hover { border-color: var(--ink); }
@@ -440,7 +441,7 @@ h3 { font-size: 30px; line-height: 1.08; }
 .site-nav a:focus-visible,
 .lang-btn:focus-visible,
 .menu-toggle:focus-visible,
-.newsletter-form button:focus-visible { outline: 1px solid var(--sage); outline-offset: 4px; }
+.newsletter-form button:focus-visible { outline: 1px solid var(--accent); outline-offset: 4px; }
 
 .hero-metrics {
   display: grid;
@@ -460,7 +461,7 @@ h3 { font-size: 30px; line-height: 1.08; }
 .hero-metrics strong {
   display: block;
   margin-bottom: 6px;
-  color: var(--sage);
+  color: var(--accent);
   font-family: var(--serif);
   font-size: 24px;
   font-weight: 600;
@@ -484,7 +485,7 @@ h3 { font-size: 30px; line-height: 1.08; }
 .hero-visual::before {
   position: absolute;
   inset: 14px;
-  border: 1px solid rgba(255, 254, 250, 0.58);
+  border: 1px solid rgba(255, 253, 249, 0.58);
   content: "";
   pointer-events: none;
   z-index: 1;
@@ -496,7 +497,7 @@ h3 { font-size: 30px; line-height: 1.08; }
   bottom: 28px;
   width: 58px;
   height: 58px;
-  border: 1px solid rgba(255, 254, 250, 0.68);
+  border: 1px solid rgba(255, 253, 249, 0.68);
   border-radius: 50%;
   content: "↗";
   color: var(--white);
@@ -520,7 +521,7 @@ h3 { font-size: 30px; line-height: 1.08; }
   bottom: -33px;
   width: min(310px, 64%);
   padding: 24px 25px 26px;
-  background: rgba(255, 254, 250, 0.96);
+  background: rgba(255, 253, 249, 0.96);
   border: 1px solid var(--line);
   box-shadow: var(--shadow-small);
   animation: card-arrive 1s var(--ease) 0.45s both;
@@ -578,7 +579,7 @@ h3 { font-size: 30px; line-height: 1.08; }
 .editorial-points span {
   display: block;
   margin-bottom: 20px;
-  color: var(--sage);
+  color: var(--accent);
   font-family: var(--serif);
   font-size: 25px;
   line-height: 1;
@@ -643,7 +644,7 @@ h3 { font-size: 30px; line-height: 1.08; }
   right: 20px;
   bottom: 25px;
   content: "↗";
-  color: var(--sage);
+  color: var(--accent);
   font-size: 19px;
   transition: transform 0.4s var(--ease);
 }
@@ -652,7 +653,7 @@ h3 { font-size: 30px; line-height: 1.08; }
 
 .collection-copy p {
   margin: 0 0 8px;
-  color: var(--sage);
+  color: var(--accent);
   font-size: 9px;
   font-weight: 700;
   letter-spacing: 0.18em;
@@ -720,13 +721,13 @@ h3 { font-size: 30px; line-height: 1.08; }
   left: 0;
   width: 5px;
   height: 5px;
-  border: 1px solid var(--sage);
+  border: 1px solid var(--accent);
   content: "";
   transform: rotate(45deg);
   transition: background 0.3s ease;
 }
 
-.spotlight-card:hover .bullet-list li::before { background: var(--sage); }
+.spotlight-card:hover .bullet-list li::before { background: var(--accent); }
 
 .mini-steps {
   display: grid;
@@ -772,7 +773,7 @@ h3 { font-size: 30px; line-height: 1.08; }
 .solution-card > span {
   display: block;
   margin-bottom: 37px;
-  color: var(--sage);
+  color: var(--accent);
   font-family: var(--serif);
   font-size: 25px;
   line-height: 1;
@@ -798,8 +799,8 @@ h3 { font-size: 30px; line-height: 1.08; }
   bottom: -15px;
   width: 48%;
   height: 48%;
-  border-right: 1px solid var(--sage);
-  border-bottom: 1px solid var(--sage);
+  border-right: 1px solid var(--accent);
+  border-bottom: 1px solid var(--accent);
   content: "";
   pointer-events: none;
 }
@@ -832,7 +833,7 @@ blockquote p {
 }
 
 blockquote cite {
-  color: var(--sage);
+  color: var(--accent);
   font-size: 10px;
   font-style: normal;
   font-weight: 700;
@@ -864,7 +865,7 @@ blockquote cite {
   bottom: -70%;
   width: 60%;
   height: 140%;
-  border: 1px solid rgba(105, 117, 110, 0.17);
+  border: 1px solid rgba(130, 95, 89, 0.18);
   border-radius: 50%;
   content: "";
   pointer-events: none;
@@ -897,9 +898,9 @@ blockquote cite {
   color: var(--white);
 }
 
-.newsletter-form .mini-label { color: var(--sage-soft); }
+.newsletter-form .mini-label { color: var(--accent-soft); }
 .newsletter-form h3 { max-width: 12ch; margin-bottom: 27px; color: var(--white); font-size: clamp(28px, 3vw, 41px); }
-.newsletter-form p { margin: 0; color: rgba(255, 254, 250, 0.64); font-size: 12px; }
+.newsletter-form p { margin: 0; color: rgba(255, 253, 249, 0.64); font-size: 12px; }
 .newsletter-form .input-group { display: flex; gap: 0; margin-top: 8px; }
 
 .newsletter-form input {
@@ -907,7 +908,7 @@ blockquote cite {
   min-height: 51px;
   flex: 1;
   padding: 0 16px;
-  border: 1px solid rgba(255, 254, 250, 0.3);
+  border: 1px solid rgba(255, 253, 249, 0.3);
   border-right: 0;
   border-radius: 0;
   outline: none;
@@ -917,8 +918,8 @@ blockquote cite {
   transition: border-color 0.3s ease;
 }
 
-.newsletter-form input::placeholder { color: rgba(255, 254, 250, 0.5); }
-.newsletter-form input:focus { border-color: var(--sage-soft); }
+.newsletter-form input::placeholder { color: rgba(255, 253, 249, 0.5); }
+.newsletter-form input:focus { border-color: var(--accent-soft); }
 
 .newsletter-form button {
   min-height: 51px;
@@ -933,11 +934,11 @@ blockquote cite {
   transition: background 0.3s ease, color 0.3s ease;
 }
 
-.newsletter-form button:hover { background: var(--sage-soft); color: var(--ink); }
+.newsletter-form button:hover { background: var(--accent-soft); color: var(--ink); }
 
 .form-status {
   margin: 14px 0 0 !important;
-  color: var(--sage-soft) !important;
+  color: var(--accent-soft) !important;
   font-size: 11px !important;
   line-height: 1.6;
 }
@@ -946,7 +947,7 @@ blockquote cite {
 .site-footer {
   padding: 82px 0 32px;
   background: var(--ink);
-  color: rgba(255, 254, 250, 0.62);
+  color: rgba(255, 253, 249, 0.62);
 }
 
 .footer-grid {
@@ -959,12 +960,12 @@ blockquote cite {
 
 .footer-brand { margin-bottom: 22px; }
 .footer-brand .brand-mark { color: var(--white); }
-.footer-brand .brand-copy { color: rgba(255, 254, 250, 0.5); }
+.footer-brand .brand-copy { color: rgba(255, 253, 249, 0.5); }
 .site-footer > .container > div:first-child p { max-width: 330px; margin: 0; font-size: 13px; line-height: 1.8; }
 
 .site-footer h3 {
   margin: 5px 0 22px;
-  color: var(--sage-soft);
+  color: var(--accent-soft);
   font-family: var(--sans);
   font-size: 10px;
   font-weight: 700;
@@ -974,7 +975,7 @@ blockquote cite {
 }
 
 .site-footer ul { display: grid; gap: 12px; margin: 0; padding: 0; list-style: none; }
-.site-footer li { color: rgba(255, 254, 250, 0.58); font-size: 12px; transition: color 0.3s ease; }
+.site-footer li { color: rgba(255, 253, 249, 0.58); font-size: 12px; transition: color 0.3s ease; }
 .site-footer li:hover { color: var(--white); }
 
 .footer-bottom {
@@ -984,7 +985,7 @@ blockquote cite {
   justify-content: space-between;
   gap: 20px;
   padding-top: 25px;
-  color: rgba(255, 254, 250, 0.38);
+  color: rgba(255, 253, 249, 0.38);
   font-size: 10px;
   letter-spacing: 0.05em;
 }
@@ -1114,7 +1115,7 @@ html.js .reveal {
   .offer-list span { padding-bottom: 4px; }
   .newsletter-form { padding: 30px 22px; }
   .newsletter-form .input-group { display: grid; grid-template-columns: 1fr; gap: 10px; }
-  .newsletter-form input { border-right: 1px solid rgba(255, 254, 250, 0.3); }
+  .newsletter-form input { border-right: 1px solid rgba(255, 253, 249, 0.3); }
   .newsletter-form button { width: 100%; }
   .footer-grid { grid-template-columns: 1fr; gap: 40px; padding-bottom: 45px; }
   .footer-bottom { flex-direction: column; align-items: flex-start; gap: 8px; }
