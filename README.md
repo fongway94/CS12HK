@@ -10,10 +10,11 @@ Luxury minimal homepage redesign prototype for CS12 Skincare Hong Kong.
 
 ## Direction used
 
-- luxury minimal visual style
-- bold new homepage structure
-- Traditional Chinese first
-- English switch prepared in the prototype
+- Dior-inspired editorial beauty direction without copying brand assets
+- warm ivory, ink, blush and sage palette replacing the previous dark/glass treatment
+- centered wordmark, restrained type scale, fine rules and square editorial layouts
+- Traditional Chinese first with English switch preserved
+- subtle scroll reveals, image zoom, active-section navigation and a no-alert newsletter confirmation
 - products and collections made more visible than the previous version
 
 ## Notes
