@@ -1,0 +1,31 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root{
+  --bg: #FDFBF8;
+  --paper: #ffffff;
+  --ink: #111111;
+  --muted: #8F8881;
+  --line: #ECE6DF;
+}
+
+body{
+  font-family: "Instrument Sans", "Noto Sans TC", sans-serif;
+  background: var(--bg);
+  color: var(--ink);
+  -webkit-font-smoothing: antialiased;
+}
+.font-serif { font-family: "Cormorant Garamond", "Noto Serif TC", serif; }
+
+.reveal { opacity:1; transform:none; transition: opacity .8s cubic-bezier(.22,1,.36,1), transform .8s cubic-bezier(.22,1,.36,1); }
+.glass { backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px); }
+
+/* scrollbar hide */
+.no-scrollbar::-webkit-scrollbar { display:none }
+.no-scrollbar { -ms-overflow-style:none; scrollbar-width:none }
+
+/* premium button hover */
+.btn-premium { position:relative; overflow:hidden; }
+.btn-premium::after { content:""; position:absolute; inset:0; background:radial-gradient(600px circle at var(--x,50%) var(--y,50%), rgba(255,255,255,.15), transparent 40%); opacity:0; transition:opacity .3s; }
+.btn-premium:hover::after { opacity:1 }

@@ -1,0 +1,21 @@
+name = "cs12-skincare"
+type = "javascript"
+compatibility_date = "2024-09-01"
+pages_build_output_dir = "dist"
+
+[build]
+command = "npm run build"
+
+# Future D1 binding - ready to plug
+# [[d1_databases]]
+# binding = "DB"
+# database_name = "cs12_db"
+# database_id = "REPLACE_WHEN_PROVISIONED"
+
+# [vars]
+# ENVIRONMENT = "production"
+
+[[kv_namespaces]]
+binding = "SESSIONS"
+id = "placeholder"
+preview_id = "placeholder"
