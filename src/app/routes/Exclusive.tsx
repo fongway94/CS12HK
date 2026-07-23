@@ -45,15 +45,15 @@ export function ExclusivePage() {
                 : <>Exclusive recovery sets from HK$1,198<br/>Spend HK$2,000 — receive 6-piece deluxe gift set<br/>Spend HK$3,000 — receive 10-piece deluxe gift set</>}
             </p>
             <div className="mt-6 flex flex-wrap gap-2 text-[11px]">
-              <span className="bg-[#111] text-white px-3 py-1.5 rounded-[2px]">
+              <span className="bg-[#9E7428] text-white px-3 py-1.5 rounded-[2px]">
                 {expired ? (lang==="zh" ? "已結束" : "Ended") : `${lang==="zh" ? "倒數" : "Countdown"}: ${countdown}`}
               </span>
-              <span className="border border-[#111] px-3 py-1.5 rounded-[2px]">
+              <span className="border border-[#9E7428] px-3 py-1.5 rounded-[2px]">
                 {lang==="zh" ? "限時至 2026-07-31" : "Limited until Jul 31, 2026"}
               </span>
             </div>
             <div className="mt-6">
-              <Link to="/shop" className="inline-flex bg-[#111] text-white px-8 h-[42px] items-center text-[10px] tracking-[0.18em] uppercase font-bold hover:bg-black transition rounded-[2px]">
+              <Link to="/shop" className="inline-flex bg-[#9E7428] text-white px-8 h-[42px] items-center text-[10px] tracking-[0.18em] uppercase font-bold hover:bg-[#8F6824] transition rounded-[2px]">
                 {lang==="zh" ? "立即選購" : "Shop Now"}
               </Link>
             </div>
@@ -97,29 +97,29 @@ export function ExclusivePage() {
       </section>
 
       {/* GWP Section */}
-      <section className="bg-[#111] text-white py-12 md:py-16">
+      <section className="bg-[#9E7428] text-white py-12 md:py-16">
         <div className="w-[min(calc(100%-24px),1440px)] mx-auto">
           <h2 className="font-serif text-[28px] md:text-[32px] mb-8 md:mb-10 text-center">
             {lang==="zh" ? "官網限定滿購禮遇" : "Online Exclusive — Gift With Purchase"}
           </h2>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-8">
             {tiers.map(t=>(
-              <div key={t.id} className="border border-[#333] p-6 md:p-8 rounded-[4px]">
+              <div key={t.id} className="border border-white/25 bg-white/10 p-6 md:p-8 rounded-[4px]">
                 <h3 className="font-serif text-[22px] md:text-[24px] mb-2">{lang==="zh"?t.label_zh:t.label_en}</h3>
-                <p className="text-[12px] text-[#BBB5AD] mb-4">
+                <p className="text-[12px] text-white/85 mb-4">
                   {lang==="zh"
                     ? `額外送 ${t.gifts.reduce((a,b)=>a+b.qty,0)}件皇牌修護禮遇 • 贈品總值約 HK$${t.giftValueHKD}`
                     : `${t.gifts.reduce((a,b)=>a+b.qty,0)} complimentary deluxe items • Total gift value approx. HK$${t.giftValueHKD}`
                   }
                 </p>
                 <img src={t.id.includes("2000") ? "https://cs12skincare.com.hk/wp-content/uploads/2026/07/202607_2000-free-gift_1.png" : "https://cs12skincare.com.hk/wp-content/uploads/2026/07/202607_3000-free-gift_2.png"} alt="gift tier" className="w-full bg-white rounded mb-4"/>
-                <ul className="text-[12px] leading-relaxed text-[#BBB5AD]">
+                <ul className="text-[12px] leading-relaxed text-white/85">
                   {t.gifts.map((g,i)=><li key={i}>• {lang==="zh"?g.name_zh:g.name_en} x{g.qty}</li>)}
                 </ul>
               </div>
             ))}
           </div>
-          <p className="text-center text-[11px] text-[#8F8881] mt-8">
+          <p className="text-center text-[11px] text-white/70 mt-8">
             {lang==="zh"
               ? "滿購禮遇數量有限，送完即止 • 優惠期內每張訂單按最終付款金額計算"
               : "Gifts are limited and available while stocks last • Calculated based on final order total during promotion period"

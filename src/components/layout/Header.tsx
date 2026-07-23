@@ -7,6 +7,7 @@ import { useThemeStore } from "../../stores/useThemeStore"
 import { ShoppingBag, User, X, Search, ChevronDown, Menu, Heart } from "lucide-react"
 import { useState, useRef, useEffect } from "react"
 import { MiniCart } from "../cart/MiniCart"
+import { BrandLogo } from "../ui/BrandLogo"
 
 interface SubMenuItem {
   label_zh: string
@@ -32,10 +33,10 @@ export function Header() {
   const [searchQuery, setSearchQuery] = useState("")
   const [miniCartOpen, setMiniCartOpen] = useState(false)
   const [badgePop, setBadgePop] = useState(false)
-  
+
   // Mobile accordion state: stores label of currently expanded menu
   const [mobileExpanded, setMobileExpanded] = useState<string | null>(null)
-  
+
   // Desktop active hover/click menu
   const [activeDropdown, setActiveDropdown] = useState<string | null>(null)
   const dropdownTimeout = useRef<NodeJS.Timeout | null>(null)
@@ -68,12 +69,12 @@ export function Header() {
   const handleNavigation = (path: string) => {
     setMobileOpen(false)
     setActiveDropdown(null)
-    
+
     if (path.startsWith("/#")) {
       const targetId = path.substring(2)
       // Check if we are currently on the Home page
       const isHome = window.location.hash === "#/" || window.location.hash === "" || window.location.pathname === "/"
-      
+
       if (isHome) {
         const element = document.getElementById(targetId)
         if (element) {
@@ -193,16 +194,16 @@ export function Header() {
         <div className="md:hidden bg-[#FBF6F0]/80 border-b border-[#ECE6DF] py-1.5 px-4 flex justify-between items-center text-[10.5px]">
           {/* Mobile Language Selector */}
           <div className="flex items-center gap-[10px] text-[#BBB5AD] select-none font-semibold">
-            <button 
-              onClick={() => setLang("zh")} 
-              className={`transition-colors hover:text-black ${lang === "zh" ? "text-black underline font-bold" : ""}`}
+            <button
+              onClick={() => setLang("zh")}
+              className={`transition-colors hover:text-[#9E7428] ${lang === "zh" ? "text-[#9E7428] underline font-bold" : ""}`}
             >
               繁體
             </button>
             <span className="opacity-35 text-[9px]">/</span>
-            <button 
-              onClick={() => setLang("en")} 
-              className={`transition-colors hover:text-black ${lang === "en" ? "text-black underline font-bold" : ""}`}
+            <button
+              onClick={() => setLang("en")}
+              className={`transition-colors hover:text-[#9E7428] ${lang === "en" ? "text-[#9E7428] underline font-bold" : ""}`}
             >
               EN
             </button>
@@ -210,18 +211,18 @@ export function Header() {
 
           {/* Mobile Currency Selector */}
           <div className="flex items-center gap-1">
-            <button 
-              onClick={() => setCurrency("HKD")} 
+            <button
+              onClick={() => setCurrency("HKD")}
               className={`px-1.5 py-0.5 rounded-[2px] text-[9.5px] font-semibold transition-all duration-200 border ${
-                currency === "HKD" ? "border-black bg-[#111] text-white" : "border-transparent text-[#8F8881]"
+                currency === "HKD" ? "border-[#9E7428] bg-[#9E7428] text-white" : "border-transparent text-[#8F8881]"
               }`}
             >
               HKD
             </button>
-            <button 
-              onClick={() => setCurrency("USD")} 
+            <button
+              onClick={() => setCurrency("USD")}
               className={`px-1.5 py-0.5 rounded-[2px] text-[9.5px] font-semibold transition-all duration-200 border ${
-                currency === "USD" ? "border-black bg-[#111] text-white" : "border-transparent text-[#8F8881]"
+                currency === "USD" ? "border-[#9E7428] bg-[#9E7428] text-white" : "border-transparent text-[#8F8881]"
               }`}
             >
               USD
@@ -232,36 +233,35 @@ export function Header() {
         {/* Main Header Row */}
         <div className="h-[74px] flex items-center">
           <div className="w-[min(calc(100%-24px),1440px)] mx-auto flex items-center justify-between relative h-full">
-            
+
             {/* Mobile Menu Hamburger */}
-            <button 
-              className="md:hidden w-8 h-8 flex flex-col justify-center gap-[6px] focus:outline-none relative z-[51]" 
+            <button
+              className="md:hidden w-8 h-8 flex flex-col justify-center gap-[6px] focus:outline-none relative z-[51]"
               onClick={() => setMobileOpen(!mobileOpen)}
               aria-label="Toggle Navigation Menu"
             >
               {mobileOpen ? (
-                <X size={20} className="text-black" />
+                <X size={20} className="text-[#9E7428]" />
               ) : (
                 <>
-                  <i className="block h-[1.5px] w-[22px] bg-black rounded-full transition-transform"></i>
-                  <i className="block h-[1.5px] w-[16px] bg-black rounded-full transition-transform"></i>
+                  <i className="block h-[1.5px] w-[22px] bg-[#9E7428] rounded-full transition-transform"></i>
+                  <i className="block h-[1.5px] w-[16px] bg-[#9E7428] rounded-full transition-transform"></i>
                 </>
               )}
             </button>
 
             {/* Premium Logo */}
-            <Link to="/" className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 flex flex-col items-center leading-none select-none">
-              <span className="font-serif text-[34px] sm:text-[38px] tracking-[0.18em] font-light text-black">CS12</span>
-              <span className="text-[7.5px] tracking-[0.24em] uppercase text-[#8F8881] font-semibold mt-[2px]">Skin Experts</span>
+            <Link to="/" className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 flex items-center leading-none select-none" aria-label="CS12 home">
+              <BrandLogo className="w-[118px] sm:w-[160px] h-auto" />
             </Link>
 
             {/* Right Action Icons & Utilities */}
             <div className="flex items-center gap-3 sm:gap-6 ml-auto">
-              
+
               {/* Search Toggle Button */}
-              <button 
-                onClick={() => setSearchOpen(!searchOpen)} 
-                className="hidden md:flex items-center text-[#8F8881] hover:text-[#111] transition duration-250"
+              <button
+                onClick={() => setSearchOpen(!searchOpen)}
+                className="hidden md:flex items-center text-[#8F8881] hover:text-[#9E7428] transition duration-250"
                 aria-label="Search"
               >
                 <Search size={17} />
@@ -269,16 +269,16 @@ export function Header() {
 
               {/* Desktop Language Switcher (Hidden on Mobile) */}
               <div className="hidden md:flex items-center gap-[6px] text-[10px] text-[#BBB5AD] select-none font-medium">
-                <button 
-                  onClick={() => setLang("zh")} 
-                  className={`transition-colors hover:text-black ${lang === "zh" ? "text-black font-semibold" : ""}`}
+                <button
+                  onClick={() => setLang("zh")}
+                  className={`transition-colors hover:text-[#9E7428] ${lang === "zh" ? "text-[#9E7428] font-semibold" : ""}`}
                 >
                   繁
                 </button>
                 <span className="opacity-35 text-[9px]">/</span>
-                <button 
-                  onClick={() => setLang("en")} 
-                  className={`transition-colors hover:text-black ${lang === "en" ? "text-black font-semibold" : ""}`}
+                <button
+                  onClick={() => setLang("en")}
+                  className={`transition-colors hover:text-[#9E7428] ${lang === "en" ? "text-[#9E7428] font-semibold" : ""}`}
                 >
                   EN
                 </button>
@@ -286,18 +286,18 @@ export function Header() {
 
               {/* Desktop Currency Selector (Hidden on Mobile to avoid overlapping CS12 Logo) */}
               <div className="hidden md:flex items-center gap-1 text-[10.5px]">
-                <button 
-                  onClick={() => setCurrency("HKD")} 
+                <button
+                  onClick={() => setCurrency("HKD")}
                   className={`px-2 py-1 rounded-[2px] text-[10px] font-medium transition-all duration-200 border ${
-                    currency === "HKD" ? "border-black bg-[#111] text-white" : "border-transparent text-[#8F8881] hover:text-[#111]"
+                    currency === "HKD" ? "border-[#9E7428] bg-[#9E7428] text-white" : "border-transparent text-[#8F8881] hover:text-[#9E7428]"
                   }`}
                 >
                   HKD
                 </button>
-                <button 
-                  onClick={() => setCurrency("USD")} 
+                <button
+                  onClick={() => setCurrency("USD")}
                   className={`px-2 py-1 rounded-[2px] text-[10px] font-medium transition-all duration-200 border ${
-                    currency === "USD" ? "border-black bg-[#111] text-white" : "border-transparent text-[#8F8881] hover:text-[#111]"
+                    currency === "USD" ? "border-[#9E7428] bg-[#9E7428] text-white" : "border-transparent text-[#8F8881] hover:text-[#9E7428]"
                   }`}
                 >
                   USD
@@ -305,18 +305,18 @@ export function Header() {
               </div>
 
               {/* User Account / Profile */}
-              <Link 
-                to={user ? "/account" : "/login"} 
-                className="hidden md:inline-flex items-center gap-1.5 text-[10px] tracking-[0.18em] uppercase text-[#3A3734] hover:text-black transition duration-200 font-medium"
+              <Link
+                to={user ? "/account" : "/login"}
+                className="hidden md:inline-flex items-center gap-1.5 text-[10px] tracking-[0.18em] uppercase text-[#3A3734] hover:text-[#9E7428] transition duration-200 font-medium"
               >
-                <User size={15} /> 
+                <User size={15} />
                 {user ? (lang === "zh" ? "帳戶" : "Account") : (lang === "zh" ? "登入" : "Login")}
               </Link>
 
               {/* Wishlist Button */}
-              <Link 
-                to="/wishlist" 
-                className="relative flex items-center p-1.5 text-black hover:scale-105 transition"
+              <Link
+                to="/wishlist"
+                className="relative flex items-center p-1.5 text-[#9E7428] hover:scale-105 transition"
                 aria-label="Wishlist"
               >
                 <Heart size={18} />
@@ -328,14 +328,14 @@ export function Header() {
               </Link>
 
               {/* Shopping Bag Button */}
-              <button 
-                onClick={() => setMiniCartOpen(true)} 
-                className="relative flex items-center p-1.5 text-black hover:scale-105 transition"
+              <button
+                onClick={() => setMiniCartOpen(true)}
+                className="relative flex items-center p-1.5 text-[#9E7428] hover:scale-105 transition"
                 aria-label="Open Shopping Cart"
               >
                 <ShoppingBag size={20} />
                 {count > 0 && (
-                  <span className={`absolute top-0 right-0 bg-black text-white text-[8px] w-[17px] h-[17px] rounded-full flex items-center justify-center font-bold shadow-md ${badgePop ? "badge-pop" : ""}`}>
+                  <span className={`absolute top-0 right-0 bg-[#9E7428] text-white text-[8px] w-[17px] h-[17px] rounded-full flex items-center justify-center font-bold shadow-md ${badgePop ? "badge-pop" : ""}`}>
                     {count}
                   </span>
                 )}
@@ -352,17 +352,17 @@ export function Header() {
               const hasChildren = !!item.children
 
               return (
-                <div 
+                <div
                   key={label}
                   className="relative h-full flex items-center group"
                   onMouseEnter={() => hasChildren && handleMouseEnter(label)}
                   onMouseLeave={handleMouseLeave}
                 >
-                  <button 
+                  <button
                     onClick={() => {
                       if (item.path) handleNavigation(item.path)
                     }}
-                    className="flex items-center gap-1 hover:text-black transition duration-200 py-3 text-left focus:outline-none"
+                    className="flex items-center gap-1 hover:text-[#9E7428] transition duration-200 py-3 text-left focus:outline-none"
                   >
                     <span>{label}</span>
                     {hasChildren && <ChevronDown size={12} className="opacity-60 group-hover:rotate-180 transition-transform duration-300" />}
@@ -378,7 +378,7 @@ export function Header() {
                             <button
                               key={subLabel}
                               onClick={() => handleNavigation(sub.path)}
-                              className="px-5 py-2.5 text-left text-[11.5px] tracking-[0.14em] text-[#5C5651] hover:text-black hover:bg-[#FDFBF8] transition duration-200 border-l-[2px] border-transparent hover:border-black font-medium"
+                              className="px-5 py-2.5 text-left text-[11.5px] tracking-[0.14em] text-[#5C5651] hover:text-[#9E7428] hover:bg-[#FDFBF8] transition duration-200 border-l-[2px] border-transparent hover:border-[#9E7428] font-medium"
                             >
                               {subLabel}
                             </button>
@@ -392,8 +392,8 @@ export function Header() {
             })}
 
             {user?.role === "admin" && (
-              <Link 
-                to="/admin" 
+              <Link
+                to="/admin"
                 className="text-[#825F59] hover:text-red-800 transition duration-200 font-semibold"
               >
                 Admin
@@ -411,46 +411,46 @@ export function Header() {
                 value={searchQuery}
                 onChange={e => setSearchQuery(e.target.value)}
                 placeholder={lang === "zh" ? "搜尋產品名稱、系列、護理功效..." : "Search products, series, facial care..."}
-                className="flex-1 border border-[#ECE6DF] h-11 px-4 text-[13px] rounded-[3px] bg-white outline-none focus:border-black transition duration-200"
+                className="flex-1 border border-[#ECE6DF] h-11 px-4 text-[13px] rounded-[3px] bg-white outline-none focus:border-[#9E7428] transition duration-200"
               />
-              <button type="submit" className="bg-[#111] text-white px-6 h-11 text-[11px] tracking-[0.18em] uppercase font-semibold hover:bg-black transition duration-200 rounded-[3px]">{lang === "zh" ? "搜尋" : "Search"}</button>
-              <button type="button" onClick={() => setSearchOpen(false)} className="border border-[#ECE6DF] px-4 h-11 text-[11px] text-[#8F8881] hover:text-black transition rounded-[3px]">{lang === "zh" ? "取消" : "Cancel"}</button>
+              <button type="submit" className="bg-[#9E7428] text-white px-6 h-11 text-[11px] tracking-[0.18em] uppercase font-semibold hover:bg-[#8F6824] transition duration-200 rounded-[3px]">{lang === "zh" ? "搜尋" : "Search"}</button>
+              <button type="button" onClick={() => setSearchOpen(false)} className="border border-[#ECE6DF] px-4 h-11 text-[11px] text-[#8F8881] hover:text-[#9E7428] transition rounded-[3px]">{lang === "zh" ? "取消" : "Cancel"}</button>
             </form>
           </div>
         )}
       </header>
 
-      {/* 
+      {/*
         Mobile Navigation Drawer (Rendered at Root level, completely OUTSIDE the sticky/backdrop header).
         This guarantees the menu is never stuck inside the header box or clipped by layout overflow!
       */}
       {mobileOpen && (
-        <div 
+        <div
           className="md:hidden fixed inset-0 z-[100] flex"
           onClick={() => setMobileOpen(false)}
         >
           {/* Blur Backdrop */}
-          <div className="fixed inset-0 bg-black/55 backdrop-blur-sm transition-opacity" />
-          
+          <div className="fixed inset-0 bg-[#9E7428]/55 backdrop-blur-sm transition-opacity" />
+
           {/* Drawer Panel */}
-          <div 
+          <div
             className="relative bg-[#FDFBF8] w-[85vw] max-w-[350px] h-full shadow-2xl border-r border-[#ECE6DF] overflow-y-auto flex flex-col animate-slideRight z-[101]"
             onClick={(e) => e.stopPropagation()}
           >
             {/* Drawer Premium Header */}
             <div className="flex items-center justify-between px-6 py-5 border-b border-[#ECE6DF] bg-white select-none">
-              <span className="font-serif text-[28px] tracking-[0.18em] font-light text-black">CS12</span>
-              <button 
-                onClick={() => setMobileOpen(false)} 
-                aria-label="Close menu" 
-                className="p-1.5 text-black hover:opacity-60 transition"
+              <BrandLogo className="w-[106px] h-auto" />
+              <button
+                onClick={() => setMobileOpen(false)}
+                aria-label="Close menu"
+                className="p-1.5 text-[#9E7428] hover:opacity-60 transition"
               >
                 <X size={22} />
               </button>
             </div>
 
             <div className="p-6 flex-1 space-y-5">
-              
+
               {/* Search in Mobile Drawer */}
               <form onSubmit={handleSearch} className="relative flex items-center border border-[#ECE6DF] rounded-[4px] bg-white px-3 py-2">
                 <input
@@ -459,7 +459,7 @@ export function Header() {
                   placeholder={lang === "zh" ? "搜尋關鍵字..." : "Search..."}
                   className="flex-1 text-[12px] bg-transparent outline-none text-[#111]"
                 />
-                <button type="submit" className="text-[#8F8881] hover:text-black">
+                <button type="submit" className="text-[#8F8881] hover:text-[#9E7428]">
                   <Search size={15} />
                 </button>
               </form>
@@ -482,19 +482,19 @@ export function Header() {
                               handleNavigation(item.path)
                             }
                           }}
-                          className="text-[13px] tracking-[0.12em] uppercase font-semibold text-[#3A3734] hover:text-black text-left flex-1 py-2"
+                          className="text-[13px] tracking-[0.12em] uppercase font-semibold text-[#3A3734] hover:text-[#9E7428] text-left flex-1 py-2"
                         >
                           {label}
                         </button>
                         {hasChildren && (
-                          <button 
+                          <button
                             onClick={() => toggleMobileExpanded(label)}
                             className="p-2 focus:outline-none"
                             aria-label="Expand submenu"
                           >
-                            <ChevronDown 
-                              size={16} 
-                              className={`text-[#8F8881] transition-transform duration-300 ${isExpanded ? "rotate-180 text-black" : ""}`} 
+                            <ChevronDown
+                              size={16}
+                              className={`text-[#8F8881] transition-transform duration-300 ${isExpanded ? "rotate-180 text-[#9E7428]" : ""}`}
                             />
                           </button>
                         )}
@@ -509,7 +509,7 @@ export function Header() {
                               <button
                                 key={subLabel}
                                 onClick={() => handleNavigation(sub.path)}
-                                className="block text-left text-[12px] tracking-[0.08em] text-[#5C5651] hover:text-black w-full py-2 font-medium"
+                                className="block text-left text-[12px] tracking-[0.08em] text-[#5C5651] hover:text-[#9E7428] w-full py-2 font-medium"
                               >
                                 {subLabel}
                               </button>
@@ -526,7 +526,7 @@ export function Header() {
                   <Link
                     to="/wishlist"
                     onClick={() => setMobileOpen(false)}
-                    className="block text-[13px] tracking-[0.12em] uppercase font-semibold text-[#3A3734] hover:text-black py-2"
+                    className="block text-[13px] tracking-[0.12em] uppercase font-semibold text-[#3A3734] hover:text-[#9E7428] py-2"
                   >
                     {lang === "zh" ? "願望清單" : "Wishlist"} {wishlistItems.length > 0 && `(${wishlistItems.length})`}
                   </Link>
@@ -537,7 +537,7 @@ export function Header() {
                   <Link
                     to={user ? "/account" : "/login"}
                     onClick={() => setMobileOpen(false)}
-                    className="block text-[13px] tracking-[0.12em] uppercase font-semibold text-[#3A3734] hover:text-black py-2"
+                    className="block text-[13px] tracking-[0.12em] uppercase font-semibold text-[#3A3734] hover:text-[#9E7428] py-2"
                   >
                     {user ? (lang === "zh" ? "我的會員帳戶" : "My Account") : (lang === "zh" ? "會員登入 / 註冊" : "Login / Register")}
                   </Link>
@@ -562,18 +562,18 @@ export function Header() {
               <div className="flex justify-between items-center text-[11px] text-[#8F8881]">
                 <span>{lang === "zh" ? "選擇語言：" : "Language:"}</span>
                 <div className="flex gap-3">
-                  <button onClick={() => { setLang("zh"); setMobileOpen(false) }} className={`${lang === "zh" ? "text-black font-bold underline" : ""}`}>繁體中文</button>
-                  <button onClick={() => { setLang("en"); setMobileOpen(false) }} className={`${lang === "en" ? "text-black font-bold underline" : ""}`}>English</button>
+                  <button onClick={() => { setLang("zh"); setMobileOpen(false) }} className={`${lang === "zh" ? "text-[#9E7428] font-bold underline" : ""}`}>繁體中文</button>
+                  <button onClick={() => { setLang("en"); setMobileOpen(false) }} className={`${lang === "en" ? "text-[#9E7428] font-bold underline" : ""}`}>English</button>
                 </div>
               </div>
 
               {user && (
-                <button 
+                <button
                   onClick={() => {
                     logout()
                     setMobileOpen(false)
                     nav("/")
-                  }} 
+                  }}
                   className="w-full text-center py-2 border border-[#825F59] text-[#825F59] text-[11px] tracking-[0.16em] uppercase font-bold hover:bg-[#825F59] hover:text-white transition duration-200"
                 >
                   {lang === "zh" ? "登出帳戶" : "Log Out"}

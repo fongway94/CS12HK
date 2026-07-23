@@ -60,8 +60,8 @@ export function CartPage() {
         <h1 className="font-serif text-[32px] mb-3">{lang==="zh"?"您的購物車裡還沒有任何商品":"Your cart is empty"}</h1>
         <p className="text-[13px] text-[#8F8881] mb-8">{lang==="zh"?"開始探索我們的敏感肌修護產品":"Explore our sensitive skin care products"}</p>
         <div className="flex gap-3 justify-center">
-          <Link to="/exclusive" className="inline-flex bg-[#111] text-white px-8 h-[44px] items-center text-[11px] tracking-[0.18em] uppercase">{lang==="zh"?"官網限定":"Exclusive"}</Link>
-          <Link to="/shop" className="inline-flex border border-[#111] px-8 h-[44px] items-center text-[11px] tracking-[0.18em] uppercase">{lang==="zh"?"全部產品":"All Products"}</Link>
+          <Link to="/exclusive" className="inline-flex bg-[#9E7428] text-white px-8 h-[44px] items-center text-[11px] tracking-[0.18em] uppercase">{lang==="zh"?"官網限定":"Exclusive"}</Link>
+          <Link to="/shop" className="inline-flex border border-[#9E7428] text-[#9E7428] px-8 h-[44px] items-center text-[11px] tracking-[0.18em] uppercase">{lang==="zh"?"全部產品":"All Products"}</Link>
         </div>
       </div>
     </main>
@@ -104,7 +104,7 @@ export function CartPage() {
         </div>
 
         {giftTier ? (
-          <div className="mt-6 bg-[#111] text-white p-4 text-[12px]">
+          <div className="mt-6 bg-[#9E7428] text-white p-4 text-[12px]">
             {lang==="zh"
               ? `🎉 已符合 ${giftTier.label_zh} 禮遇！將獲贈 ${giftTier.gifts.reduce((a,b)=>a+b.qty,0)} 件禮品 (價值 HK$${giftTier.giftValueHKD})`
               : `🎉 You've unlocked ${giftTier.label_en}! Receive ${giftTier.gifts.reduce((a,b)=>a+b.qty,0)} complimentary gifts (value HK$${giftTier.giftValueHKD})`
@@ -116,7 +116,7 @@ export function CartPage() {
               ? (lang==="zh"?`再買 HK$${3000-subtotal.hkd} 即享10件贈品禮遇`:`Add HK$${3000-subtotal.hkd} for 10-gift tier`)
               : (lang==="zh"?`再買 HK$${2000-subtotal.hkd} 即享6件贈品禮遇`:`Add HK$${2000-subtotal.hkd} for 6-gift tier`)
             }
-            <div className="mt-2 h-2 bg-[#F2ECE4] rounded overflow-hidden"><div className="h-2 bg-[#111] rounded transition-all duration-500" style={{width: `${Math.min(100, subtotal.hkd/3000*100)}%`}}></div></div>
+            <div className="mt-2 h-2 bg-[#F2ECE4] rounded overflow-hidden"><div className="h-2 bg-[#9E7428] rounded transition-all duration-500" style={{width: `${Math.min(100, subtotal.hkd/3000*100)}%`}}></div></div>
           </div>
         )}
       </section>
@@ -135,13 +135,13 @@ export function CartPage() {
           <label className="text-[10px] tracking-[0.18em] uppercase font-semibold">{lang==="zh"?"優惠碼":"Coupon Code"}</label>
           <div className="flex mt-2">
             <input value={couponInput} onChange={e=>setCouponInput(e.target.value.toUpperCase())} placeholder="NEWCS12" className="flex-1 border border-[#ECE6DF] px-3 h-9 text-[12px] uppercase"/>
-            <button onClick={applyCoupon} className="bg-[#111] text-white px-4 text-[11px] uppercase">{lang==="zh"?"套用":"Apply"}</button>
+            <button onClick={applyCoupon} className="bg-[#9E7428] text-white px-4 text-[11px] uppercase">{lang==="zh"?"套用":"Apply"}</button>
           </div>
           {couponMsg && <p className="text-[11px] mt-2 text-[#8F8881]">{couponMsg} {!couponCalc.valid && `(${couponCalc.reason})`}</p>}
         </div>
 
-        <Link to="/checkout" className="mt-6 w-full bg-[#111] text-white h-[48px] flex items-center justify-center text-[12px] tracking-[0.18em] uppercase">{lang==="zh"?"去結帳":"Checkout"}</Link>
-        <button onClick={()=>{clear(); setCoupon(null); setCouponObj(null); showToast("info", lang==="zh"?"購物車已清空":"Cart cleared")}} className="mt-2 w-full border border-[#111] h-[42px] text-[11px] uppercase">{lang==="zh"?"清空購物車":"Clear Cart"}</button>
+        <Link to="/checkout" className="mt-6 w-full bg-[#9E7428] text-white h-[48px] flex items-center justify-center text-[12px] tracking-[0.18em] uppercase">{lang==="zh"?"去結帳":"Checkout"}</Link>
+        <button onClick={()=>{clear(); setCoupon(null); setCouponObj(null); showToast("info", lang==="zh"?"購物車已清空":"Cart cleared")}} className="mt-2 w-full border border-[#9E7428] text-[#9E7428] h-[42px] text-[11px] uppercase">{lang==="zh"?"清空購物車":"Clear Cart"}</button>
 
         <div className="mt-6 border-t border-[#F2ECE4] pt-4 text-[11px] text-[#8F8881] leading-relaxed">
           <p>{lang==="zh"?`• 積分回贈：本次可獲 ${Math.floor(subtotal.hkd)} 積分`:`• Points earned: ${Math.floor(subtotal.hkd)} points this order`}</p>

@@ -4,6 +4,7 @@ import { useThemeStore } from "../../stores/useThemeStore"
 import { showToast } from "../ui/Toast"
 import { useState } from "react"
 import { subscribeToNewsletter } from "../../lib/newsletter/subscribe"
+import { BrandLogo } from "../ui/BrandLogo"
 
 export function Footer() {
   const { lang } = useAppStore()
@@ -33,7 +34,7 @@ export function Footer() {
     <footer className="border-t border-[#ECE6DF] mt-20 bg-white">
       <div className="w-[min(calc(100%-24px),1440px)] mx-auto py-16 grid md:grid-cols-4 gap-12 text-[13px] leading-relaxed">
         <div>
-          <h4 className="font-serif text-[22px] tracking-[0.12em] mb-4">CS12</h4>
+          <BrandLogo className="w-[104px] h-auto mb-4" />
           <p className="text-[#5C5651]">{lang==="zh"?"敏感肌修復專家，為敏感肌而生的溫和醫研修護。有效療癒敏感肌、濕疹、玫瑰痤瘡。":"Sensitive skin repair specialist. Gentle medical-grade care for eczema, rosacea, redness."}</p>
         </div>
         <div>
@@ -67,7 +68,7 @@ export function Footer() {
         <div>
           <h5 className="text-[10px] tracking-[0.2em] uppercase font-semibold text-[#8F8881] mb-4">Newsletter</h5>
           <p className="text-[#5C5651] text-[12px] mb-3">{lang==="zh"?"訂閱獲取最新優惠及抗敏護膚技巧":"Get offers & repair tips."}</p>
-          <form onSubmit={handleNewsletter} className="flex border border-[#111]">
+          <form onSubmit={handleNewsletter} className="flex border border-[#9E7428]">
             <input
               type="email"
               value={newsletterEmail}
@@ -76,7 +77,7 @@ export function Footer() {
               className="flex-1 px-3 py-2 text-[12px] outline-none"
               required
             />
-            <button type="submit" className="bg-[#111] text-white px-4 text-[10px] tracking-[0.18em] uppercase">→</button>
+            <button type="submit" className="bg-[#9E7428] text-white px-4 text-[10px] tracking-[0.18em] uppercase">→</button>
           </form>
           <div className="mt-6 flex gap-3 text-[11px]">
             <a href={settings.instagramUrl} target="_blank" rel="noopener" className="border border-[#ECE6DF] px-3 py-1 hover:bg-[#FBF6F0] transition">Instagram</a>
