@@ -2,7 +2,9 @@ import { Link, useNavigate } from "react-router-dom"
 import { useCartStore } from "../../stores/useCartStore"
 import { useAppStore } from "../../stores/useAppStore"
 import { useAuthStore } from "../../stores/useAuthStore"
-import { ShoppingBag, User, X, Search, ChevronDown, Menu } from "lucide-react"
+import { useWishlistStore } from "../../stores/useWishlistStore"
+import { useThemeStore } from "../../stores/useThemeStore"
+import { ShoppingBag, User, X, Search, ChevronDown, Menu, Heart } from "lucide-react"
 import { useState, useRef, useEffect } from "react"
 import { MiniCart } from "../cart/MiniCart"
 
@@ -23,6 +25,8 @@ export function Header() {
   const { items } = useCartStore()
   const { currency, setCurrency, lang, setLang } = useAppStore()
   const { user, logout } = useAuthStore()
+  const { items: wishlistItems } = useWishlistStore()
+  const { settings } = useThemeStore()
   const [mobileOpen, setMobileOpen] = useState(false)
   const [searchOpen, setSearchOpen] = useState(false)
   const [searchQuery, setSearchQuery] = useState("")
@@ -176,22 +180,21 @@ export function Header() {
   return (
     <>
       {/* Top Campaign Announcement Bar */}
-      <div className="bg-gradient-to-r from-[#F4ECE1] via-[#F7F3EB] to-[#F0E8D8] border-b border-[#ECE6DF] text-center py-[10px] px-4 transition-all duration-300">
-        <p className="text-[10px] sm:text-[11px] tracking-[0.18em] uppercase text-[#3A3734] font-medium leading-relaxed">
-          {lang === "zh" 
-            ? "官網限定｜滿 HK$800 免費送貨 · 首購滿 HK$1,500 輸入 NEWCS12 享 15% OFF" 
-            : "ONLINE EXCLUSIVE | FREE SHIPPING OVER HK$800 · 15% OFF FIRST ORDER CODE NEWCS12"
-          }
-        </p>
-      </div>
+      {settings.announcementBarActive && (
+        <div className="bg-gradient-to-r from-[#F4ECE1] via-[#F7F3EB] to-[#F0E8D8] border-b border-[#ECE6DF] text-center py-[10px] px-4 transition-all duration-300">
+          <p className="text-[10px] sm:text-[11px] tracking-[0.18em] uppercase text-[#3A3734] font-medium leading-relaxed">
+            {lang === "zh" ? settings.announcementBar_zh : settings.announcementBar_en}
+          </p>
+        </div>
+      )}
 
       <header className="sticky top-0 z-50 bg-[rgba(253,251,248,0.95)] backdrop-blur-[16px] border-b border-[#ECE6DF]">
         <div className="h-[74px] flex items-center">
-          <div className="w-[min(calc(100%-48px),1440px)] mx-auto flex items-center justify-between relative h-full">
+          <div className="w-[min(calc(100%-24px),1440px)] mx-auto flex items-center justify-between relative h-full">
             
             {/* Mobile Menu Hamburger */}
             <button 
-              className="md:hidden w-8 h-8 flex flex-col justify-center gap-[6px] focus:outline-none" 
+              className="md:hidden w-8 h-8 flex flex-col justify-center gap-[6px] focus:outline-none relative z-[51]" 
               onClick={() => setMobileOpen(!mobileOpen)}
               aria-label="Toggle Navigation Menu"
             >
@@ -269,6 +272,20 @@ export function Header() {
                 {user ? (lang === "zh" ? "帳戶" : "Account") : (lang === "zh" ? "登入" : "Login")}
               </Link>
 
+              {/* Wishlist Button */}
+              <Link 
+                to="/wishlist" 
+                className="relative flex items-center p-1.5 text-black hover:scale-105 transition"
+                aria-label="Wishlist"
+              >
+                <Heart size={18} />
+                {wishlistItems.length > 0 && (
+                  <span className="absolute top-0 right-0 bg-[#825F59] text-white text-[8px] w-[15px] h-[15px] rounded-full flex items-center justify-center font-bold">
+                    {wishlistItems.length}
+                  </span>
+                )}
+              </Link>
+
               {/* Shopping Bag Button */}
               <button 
                 onClick={() => setMiniCartOpen(true)} 
@@ -288,7 +305,7 @@ export function Header() {
 
         {/* Desktop Sophisticated Navigation Dropdowns */}
         <nav className="hidden md:block border-t border-[#ECE6DF] relative">
-          <div className="w-[min(calc(100%-48px),1440px)] mx-auto flex justify-center gap-10 h-12 items-center text-[11px] tracking-[0.2em] uppercase font-semibold text-[#4A4642]">
+          <div className="w-[min(calc(100%-24px),1440px)] mx-auto flex justify-center gap-10 h-12 items-center text-[11px] tracking-[0.2em] uppercase font-semibold text-[#4A4642]">
             {menuItems.map((item) => {
               const label = lang === "zh" ? item.label_zh : item.label_en
               const hasChildren = !!item.children
@@ -346,12 +363,20 @@ export function Header() {
 
         {/* Mobile Navigation Drawer / Sidebar */}
         {mobileOpen && (
-          <div className="md:hidden fixed inset-0 top-[128px] bg-black/45 backdrop-blur-sm z-40 transition-opacity" onClick={() => setMobileOpen(false)}>
+          <div 
+            className="md:hidden fixed inset-0 z-[40]"
+            onClick={() => setMobileOpen(false)}
+          >
+            {/* Backdrop */}
+            <div className="absolute inset-0 bg-black/50 backdrop-blur-sm" />
+            
+            {/* Drawer Panel */}
             <div 
-              className="bg-[#FDFBF8] w-4/5 max-w-[340px] h-full shadow-2xl border-r border-[#ECE6DF] overflow-y-auto flex flex-col animate-slideRight"
+              className="absolute top-0 left-0 bg-[#FDFBF8] w-[85vw] max-w-[360px] h-full shadow-2xl border-r border-[#ECE6DF] overflow-y-auto flex flex-col animate-slideRight z-[41]"
               onClick={(e) => e.stopPropagation()}
+              style={{ paddingTop: "128px" }}
             >
-              <div className="p-6 flex-1 space-y-6">
+              <div className="p-6 flex-1 space-y-5">
                 
                 {/* Search in Mobile Drawer */}
                 <form onSubmit={handleSearch} className="relative flex items-center border border-[#ECE6DF] rounded-[4px] bg-white px-3 py-2">
@@ -367,14 +392,14 @@ export function Header() {
                 </form>
 
                 {/* Mobile Navigation Links Accordion */}
-                <div className="space-y-4">
+                <div className="space-y-1">
                   {menuItems.map((item) => {
                     const label = lang === "zh" ? item.label_zh : item.label_en
                     const hasChildren = !!item.children
                     const isExpanded = mobileExpanded === label
 
                     return (
-                      <div key={label} className="border-b border-[#ECE6DF]/50 pb-3">
+                      <div key={label} className="border-b border-[#ECE6DF]/50 pb-2 pt-2">
                         <div className="flex items-center justify-between">
                           <button
                             onClick={() => {
@@ -384,14 +409,14 @@ export function Header() {
                                 handleNavigation(item.path)
                               }
                             }}
-                            className="text-[13px] tracking-[0.16em] uppercase font-semibold text-[#3A3734] hover:text-black text-left w-full py-1"
+                            className="text-[13px] tracking-[0.12em] uppercase font-semibold text-[#3A3734] hover:text-black text-left flex-1 py-2"
                           >
                             {label}
                           </button>
                           {hasChildren && (
                             <button 
                               onClick={() => toggleMobileExpanded(label)}
-                              className="p-1 focus:outline-none"
+                              className="p-2 focus:outline-none"
                             >
                               <ChevronDown 
                                 size={16} 
@@ -403,14 +428,14 @@ export function Header() {
 
                         {/* Accordion Children */}
                         {hasChildren && isExpanded && (
-                          <div className="mt-2 pl-4 space-y-2.5 border-l border-[#EAD8BE] ml-1 py-1 animate-slideDown">
+                          <div className="mt-1 pl-4 space-y-1 border-l-2 border-[#EAD8BE] ml-1 pb-2">
                             {item.children?.map((sub) => {
                               const subLabel = lang === "zh" ? sub.label_zh : sub.label_en
                               return (
                                 <button
                                   key={subLabel}
                                   onClick={() => handleNavigation(sub.path)}
-                                  className="block text-left text-[12px] tracking-[0.12em] text-[#5C5651] hover:text-black w-full py-1 font-medium"
+                                  className="block text-left text-[12px] tracking-[0.08em] text-[#5C5651] hover:text-black w-full py-2 font-medium"
                                 >
                                   {subLabel}
                                 </button>
@@ -422,23 +447,34 @@ export function Header() {
                     )
                   })}
 
+                  {/* Wishlist Link */}
+                  <div className="border-b border-[#ECE6DF]/50 pb-2 pt-2">
+                    <Link
+                      to="/wishlist"
+                      onClick={() => setMobileOpen(false)}
+                      className="block text-[13px] tracking-[0.12em] uppercase font-semibold text-[#3A3734] hover:text-black py-2"
+                    >
+                      {lang === "zh" ? "願望清單" : "Wishlist"} {wishlistItems.length > 0 && `(${wishlistItems.length})`}
+                    </Link>
+                  </div>
+
                   {/* Account Link in Mobile List */}
-                  <div className="border-b border-[#ECE6DF]/50 pb-3">
+                  <div className="border-b border-[#ECE6DF]/50 pb-2 pt-2">
                     <Link
                       to={user ? "/account" : "/login"}
                       onClick={() => setMobileOpen(false)}
-                      className="block text-[13px] tracking-[0.16em] uppercase font-semibold text-[#3A3734] hover:text-black py-1"
+                      className="block text-[13px] tracking-[0.12em] uppercase font-semibold text-[#3A3734] hover:text-black py-2"
                     >
                       {user ? (lang === "zh" ? "我的會員帳戶" : "My Account") : (lang === "zh" ? "會員登入 / 註冊" : "Login / Register")}
                     </Link>
                   </div>
 
                   {user?.role === "admin" && (
-                    <div className="border-b border-[#ECE6DF]/50 pb-3">
+                    <div className="border-b border-[#ECE6DF]/50 pb-2 pt-2">
                       <Link
                         to="/admin"
                         onClick={() => setMobileOpen(false)}
-                        className="block text-[13px] tracking-[0.16em] uppercase font-semibold text-[#825F59] py-1"
+                        className="block text-[13px] tracking-[0.12em] uppercase font-semibold text-[#825F59] py-2"
                       >
                         Admin Dashboard
                       </Link>
@@ -477,7 +513,7 @@ export function Header() {
         {/* Search Bar Panel Slider */}
         {searchOpen && (
           <div className="border-t border-[#ECE6DF] bg-[#FDFBF8] transition-all duration-300 shadow-md">
-            <form onSubmit={handleSearch} className="w-[min(calc(100%-48px),1440px)] mx-auto py-4 flex gap-3">
+            <form onSubmit={handleSearch} className="w-[min(calc(100%-24px),1440px)] mx-auto py-4 flex gap-3">
               <input
                 autoFocus
                 value={searchQuery}

@@ -69,7 +69,7 @@ export function ProductDetailPage() {
   const desc = lang==="zh"?product.description_zh:product.description_en
 
   return (
-    <main className="w-[min(calc(100%-48px),1440px)] mx-auto py-8">
+    <main className="w-[min(calc(100%-24px),1440px)] mx-auto py-6 md:py-8">
       <div className="text-[11px] text-[#8F8881] mb-4"><Link to="/shop">Shop</Link> / {product.series} / {name}</div>
       <div className="grid md:grid-cols-2 gap-10">
         <div className="space-y-4">
@@ -111,25 +111,49 @@ export function ProductDetailPage() {
 
           <div className="mt-10 border-t border-[#ECE6DF]">
             <div className="flex gap-6 text-[11px] tracking-[0.14em] uppercase mt-4">
-              <button onClick={()=>setTab("desc")} className={`pb-2 border-b ${tab==="desc"?"border-black":"border-transparent text-[#8F8881]"}`}>描述</button>
-              <button onClick={()=>setTab("info")} className={`pb-2 border-b ${tab==="info"?"border-black":"border-transparent text-[#8F8881]"}`}>額外資訊</button>
-              <button onClick={()=>setTab("reviews")} className={`pb-2 border-b ${tab==="reviews"?"border-black":"border-transparent text-[#8F8881]"}`}>評價 ({reviews.length})</button>
+              <button onClick={()=>setTab("desc")} className={`pb-2 border-b ${tab==="desc"?"border-black":"border-transparent text-[#8F8881]"}`}>{lang==="zh"?"描述":"Description"}</button>
+              <button onClick={()=>setTab("info")} className={`pb-2 border-b ${tab==="info"?"border-black":"border-transparent text-[#8F8881]"}`}>{lang==="zh"?"額外資訊":"Additional Info"}</button>
+              <button onClick={()=>setTab("reviews")} className={`pb-2 border-b ${tab==="reviews"?"border-black":"border-transparent text-[#8F8881]"}`}>{lang==="zh"?"評價":"Reviews"} ({reviews.length})</button>
             </div>
             <div className="py-6 text-[13px] leading-relaxed text-[#3A3734]">
               {tab==="desc" && (
                 <div>
                   <p>{desc}</p>
                   <ul className="mt-4 list-disc pl-5 space-y-1 text-[#5C5651]">
-                    <li>促進皮膚深層細胞新陳代謝</li>
-                    <li>舒緩敏感和發炎皮膚</li>
-                    <li>退紅消腫和鎮靜刺激性皮膚</li>
-                    <li>達到深層潔淨和提亮肌膚光澤</li>
-                    <li>持久保濕和鎖住水分</li>
+                    {lang==="zh" ? (
+                      <>
+                        <li>促進皮膚深層細胞新陳代謝</li>
+                        <li>舒緩敏感和發炎皮膚</li>
+                        <li>退紅消腫和鎮靜刺激性皮膚</li>
+                        <li>達到深層潔淨和提亮肌膚光澤</li>
+                        <li>持久保濕和鎖住水分</li>
+                      </>
+                    ) : (
+                      <>
+                        <li>Promotes deep cellular skin metabolism</li>
+                        <li>Soothes sensitive and inflamed skin</li>
+                        <li>Reduces redness, swelling, and calms irritated skin</li>
+                        <li>Deep cleansing and skin radiance enhancement</li>
+                        <li>Long-lasting hydration and moisture lock</li>
+                      </>
+                    )}
                   </ul>
-                  <p className="mt-4 text-[11px] text-[#8F8881]">適合膚質：所有膚質，包括普通、敏感、乾性、油性、暗沉肌膚<br/>配方證明：美國FDA認可、抗敏專利配方</p>
+                  <p className="mt-4 text-[11px] text-[#8F8881]">
+                    {lang==="zh"
+                      ? <>適合膚質：所有膚質，包括普通、敏感、乾性、油性、暗沉肌膚<br/>配方證明：美國FDA認可、抗敏專利配方</>
+                      : <>Suitable for: All skin types including normal, sensitive, dry, oily, and dull skin<br/>Certification: US FDA recognized, patented anti-allergy formula</>
+                    }
+                  </p>
                 </div>
               )}
-              {tab==="info" && <p>重量 | {product.weight_kg} 公斤<br/>貨號: {product.sku}<br/>分類: {product.category.join(", ")}<br/>膚質: {product.skinType.join(", ")}</p>}
+              {tab==="info" && (
+                <div className="space-y-2">
+                  <p>{lang==="zh"?"重量":"Weight"} | {product.weight_kg} {lang==="zh"?"公斤":"kg"}</p>
+                  <p>{lang==="zh"?"貨號":"SKU"}: {product.sku}</p>
+                  <p>{lang==="zh"?"分類":"Category"}: {product.category.join(", ")}</p>
+                  <p>{lang==="zh"?"膚質":"Skin Type"}: {product.skinType.join(", ")}</p>
+                </div>
+              )}
               {tab==="reviews" && (
                 <div>
                   {reviews.length === 0 ? (

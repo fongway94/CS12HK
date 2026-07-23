@@ -1,5 +1,5 @@
 import { DBClient } from "./client"
-import { Product, User, Order, Coupon, GiftTier, PointsTransaction, BirthdayReward } from "./types"
+import { Product, User, Order, Coupon, GiftTier, PointsTransaction, BirthdayReward, SiteSettings, DEFAULT_SITE_SETTINGS } from "./types"
 import { products as seedProducts } from "../../data/products"
 import { coupons as seedCoupons, giftTiers as seedGiftTiers } from "../../data/promotions"
 
@@ -10,6 +10,7 @@ const LS_COUPONS = "cs12_coupons"
 const LS_GIFT_TIERS = "cs12_gift_tiers"
 const LS_POINTS = "cs12_points"
 const LS_BIRTHDAY = "cs12_birthday"
+const LS_SETTINGS = "cs12_site_settings"
 
 function isBrowser() {
   try {
@@ -40,6 +41,7 @@ export class LocalDBAdapter implements DBClient {
   private giftTiers: GiftTier[]
   private points: PointsTransaction[]
   private birthday: BirthdayReward[]
+  private siteSettings: SiteSettings
 
   constructor() {
     const hasInitiated = (() => {
@@ -70,6 +72,7 @@ export class LocalDBAdapter implements DBClient {
       this.giftTiers = seedGiftTiers
       this.points = []
       this.birthday = []
+      this.siteSettings = DEFAULT_SITE_SETTINGS
       this.persist()
     } else {
       this.products = load<Product[]>(LS_PRODUCTS, seedProducts)
@@ -79,6 +82,7 @@ export class LocalDBAdapter implements DBClient {
       this.giftTiers = load<GiftTier[]>(LS_GIFT_TIERS, seedGiftTiers)
       this.points = load<PointsTransaction[]>(LS_POINTS, [])
       this.birthday = load<BirthdayReward[]>(LS_BIRTHDAY, [])
+      this.siteSettings = load<SiteSettings>(LS_SETTINGS, DEFAULT_SITE_SETTINGS)
       // Merge new seed products not in stored to allow updates
       const existingIds = new Set(this.products.map(p => p.id))
       for (const p of seedProducts) {
@@ -95,6 +99,7 @@ export class LocalDBAdapter implements DBClient {
     save(LS_GIFT_TIERS, this.giftTiers)
     save(LS_POINTS, this.points)
     save(LS_BIRTHDAY, this.birthday)
+    save(LS_SETTINGS, this.siteSettings)
   }
 
   async getProducts() { return [...this.products] }
@@ -132,13 +137,24 @@ export class LocalDBAdapter implements DBClient {
     const idx = this.coupons.findIndex(c => c.code === code)
     if (idx >= 0) { this.coupons[idx] = { ...this.coupons[idx], ...patch }; this.persist() }
   }
+  async deleteCoupon(code: string) {
+    this.coupons = this.coupons.filter(c => c.code !== code)
+    this.persist()
+  }
 
   async getGiftTiers() { return [...this.giftTiers] }
+  async updateGiftTiers(tiers: GiftTier[]) { this.giftTiers = tiers; this.persist() }
 
   async addPointsTransaction(tx: PointsTransaction) { this.points.push(tx); this.persist() }
 
   async getBirthdayRewards(userId: string) { return this.birthday.filter(r => r.userId === userId) }
   async createBirthdayReward(r: BirthdayReward) { this.birthday.push(r); this.persist() }
+
+  async getSiteSettings() { return { ...this.siteSettings } }
+  async updateSiteSettings(patch: Partial<SiteSettings>) {
+    this.siteSettings = { ...this.siteSettings, ...patch, updatedAt: new Date().toISOString() }
+    this.persist()
+  }
 }
 
 // initializer to be called from app startup

@@ -3,12 +3,16 @@ import { Product } from "../../lib/db/types"
 import { useAppStore } from "../../stores/useAppStore"
 import { formatPrice } from "../../lib/currency"
 import { useCartStore } from "../../stores/useCartStore"
+import { useWishlistStore } from "../../stores/useWishlistStore"
 import { showToast } from "../ui/Toast"
+import { Heart } from "lucide-react"
 
 export function ProductCard({ product }: { product: Product }) {
   const { currency, lang } = useAppStore()
   const { addItem, items } = useCartStore()
+  const { toggle: toggleWishlist, has: isWishlisted } = useWishlistStore()
   const name = lang==="zh"?product.name_zh:product.name_en
+  const wishlisted = isWishlisted(product.id)
   const priceHKD = product.price_hkd
   const priceUSD = product.price_usd
   const origHKD = product.original_price_hkd
@@ -44,6 +48,14 @@ export function ProductCard({ product }: { product: Product }) {
         {product.isBundle && product.bundleGiftLabel && (
           <span className="absolute top-3 left-3 bg-[#111] text-white text-[9px] tracking-[0.12em] px-2 py-1">{product.bundleGiftLabel}</span>
         )}
+        {/* Wishlist Button */}
+        <button
+          onClick={(e) => { e.preventDefault(); e.stopPropagation(); toggleWishlist(product.id); showToast("info", wishlisted ? (lang==="zh"?"已從願望清單移除":"Removed from wishlist") : (lang==="zh"?"已加入願望清單":"Added to wishlist")) }}
+          className="absolute top-3 right-3 w-8 h-8 bg-white/80 backdrop-blur-sm border border-[#ECE6DF]/50 rounded-full flex items-center justify-center hover:bg-white transition-all z-10"
+          aria-label="Toggle wishlist"
+        >
+          <Heart size={14} className={wishlisted ? "fill-red-500 text-red-500" : "text-[#8F8881]"} />
+        </button>
       </Link>
       <div className="p-5">
         <p className="text-[9px] tracking-[0.18em] uppercase text-[#8F8881] mb-2">{product.series} • {product.category[0]}</p>

@@ -1,4 +1,4 @@
-import { HashRouter, Routes, Route } from "react-router-dom"
+import { HashRouter, Routes, Route, useLocation } from "react-router-dom"
 import { Component, type ErrorInfo, type ReactNode, useEffect } from "react"
 import { Header } from "../components/layout/Header"
 import { Footer } from "../components/layout/Footer"
@@ -11,10 +11,12 @@ import { LoginPage, RegisterPage } from "./routes/Auth"
 import { AccountPage } from "./routes/Account"
 import { CheckoutPage } from "./routes/Checkout"
 import { AdminPage } from "./routes/Admin"
+import { WishlistPage } from "./routes/Wishlist"
 import { initLocalDB } from "../lib/db/localAdapter"
 import { setDBClient } from "../lib/db/client"
 import { useAuthStore } from "../stores/useAuthStore"
 import { useAppStore } from "../stores/useAppStore"
+import { useThemeStore } from "../stores/useThemeStore"
 import { ToastContainer } from "../components/ui/Toast"
 
 let dbInitialized = false
@@ -73,17 +75,28 @@ class ErrorBoundary extends Component<{ children: ReactNode }, ErrorBoundaryStat
   }
 }
 
+function ScrollToTop() {
+  const { pathname, search } = useLocation()
+  useEffect(() => {
+    window.scrollTo({ top: 0, left: 0, behavior: "instant" as ScrollBehavior })
+  }, [pathname, search])
+  return null
+}
+
 function AppShell() {
   const fetchMe = useAuthStore(s=>s.fetchMe)
   const lang = useAppStore(s=>s.lang)
+  const loadSettings = useThemeStore(s=>s.loadSettings)
   useEffect(()=>{
     ensureDBSync()
     fetchMe()
+    loadSettings()
     document.body.dataset.lang = lang
   },[])
 
   return (
     <div className="min-h-screen flex flex-col">
+      <ScrollToTop />
       <Header />
       <div className="flex-1">
         <Routes>
@@ -97,6 +110,7 @@ function AppShell() {
           <Route path="/register" element={<RegisterPage />} />
           <Route path="/account" element={<AccountPage />} />
           <Route path="/admin" element={<AdminPage />} />
+          <Route path="/wishlist" element={<WishlistPage />} />
           <Route path="*" element={<div className="py-20 text-center">404 – Not Found<br/><a href="/" className="underline">Go Home</a></div>} />
         </Routes>
       </div>
