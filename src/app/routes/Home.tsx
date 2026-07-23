@@ -290,11 +290,11 @@ export function HomePage() {
       <section className="border-b border-[#ECE6DF]">
         {/* Miracle Mask Section */}
         <div className="grid md:grid-cols-2">
-          <div className="aspect-[4/5] md:aspect-auto h-[50vh] md:h-[90vh] overflow-hidden relative">
+          <div className="aspect-[4/5] md:aspect-auto h-[50vh] md:h-[90vh] overflow-hidden relative bg-white">
             <img 
               src="https://cs12skincare.com.hk/wp-content/uploads/2026/03/cs-12-253-E-720x1080.jpg" 
               alt="CS12 Miracle Mask"
-              className="w-full h-full object-cover hover:scale-102 transition duration-[1.5s]"
+              className="w-full h-full object-contain hover:scale-102 transition duration-[1.5s] p-4 md:p-8"
               loading="lazy"
             />
             <div className="absolute top-6 left-6 bg-white/90 backdrop-blur-sm px-4 py-2 border border-[#ECE6DF] text-[9.5px] tracking-[0.16em] uppercase font-bold">
@@ -383,11 +383,11 @@ export function HomePage() {
               </div>
             </div>
           </div>
-          <div className="aspect-[4/5] md:aspect-auto h-[50vh] md:h-[90vh] overflow-hidden order-1 md:order-2">
+          <div className="aspect-[4/5] md:aspect-auto h-[50vh] md:h-[90vh] overflow-hidden order-1 md:order-2 bg-white">
             <img 
               src="https://cs12skincare.com.hk/wp-content/uploads/2026/03/1O1A7491-E-scaled.jpg" 
               alt="CS12 #SOCALM"
-              className="w-full h-full object-cover hover:scale-102 transition duration-[1.5s]"
+              className="w-full h-full object-contain hover:scale-102 transition duration-[1.5s] p-4 md:p-8"
               loading="lazy"
             />
           </div>
