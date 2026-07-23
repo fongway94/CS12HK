@@ -1,10 +1,12 @@
 import { Link } from "react-router-dom"
 import { useAppStore } from "../../stores/useAppStore"
+import { useThemeStore } from "../../stores/useThemeStore"
 import { showToast } from "../ui/Toast"
 import { useState } from "react"
 
 export function Footer() {
   const { lang } = useAppStore()
+  const { settings } = useThemeStore()
   const [newsletterEmail, setNewsletterEmail] = useState("")
 
   const handleNewsletter = (e: React.FormEvent) => {
@@ -26,7 +28,7 @@ export function Footer() {
 
   return (
     <footer className="border-t border-[#ECE6DF] mt-20 bg-white">
-      <div className="w-[min(calc(100%-48px),1440px)] mx-auto py-16 grid md:grid-cols-4 gap-12 text-[13px] leading-relaxed">
+      <div className="w-[min(calc(100%-24px),1440px)] mx-auto py-16 grid md:grid-cols-4 gap-12 text-[13px] leading-relaxed">
         <div>
           <h4 className="font-serif text-[22px] tracking-[0.12em] mb-4">CS12</h4>
           <p className="text-[#5C5651]">{lang==="zh"?"敏感肌修復專家，為敏感肌而生的溫和醫研修護。有效療癒敏感肌、濕疹、玫瑰痤瘡。":"Sensitive skin repair specialist. Gentle medical-grade care for eczema, rosacea, redness."}</p>
@@ -35,10 +37,12 @@ export function Footer() {
           <h5 className="text-[10px] tracking-[0.2em] uppercase font-semibold text-[#8F8881] mb-4">{lang==="zh"?"選購":"Shop"}</h5>
           <ul className="space-y-2 text-[#3A3734]">
             <li><Link to="/exclusive">{lang==="zh"?"官網限定":"Exclusive"}</Link></li>
-            <li><Link to="/shop">{lang==="zh"?"暢銷產品":"Bestsellers"}</Link></li>
+            <li><Link to="/shop?cat=暢銷產品">{lang==="zh"?"暢銷產品":"Bestsellers"}</Link></li>
             <li><Link to="/shop?series=CalmEX">CalmEX</Link></li>
             <li><Link to="/shop?series=SoCalm">SoCalm</Link></li>
             <li><Link to="/shop?series=CellRevEX">CellRevEX</Link></li>
+            <li><Link to="/shop?cat=面膜">{lang==="zh"?"面膜":"Masks"}</Link></li>
+            <li><Link to="/shop?cat=防曬">{lang==="zh"?"防曬":"Sun Care"}</Link></li>
           </ul>
         </div>
         <div>
@@ -46,9 +50,16 @@ export function Footer() {
           <ul className="space-y-2 text-[#3A3734]">
             <li><Link to="/shop">{lang==="zh"?"配送及退貨":"Shipping & Returns"}</Link></li>
             <li><Link to="/shop">{lang==="zh"?"常見問題":"FAQ"}</Link></li>
-            <li><Link to="/shop">{lang==="zh"?"敏感肌須知":"Sensitive Skin Guide"}</Link></li>
+            <li><Link to="/#sensitive-skin-tips">{lang==="zh"?"敏感肌須知":"Sensitive Skin Guide"}</Link></li>
             <li><Link to="/shop">{lang==="zh"?"私隱政策":"Privacy Policy"}</Link></li>
+            <li><Link to="/account">{lang==="zh"?"我的帳戶":"My Account"}</Link></li>
+            <li><Link to="/wishlist">{lang==="zh"?"願望清單":"Wishlist"}</Link></li>
           </ul>
+          <div className="mt-6 text-[11px] text-[#8F8881] space-y-1">
+            <p>📧 {settings.contactEmail}</p>
+            <p>📞 {settings.contactPhone}</p>
+            <p>📍 {lang === "zh" ? settings.address_zh : settings.address_en}</p>
+          </div>
         </div>
         <div>
           <h5 className="text-[10px] tracking-[0.2em] uppercase font-semibold text-[#8F8881] mb-4">Newsletter</h5>
@@ -65,8 +76,8 @@ export function Footer() {
             <button type="submit" className="bg-[#111] text-white px-4 text-[10px] tracking-[0.18em] uppercase">→</button>
           </form>
           <div className="mt-6 flex gap-3 text-[11px]">
-            <a href="https://instagram.com/cs12skincare_hk" target="_blank" className="border border-[#ECE6DF] px-3 py-1 hover:bg-[#FBF6F0] transition">Instagram</a>
-            <a href="https://wa.me/85200000000" target="_blank" className="border border-[#ECE6DF] px-3 py-1 hover:bg-[#FBF6F0] transition">WhatsApp CS</a>
+            <a href={settings.instagramUrl} target="_blank" rel="noopener" className="border border-[#ECE6DF] px-3 py-1 hover:bg-[#FBF6F0] transition">Instagram</a>
+            <a href={settings.whatsappUrl} target="_blank" rel="noopener" className="border border-[#ECE6DF] px-3 py-1 hover:bg-[#FBF6F0] transition">WhatsApp CS</a>
           </div>
         </div>
       </div>

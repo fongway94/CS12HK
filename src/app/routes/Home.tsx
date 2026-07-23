@@ -163,7 +163,7 @@ export function HomePage() {
       
       {/* 1. Campaign Announcement & GWP Benefit Tiers Section */}
       <section className="bg-gradient-to-br from-[#FDFBF8] via-[#FAF4ED] to-[#EAD8BE]/30 border-b border-[#ECE6DF] relative py-12 md:py-20">
-        <div className="w-[min(calc(100%-48px),1440px)] mx-auto grid md:grid-cols-2 gap-12 items-center">
+        <div className="w-[min(calc(100%-24px),1440px)] mx-auto grid md:grid-cols-2 gap-12 items-center">
           
           <div className="space-y-6">
             <div className="inline-flex items-center gap-2 bg-[#825F59]/10 text-[#825F59] text-[10px] tracking-[0.20em] uppercase px-3 py-1 font-semibold rounded-full">
@@ -262,7 +262,7 @@ export function HomePage() {
           className="absolute inset-0 w-full h-full object-cover select-none"
         />
         <div className="absolute inset-0 bg-gradient-to-t from-black/75 via-black/30 to-black/15"></div>
-        <div className="relative z-10 w-[min(calc(100%-48px),1440px)] mx-auto pb-12 md:pb-20 text-white">
+        <div className="relative z-10 w-[min(calc(100%-24px),1440px)] mx-auto pb-12 md:pb-20 text-white">
           <div className="max-w-[600px] space-y-4">
             <p className="text-[10px] tracking-[0.25em] uppercase text-[#D8C6A6] font-bold">Seasonal Focus</p>
             <h2 className="font-serif text-[44px] sm:text-[56px] md:text-[68px] leading-[1.0] tracking-tight font-medium">
@@ -396,7 +396,7 @@ export function HomePage() {
 
       {/* 4. Brand Philosophy / About Section (Restored & Managed) */}
       <section id="about-section" className="py-20 md:py-28 bg-[#FDFBF8] text-center border-b border-[#ECE6DF]">
-        <div className="w-[min(calc(100%-48px),960px)] mx-auto space-y-6">
+        <div className="w-[min(calc(100%-24px),960px)] mx-auto space-y-6">
           <p className="text-[10px] tracking-[0.3em] uppercase text-[#8F8881] font-bold">
             {lang === "zh" ? "敏感肌修復專家" : "Sensitive Skin Repair Specialist"}
           </p>
@@ -423,7 +423,7 @@ export function HomePage() {
 
       {/* 5. Featured Curated Collections Grid */}
       <section className="bg-white border-b border-[#ECE6DF] py-20 md:py-24">
-        <div className="w-[min(calc(100%-48px),1440px)] mx-auto">
+        <div className="w-[min(calc(100%-24px),1440px)] mx-auto">
           <div className="text-center mb-16 space-y-3">
             <p className="text-[10px] tracking-[0.25em] uppercase text-[#8F8881] font-bold">Selected Collections</p>
             <h2 className="font-serif text-[34px] sm:text-[44px] tracking-tight">{lang === "zh" ? "精選修護系列" : "Prestige Collections"}</h2>
@@ -495,7 +495,7 @@ export function HomePage() {
       </section>
 
       {/* 6. Refined & Elegantly Managed Product Recommendations */}
-      <section className="w-[min(calc(100%-48px),1440px)] mx-auto py-20 md:py-24">
+      <section className="w-[min(calc(100%-24px),1440px)] mx-auto py-20 md:py-24">
         <div className="flex justify-between items-end mb-12">
           <div>
             <p className="text-[10px] tracking-[0.25em] uppercase text-[#8F8881] font-bold mb-2">Summer Essentials</p>
@@ -519,7 +519,7 @@ export function HomePage() {
 
       {/* 7. Real Testimonials / Social Proof with Lightbox Images (Restored & Highly Interactive) */}
       <section className="bg-gradient-to-br from-[#211C19] to-[#111111] text-[#FDFBF8] py-20 md:py-28">
-        <div className="w-[min(calc(100%-48px),1440px)] mx-auto space-y-12">
+        <div className="w-[min(calc(100%-24px),1440px)] mx-auto space-y-12">
           <div className="text-center md:text-left space-y-3">
             <p className="text-[10px] tracking-[0.25em] uppercase text-[#D8C6A6] font-bold">Dermatological Proof</p>
             <h2 className="font-serif text-[36px] sm:text-[46px] leading-[1.1] text-white">
@@ -589,7 +589,7 @@ export function HomePage() {
 
       {/* 8. Sensitive Skin Tips / Interactive Education Accordion (敏感肌須知) */}
       <section id="sensitive-skin-tips" className="py-20 md:py-24 bg-[#FBF6F0] border-b border-[#ECE6DF]">
-        <div className="w-[min(calc(100%-48px),1100px)] mx-auto grid md:grid-cols-[1fr_1.3fr] gap-12 items-center">
+        <div className="w-[min(calc(100%-24px),1100px)] mx-auto grid md:grid-cols-[1fr_1.3fr] gap-12 items-center">
           
           <div className="space-y-5 text-center md:text-left">
             <div className="inline-flex items-center gap-1.5 text-[#825F59] text-[10px] tracking-[0.2em] uppercase font-bold">
@@ -657,7 +657,7 @@ export function HomePage() {
 
       {/* 9. Prestige Newsletter Form with Layout Mockup */}
       <section className="bg-white py-16 md:py-24 border-b border-[#ECE6DF]">
-        <div className="w-[min(calc(100%-48px),1440px)] mx-auto grid md:grid-cols-2 gap-12 items-center">
+        <div className="w-[min(calc(100%-24px),1440px)] mx-auto grid md:grid-cols-2 gap-12 items-center">
           
           {/* Form left */}
           <div className="space-y-6 md:pr-12">
@@ -724,7 +724,7 @@ export function HomePage() {
       </section>
 
       {/* 10. Official Retailer / Static Support Banner */}
-      <section className="w-[min(calc(100%-48px),1440px)] mx-auto py-16 grid md:grid-cols-3 gap-6 sm:gap-8">
+      <section className="w-[min(calc(100%-24px),1440px)] mx-auto py-16 grid md:grid-cols-3 gap-6 sm:gap-8">
         <div className="bg-white border border-[#ECE6DF] p-8 text-center rounded-[3px] shadow-sm flex flex-col justify-between h-full">
           <div>
             <img src="https://cs12skincare.com.hk/wp-content/uploads/2026/03/1.png" className="w-14 h-16 mx-auto mb-4 object-contain" alt="15% Off"/>

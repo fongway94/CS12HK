@@ -1,4 +1,4 @@
-import { Product, User, Order, Coupon, GiftTier, PointsTransaction, BirthdayReward } from "./types"
+import { Product, User, Order, Coupon, GiftTier, PointsTransaction, BirthdayReward, SiteSettings } from "./types"
 
 export interface DBClient {
   // products
@@ -28,9 +28,11 @@ export interface DBClient {
   getCouponByCode(code: string): Promise<Coupon | null>
   createCoupon(c: Coupon): Promise<void>
   updateCoupon(code: string, patch: Partial<Coupon>): Promise<void>
+  deleteCoupon(code: string): Promise<void>
 
   // gift tiers
   getGiftTiers(): Promise<GiftTier[]>
+  updateGiftTiers(tiers: GiftTier[]): Promise<void>
 
   // points
   addPointsTransaction(tx: PointsTransaction): Promise<void>
@@ -38,6 +40,10 @@ export interface DBClient {
   // birthday
   getBirthdayRewards(userId: string): Promise<BirthdayReward[]>
   createBirthdayReward(r: BirthdayReward): Promise<void>
+
+  // site settings
+  getSiteSettings(): Promise<SiteSettings>
+  updateSiteSettings(patch: Partial<SiteSettings>): Promise<void>
 }
 
 let _client: DBClient | null = null

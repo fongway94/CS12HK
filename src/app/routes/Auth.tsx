@@ -40,7 +40,7 @@ export function LoginPage() {
 
   if (showForgot) {
     return (
-      <main className="w-[min(480px,calc(100%-48px))] mx-auto py-16">
+      <main className="w-[min(480px,calc(100%-24px))] mx-auto py-16">
         <h1 className="font-serif text-[36px] text-center mb-2">{lang==="zh"?"重設密碼":"Reset Password"}</h1>
         <p className="text-center text-[12px] text-[#8F8881] mb-8">{lang==="zh"?"輸入您的電郵地址":"Enter your email address"}</p>
         <div className="space-y-4 bg-white border border-[#ECE6DF] p-8">
@@ -54,7 +54,7 @@ export function LoginPage() {
   }
 
   return (
-    <main className="w-[min(480px,calc(100%-48px))] mx-auto py-16">
+    <main className="w-[min(480px,calc(100%-24px))] mx-auto py-16">
       <h1 className="font-serif text-[36px] text-center mb-2">{lang==="zh"?"登入":"Login"}</h1>
       <p className="text-center text-[12px] text-[#8F8881] mb-8">{lang==="zh"?"歡迎回來！請登入您的帳戶":"Welcome back! Please sign in"}</p>
       <form onSubmit={submit} className="space-y-4 bg-white border border-[#ECE6DF] p-8">
@@ -110,7 +110,7 @@ export function RegisterPage() {
   }
 
   return (
-    <main className="w-[min(480px,calc(100%-48px))] mx-auto py-16">
+    <main className="w-[min(480px,calc(100%-24px))] mx-auto py-16">
       <h1 className="font-serif text-[36px] text-center mb-2">{lang==="zh"?"註冊":"Register"}</h1>
       <p className="text-center text-[12px] text-[#8F8881] mb-8">{lang==="zh"?"建立您的CS12帳戶":"Create your CS12 account"}</p>
       <form onSubmit={submit} className="space-y-4 bg-white border border-[#ECE6DF] p-8">

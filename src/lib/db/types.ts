@@ -144,3 +144,122 @@ export interface BirthdayReward {
   validFrom: string
   validTo: string
 }
+
+export interface SiteSettings {
+  // Store Info
+  storeName: string
+  storeTagline_zh: string
+  storeTagline_en: string
+  contactEmail: string
+  contactPhone: string
+  whatsappNumber: string
+  address_zh: string
+  address_en: string
+
+  // Social Links
+  instagramUrl: string
+  facebookUrl: string
+  whatsappUrl: string
+
+  // Announcement Bar
+  announcementBar_zh: string
+  announcementBar_en: string
+  announcementBarActive: boolean
+
+  // Shipping Settings
+  freeShippingThresholdHKD: number
+  freeShippingThresholdUSD: number
+  flatShippingFeeHKD: number
+  flatShippingFeeUSD: number
+
+  // Points Settings
+  pointsPerHKD: number
+  pointsRedemptionRate: number // 100 points = HK$1
+  birthdayBonusPoints: number
+  birthdayDiscountPercent: number
+
+  // Tier Thresholds
+  vipThresholdHKD: number
+  prestigeThresholdHKD: number
+
+  // Theme / Appearance
+  primaryColor: string
+  secondaryColor: string
+  accentColor: string
+  backgroundColor: string
+  cardColor: string
+  textColor: string
+  mutedTextColor: string
+  borderColor: string
+  fontFamily: string
+  fontFamilySerif: string
+  fontSizeBase: number // in px
+  fontSizeScale: number // multiplier
+
+  // First Order Coupon
+  firstOrderCouponCode: string
+  firstOrderDiscountPercent: number
+  firstOrderMinAmountHKD: number
+
+  // Maintenance Mode
+  maintenanceMode: boolean
+  maintenanceMessage_zh: string
+  maintenanceMessage_en: string
+
+  updatedAt: string
+}
+
+export const DEFAULT_SITE_SETTINGS: SiteSettings = {
+  storeName: "CS12",
+  storeTagline_zh: "敏感肌修復專家",
+  storeTagline_en: "Skin Experts",
+  contactEmail: "info@cs12skincare.com.hk",
+  contactPhone: "+852 1234 5678",
+  whatsappNumber: "85200000000",
+  address_zh: "香港九龍旺角",
+  address_en: "Mong Kok, Kowloon, Hong Kong",
+
+  instagramUrl: "https://instagram.com/cs12skincare_hk",
+  facebookUrl: "https://facebook.com/cs12skincare",
+  whatsappUrl: "https://wa.me/85200000000",
+
+  announcementBar_zh: "官網限定｜滿 HK$800 免費送貨 · 首購滿 HK$1,500 輸入 NEWCS12 享 15% OFF",
+  announcementBar_en: "ONLINE EXCLUSIVE | FREE SHIPPING OVER HK$800 · 15% OFF FIRST ORDER CODE NEWCS12",
+  announcementBarActive: true,
+
+  freeShippingThresholdHKD: 800,
+  freeShippingThresholdUSD: 100,
+  flatShippingFeeHKD: 80,
+  flatShippingFeeUSD: 15,
+
+  pointsPerHKD: 1,
+  pointsRedemptionRate: 100,
+  birthdayBonusPoints: 200,
+  birthdayDiscountPercent: 10,
+
+  vipThresholdHKD: 5000,
+  prestigeThresholdHKD: 10000,
+
+  primaryColor: "#111111",
+  secondaryColor: "#825F59",
+  accentColor: "#D8C6A6",
+  backgroundColor: "#FDFBF8",
+  cardColor: "#FFFFFF",
+  textColor: "#111111",
+  mutedTextColor: "#8F8881",
+  borderColor: "#ECE6DF",
+  fontFamily: "Instrument Sans",
+  fontFamilySerif: "Cormorant Garamond",
+  fontSizeBase: 16,
+  fontSizeScale: 1.0,
+
+  firstOrderCouponCode: "NEWCS12",
+  firstOrderDiscountPercent: 15,
+  firstOrderMinAmountHKD: 1500,
+
+  maintenanceMode: false,
+  maintenanceMessage_zh: "網站維護中，請稍後再訪",
+  maintenanceMessage_en: "We are performing maintenance. Please check back soon.",
+
+  updatedAt: new Date().toISOString()
+}

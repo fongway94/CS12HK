@@ -17,7 +17,7 @@ export function CheckoutPage() {
   const nav = useNavigate()
   const [giftTiers, setGiftTiers] = useState<GiftTier[]>([])
   const [couponObj, setCouponObj] = useState<Coupon|null>(null)
-  const [address, setAddress] = useState({ name:"", phone:"", address:"", district:"香港島", region:"HKD" })
+  const [address, setAddress] = useState({ name:"", phone:"", address:"", district: lang==="zh"?"香港島":"Hong Kong Island", region:"HKD" })
   const [usePoints, setUsePoints] = useState(0)
   const [isPlacing, setIsPlacing] = useState(false)
   const [errors, setErrors] = useState<string[]>([])
@@ -25,7 +25,6 @@ export function CheckoutPage() {
   useEffect(()=>{
     getDBClient().getGiftTiers().then(setGiftTiers)
     if(couponCode) getDBClient().getCouponByCode(couponCode).then(c=> c && setCouponObj(c))
-    // Pre-fill address from saved
     if(user) {
       try {
         const raw = localStorage.getItem(`cs12_addresses_${user.id}`)
@@ -61,18 +60,11 @@ export function CheckoutPage() {
   const placeOrder = async () => {
     if(!user){ nav("/login"); return }
     if(items.length===0) return
-    
     const validationErrors = validate()
-    if (validationErrors.length > 0) {
-      setErrors(validationErrors)
-      showToast("error", validationErrors[0])
-      return
-    }
+    if (validationErrors.length > 0) { setErrors(validationErrors); showToast("error", validationErrors[0]); return }
     setErrors([])
     setIsPlacing(true)
-
     try {
-      // Check stock availability
       const db = getDBClient()
       for (const item of items) {
         const currentProduct = await db.getProductById(item.product.id)
@@ -82,94 +74,41 @@ export function CheckoutPage() {
           return
         }
       }
-
       const order: Order = {
         id: "ORD-" + Date.now(),
         userId: user.id,
         items: items.map(i=>({ productId: i.product.id, qty: i.qty, priceHKDAtPurchase: i.product.price_hkd, priceUSDAtPurchase: i.product.price_usd })),
-        subtotalHKD: subtotal.hkd,
-        subtotalUSD: subtotal.usd,
+        subtotalHKD: subtotal.hkd, subtotalUSD: subtotal.usd,
         discountHKD: couponCalc.discountHKD + pointsDiscountHKD,
         discountUSD: couponCalc.discountUSD + pointsDiscountHKD*0.128,
-        shippingHKD: shipping.shippingHKD,
-        shippingUSD: shipping.shippingUSD,
-        totalHKD,
-        totalUSD,
-        currency,
+        shippingHKD: shipping.shippingHKD, shippingUSD: shipping.shippingUSD,
+        totalHKD, totalUSD, currency,
         couponCode: couponObj?.code,
         giftTier: giftTier ? (giftTier.thresholdHKD>=3000 ? "tier2_3000":"tier1_2000") : null,
         gifts: giftTier ? giftTier.gifts.map(g=>`${g.name_zh} x${g.qty}`) : [],
         status: "paid",
-        pointsEarned,
-        pointsUsed: usePoints,
+        pointsEarned, pointsUsed: usePoints,
         shippingAddress: address,
         createdAt: new Date().toISOString()
       }
-
       await db.createOrder(order)
-      
-      // Decrement stock
       for (const item of items) {
         const currentProduct = await db.getProductById(item.product.id)
-        if (currentProduct) {
-          await db.updateProduct(item.product.id, { stock: Math.max(0, currentProduct.stock - item.qty) })
-        }
+        if (currentProduct) await db.updateProduct(item.product.id, { stock: Math.max(0, currentProduct.stock - item.qty) })
       }
-
-      // Birthday bonus points
       let bonusPoints = 0
       if (isBirthday) {
         bonusPoints = 200
-        // Create birthday reward record if not exists
         const existing = await db.getBirthdayRewards(user.id)
         const thisYear = new Date().getFullYear()
         if (!existing.find(r => r.year === thisYear)) {
-          await db.createBirthdayReward({
-            userId: user.id,
-            year: thisYear,
-            rewarded: true,
-            couponCode: "BIRTHDAY10",
-            discountPercent: 10,
-            validFrom: new Date().toISOString(),
-            validTo: new Date(new Date().getFullYear(), new Date().getMonth() + 1, 0).toISOString()
-          })
+          await db.createBirthdayReward({ userId: user.id, year: thisYear, rewarded: true, couponCode: "BIRTHDAY10", discountPercent: 10, validFrom: new Date().toISOString(), validTo: new Date(new Date().getFullYear(), new Date().getMonth() + 1, 0).toISOString() })
         }
       }
-
-      const pointsHistoryEntries = [
-        {
-          id: "tx_" + Date.now(),
-          userId: user.id,
-          amount: pointsEarned,
-          reason: `Order ${order.id}`,
-          orderId: order.id,
-          createdAt: new Date().toISOString()
-        }
-      ]
-      if (bonusPoints > 0) {
-        pointsHistoryEntries.push({
-          id: "tx_" + (Date.now() + 1),
-          userId: user.id,
-          amount: bonusPoints,
-          reason: "Birthday Bonus 🎂",
-          orderId: order.id,
-          createdAt: new Date().toISOString()
-        })
-      }
-
-      await db.updateUser(user.id, {
-        totalSpentHKD: user.totalSpentHKD + totalHKD,
-        totalOrders: user.totalOrders + 1,
-        points: user.points - usePoints + pointsEarned + bonusPoints,
-        tier: getTier(user.totalSpentHKD + totalHKD),
-        isFirstOrder: false,
-        pointsHistory: [...(user.pointsHistory||[]), ...pointsHistoryEntries]
-      })
-
-      if(couponObj){
-        await db.updateCoupon(couponObj.code, { usedCount: couponObj.usedCount + 1 })
-      }
-
+      const pointsHistoryEntries = [{ id: "tx_" + Date.now(), userId: user.id, amount: pointsEarned, reason: `Order ${order.id}`, orderId: order.id, createdAt: new Date().toISOString() }]
+      if (bonusPoints > 0) pointsHistoryEntries.push({ id: "tx_" + (Date.now() + 1), userId: user.id, amount: bonusPoints, reason: "Birthday Bonus 🎂", orderId: order.id, createdAt: new Date().toISOString() })
+      await db.updateUser(user.id, { totalSpentHKD: user.totalSpentHKD + totalHKD, totalOrders: user.totalOrders + 1, points: user.points - usePoints + pointsEarned + bonusPoints, tier: getTier(user.totalSpentHKD + totalHKD), isFirstOrder: false, pointsHistory: [...(user.pointsHistory||[]), ...pointsHistoryEntries] })
+      if(couponObj) await db.updateCoupon(couponObj.code, { usedCount: couponObj.usedCount + 1 })
       clear()
       const bonusMsg = bonusPoints > 0 ? (lang==="zh"?` 🎂 生日獎勵 +${bonusPoints}積分！`:` 🎂 Birthday bonus +${bonusPoints} pts!`) : ""
       showToast("success", lang==="zh"?`下單成功！訂單 ${order.id}。獲得 ${pointsEarned} 積分。${bonusMsg}`:`Order ${order.id} placed! Earned ${pointsEarned} points.${bonusMsg}`)
@@ -182,14 +121,18 @@ export function CheckoutPage() {
   }
 
   if(items.length===0) return (
-    <main className="w-[min(calc(100%-48px),1440px)] mx-auto py-20 text-center">
+    <main className="w-[min(calc(100%-24px),1440px)] mx-auto py-20 text-center">
       <h1 className="font-serif text-[32px] mb-4">{lang==="zh"?"購物車為空":"Cart is empty"}</h1>
       <Link to="/exclusive" className="inline-flex bg-[#111] text-white px-8 h-[44px] items-center text-[11px] tracking-[0.18em] uppercase">{lang==="zh"?"回到商店":"Go Shopping"}</Link>
     </main>
   )
 
+  const districts = lang==="zh" 
+    ? ["香港島","九龍","新界","離島"] 
+    : ["Hong Kong Island","Kowloon","New Territories","Outlying Islands"]
+
   return (
-    <main className="w-[min(calc(100%-48px),1440px)] mx-auto py-8 grid md:grid-cols-2 gap-10">
+    <main className="w-[min(calc(100%-24px),1440px)] mx-auto py-6 md:py-8 grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-10">
       <section className="bg-white border border-[#ECE6DF] p-6">
         <h2 className="font-serif text-[24px] mb-6">{lang==="zh"?"配送資訊":"Shipping Information"}</h2>
         {errors.length > 0 && (
@@ -199,62 +142,67 @@ export function CheckoutPage() {
         )}
         <div className="space-y-4 text-[13px]">
           <div>
-            <label className="text-[11px] uppercase tracking-[0.12em] text-[#8F8881]">收件人姓名 Name *</label>
-            <input placeholder="陳小明" value={address.name} onChange={e=>setAddress({...address,name:e.target.value})} className="w-full border border-[#ECE6DF] h-11 px-3 mt-1"/>
+            <label className="text-[11px] uppercase tracking-[0.12em] text-[#8F8881]">{lang==="zh"?"收件人姓名":"Recipient Name"} *</label>
+            <input placeholder={lang==="zh"?"陳小明":"John Smith"} value={address.name} onChange={e=>setAddress({...address,name:e.target.value})} className="w-full border border-[#ECE6DF] h-11 px-3 mt-1"/>
           </div>
           <div>
-            <label className="text-[11px] uppercase tracking-[0.12em] text-[#8F8881]">電話 Phone *</label>
+            <label className="text-[11px] uppercase tracking-[0.12em] text-[#8F8881]">{lang==="zh"?"電話":"Phone"} *</label>
             <input placeholder="+852 9123 4567" value={address.phone} onChange={e=>setAddress({...address,phone:e.target.value})} className="w-full border border-[#ECE6DF] h-11 px-3 mt-1"/>
           </div>
           <div>
-            <label className="text-[11px] uppercase tracking-[0.12em] text-[#8F8881]">地址 Address *</label>
-            <input placeholder="街道名稱及門牌號碼" value={address.address} onChange={e=>setAddress({...address,address:e.target.value})} className="w-full border border-[#ECE6DF] h-11 px-3 mt-1"/>
+            <label className="text-[11px] uppercase tracking-[0.12em] text-[#8F8881]">{lang==="zh"?"地址":"Address"} *</label>
+            <input placeholder={lang==="zh"?"街道名稱及門牌號碼":"Street address"} value={address.address} onChange={e=>setAddress({...address,address:e.target.value})} className="w-full border border-[#ECE6DF] h-11 px-3 mt-1"/>
           </div>
           <div>
-            <label className="text-[11px] uppercase tracking-[0.12em] text-[#8F8881]">地區 District *</label>
+            <label className="text-[11px] uppercase tracking-[0.12em] text-[#8F8881]">{lang==="zh"?"地區":"District"} *</label>
             <select value={address.district} onChange={e=>setAddress({...address,district:e.target.value})} className="w-full border border-[#ECE6DF] h-11 px-3 mt-1">
-              <option>香港島</option><option>九龍</option><option>新界</option><option>離島</option>
+              {districts.map(d=><option key={d}>{d}</option>)}
             </select>
           </div>
           <div className="pt-4 border-t border-[#F2ECE4]">
-            <h3 className="text-[11px] uppercase tracking-[0.14em] font-semibold mb-2">支付方式 Payment Method</h3>
+            <h3 className="text-[11px] uppercase tracking-[0.14em] font-semibold mb-2">{lang==="zh"?"支付方式":"Payment Method"}</h3>
             <div className="grid grid-cols-2 gap-2">
-              {["信用卡 Credit Card", "FPS 轉數快", "PayMe", "Apple Pay"].map(m => (
+              {(lang==="zh"
+                ? ["信用卡","FPS 轉數快","PayMe","Apple Pay"]
+                : ["Credit Card","FPS","PayMe","Apple Pay"]
+              ).map(m => (
                 <label key={m} className="flex items-center gap-2 border border-[#ECE6DF] p-3 text-[11px] cursor-pointer hover:border-[#111] transition">
-                  <input type="radio" name="payment" defaultChecked={m==="信用卡 Credit Card"} className="accent-black"/>
+                  <input type="radio" name="payment" defaultChecked={m===(lang==="zh"?"信用卡":"Credit Card")} className="accent-black"/>
                   <span>{m}</span>
                 </label>
               ))}
             </div>
-            <p className="text-[10px] text-[#BBB5AD] mt-2">正式接通 Stripe / PayPal 後可直接收款 (此為模擬 checkout)</p>
+            <p className="text-[10px] text-[#BBB5AD] mt-2">{lang==="zh"?"正式接通 Stripe / PayPal 後可直接收款 (此為模擬 checkout)":"Stripe / PayPal integration coming soon (demo checkout)"}</p>
           </div>
           {user && user.points > 0 && (
             <div className="pt-4 border-t border-[#F2ECE4]">
-              <h3 className="text-[11px] uppercase tracking-[0.14em] font-semibold mb-2">積分抵扣 Points ({user.points} 可用)</h3>
+              <h3 className="text-[11px] uppercase tracking-[0.14em] font-semibold mb-2">
+                {lang==="zh"?`積分抵扣 Points (${user.points} 可用)`:`Redeem Points (${user.points} available)`}
+              </h3>
               <div className="flex gap-2 items-center">
                 <input type="number" min={0} max={user.points} value={usePoints} onChange={e=>setUsePoints(Math.min(user.points, Math.max(0, parseInt(e.target.value)||0)))} className="border border-[#ECE6DF] h-9 px-2 w-32"/>
-                <span className="text-[11px] text-[#8F8881]">= HK${(usePoints/100).toFixed(0)} 抵扣</span>
-                <button onClick={()=>setUsePoints(user.points)} className="text-[10px] underline text-[#8F8881]">全部使用</button>
+                <span className="text-[11px] text-[#8F8881]">= HK${(usePoints/100).toFixed(0)} {lang==="zh"?"抵扣":"off"}</span>
+                <button onClick={()=>setUsePoints(user.points)} className="text-[10px] underline text-[#8F8881]">{lang==="zh"?"全部使用":"Use All"}</button>
               </div>
             </div>
           )}
           {isBirthday && (
             <div className="pt-4 border-t border-[#F2ECE4]">
               <div className="bg-[#FFF7ED] border border-[#FED7AA] p-3 text-[12px]">
-                🎂 <strong>生日月份！</strong>本次購物享雙倍積分 + 200 積分獎勵
+                🎂 <strong>{lang==="zh"?"生日月份！":"Birthday Month!"}</strong> {lang==="zh"?"本次購物享雙倍積分 + 200 積分獎勵":"Enjoy double points + 200 bonus points on this order"}
               </div>
             </div>
           )}
         </div>
       </section>
-      <section className="bg-white border border-[#ECE6DF] p-6 h-fit sticky top-[100px]">
+      <section className="bg-white border border-[#ECE6DF] p-6 h-fit md:sticky md:top-[100px]">
         <h3 className="text-[12px] tracking-[0.18em] uppercase font-semibold mb-4">{lang==="zh"?"訂單摘要":"Order Summary"}</h3>
         <div className="space-y-2 text-[13px]">
           {items.map(i=>
             <div key={i.product.id} className="flex justify-between text-[#5C5651] py-2 border-b border-[#F2ECE4]">
               <div className="flex gap-3">
                 <div className="w-14 h-14 bg-[#FBF6F0] border border-[#F2ECE4] shrink-0">
-                  <img src={i.product.images[0]} className="w-full h-full object-cover"/>
+                  <img src={i.product.images[0]} className="w-full h-full object-cover" alt=""/>
                 </div>
                 <div>
                   <p className="text-[12px] leading-tight">{lang==="zh"?i.product.name_zh:i.product.name_en}</p>
@@ -267,24 +215,24 @@ export function CheckoutPage() {
           <div className="pt-3 space-y-2">
             <div className="flex justify-between"><span>{lang==="zh"?"小計":"Subtotal"}</span><span>{formatPrice(subtotal.hkd, subtotal.usd, currency)}</span></div>
             {couponCalc.valid && <div className="flex justify-between text-green-700"><span>{lang==="zh"?"折扣":"Discount"} {couponObj?.code}</span><span>-{formatPrice(couponCalc.discountHKD, couponCalc.discountUSD,currency)}</span></div>}
-            {usePoints>0 && <div className="flex justify-between text-green-700"><span>{lang==="zh"?"積分抵扣":"Points"} {usePoints}</span><span>-HK${pointsDiscountHKD}</span></div>}
+            {usePoints>0 && <div className="flex justify-between text-green-700"><span>{lang==="zh"?"積分抵扣":"Points Redeemed"} {usePoints}</span><span>-HK${pointsDiscountHKD}</span></div>}
             <div className="flex justify-between"><span>{lang==="zh"?"運費":"Shipping"}</span><span>{shipping.free?(lang==="zh"?"免費":"Free"):formatPrice(shipping.shippingHKD, shipping.shippingUSD,currency)}</span></div>
-            {giftTier && <div className="bg-[#111] text-white p-3 text-[11px]">🎁 {lang==="zh"?giftTier.label_zh:giftTier.label_en} {lang==="zh"?"已符合，獲贈":"Unlocked - get"} {giftTier.gifts.reduce((a,b)=>a+b.qty,0)}{lang==="zh"?"件":""}</div>}
-            <div className="flex justify-between font-semibold text-[18px] pt-3 border-t border-[#ECE6DF]"><span>Total</span><span>{formatPrice(totalHKD, totalUSD,currency)}</span></div>
+            {giftTier && <div className="bg-[#111] text-white p-3 text-[11px]">🎁 {lang==="zh"?giftTier.label_zh:giftTier.label_en} {lang==="zh"?"已符合，獲贈":"Unlocked — get"} {giftTier.gifts.reduce((a,b)=>a+b.qty,0)} {lang==="zh"?"件":"items"}</div>}
+            <div className="flex justify-between font-semibold text-[18px] pt-3 border-t border-[#ECE6DF]"><span>{lang==="zh"?"合計":"Total"}</span><span>{formatPrice(totalHKD, totalUSD,currency)}</span></div>
             <div className="text-[11px] text-[#8F8881] space-y-1">
-              <p>{lang==="zh"?"本次獲得":"Earn"} {pointsEarned} {lang==="zh"?"積分":"points"} {isBirthday && "(x2 生日雙倍)"}</p>
-              {couponObj && <p>優惠碼 {couponObj.code} {couponCalc.valid ? "✓" : `(${couponCalc.reason})`}</p>}
+              <p>{lang==="zh"?"本次獲得":"Earn"} {pointsEarned} {lang==="zh"?"積分":"points"} {isBirthday && (lang==="zh"?"(x2 生日雙倍)":"(x2 birthday double)")}</p>
+              {couponObj && <p>{lang==="zh"?"優惠碼":"Coupon"} {couponObj.code} {couponCalc.valid ? "✓" : `(${couponCalc.reason})`}</p>}
             </div>
           </div>
         </div>
-        <button 
-          onClick={placeOrder} 
+        <button
+          onClick={placeOrder}
           disabled={isPlacing}
           className="mt-6 w-full bg-[#111] text-white h-[52px] text-[12px] tracking-[0.18em] uppercase disabled:opacity-50 disabled:cursor-not-allowed"
         >
           {isPlacing ? (lang==="zh"?"處理中...":"Processing...") : (lang==="zh"?"確認下單":"Place Order")}
         </button>
-        <p className="text-[10px] text-[#BBB5AD] mt-3 text-center">訂單完成後積分自動入帳</p>
+        <p className="text-[10px] text-[#BBB5AD] mt-3 text-center">{lang==="zh"?"訂單完成後積分自動入帳":"Points are credited automatically after order completion"}</p>
       </section>
     </main>
   )

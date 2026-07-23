@@ -32,8 +32,8 @@ export function ShopPage() {
   }, [products, series, cat, skin, q, sort])
 
   return (
-    <main className="w-[min(calc(100%-48px),1440px)] mx-auto py-8">
-      <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 mb-8">
+    <main className="w-[min(calc(100%-24px),1440px)] mx-auto py-6 md:py-8">
+      <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 mb-6 md:mb-8">
         <div>
           <h1 className="font-serif text-[40px] leading-[1]">{series||cat||skin|| (lang==="zh"?"選購":"Shop")}</h1>
           <p className="text-[12px] text-[#8F8881] mt-2">{filtered.length} {lang==="zh"?"件產品":"products"} • {series?`Series ${series}`:"All collections"}</p>

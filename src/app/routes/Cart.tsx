@@ -52,7 +52,7 @@ export function CartPage() {
   }
 
   if(items.length===0) return (
-    <main className="w-[min(calc(100%-48px),1440px)] mx-auto py-20 text-center">
+    <main className="w-[min(calc(100%-24px),1440px)] mx-auto py-20 text-center">
       <div className="max-w-md mx-auto">
         <div className="w-20 h-20 mx-auto mb-6 rounded-full bg-[#FBF6F0] flex items-center justify-center">
           <span className="text-[32px]">🛒</span>
@@ -68,13 +68,13 @@ export function CartPage() {
   )
 
   return (
-    <main className="w-[min(calc(100%-48px),1440px)] mx-auto py-8 grid md:grid-cols-[1fr_360px] gap-10">
+    <main className="w-[min(calc(100%-24px),1440px)] mx-auto py-6 md:py-8 grid grid-cols-1 md:grid-cols-[1fr_360px] gap-6 md:gap-10">
       <section>
         <h1 className="font-serif text-[32px] mb-6">{lang==="zh"?"購物車":"Cart"} ({items.length})</h1>
         <div className="border-t border-[#ECE6DF]">
           {items.map(({product, qty})=>(
             <div key={product.id} className="py-6 border-b border-[#F2ECE4] flex gap-4">
-              <Link to={`/product/${product.slug}`} className="w-24 h-24 bg-[#FBF6F0] border border-[#F2ECE4]"><img src={product.images[0]} className="w-full h-full object-cover"/></Link>
+              <Link to={`/product/${product.slug}`} className="w-24 h-24 bg-[#FBF6F0] border border-[#F2ECE4]"><img src={product.images[0]} className="w-full h-full object-cover" alt=""/></Link>
               <div className="flex-1">
                 <Link to={`/product/${product.slug}`} className="font-serif text-[18px] leading-tight block">{lang==="zh"?product.name_zh:product.name_en}</Link>
                 <p className="text-[11px] text-[#8F8881] mt-1">{product.series} • {formatPrice(product.price_hkd, product.price_usd, currency)}</p>
@@ -92,7 +92,10 @@ export function CartPage() {
 
         {giftTier ? (
           <div className="mt-6 bg-[#111] text-white p-4 text-[12px]">
-            🎉 已符合 {lang==="zh"?giftTier.label_zh:giftTier.label_en} 禮遇！將獲贈 {giftTier.gifts.reduce((a,b)=>a+b.qty,0)} 件禮品 (價值 HK${giftTier.giftValueHKD})
+            {lang==="zh"
+              ? `🎉 已符合 ${giftTier.label_zh} 禮遇！將獲贈 ${giftTier.gifts.reduce((a,b)=>a+b.qty,0)} 件禮品 (價值 HK$${giftTier.giftValueHKD})`
+              : `🎉 You've unlocked ${giftTier.label_en}! Receive ${giftTier.gifts.reduce((a,b)=>a+b.qty,0)} complimentary gifts (value HK$${giftTier.giftValueHKD})`
+            }
           </div>
         ) : (
           <div className="mt-6 border border-dashed border-[#ECE6DF] p-4 text-[12px] text-[#8F8881]">
@@ -105,21 +108,21 @@ export function CartPage() {
         )}
       </section>
 
-      <aside className="bg-white border border-[#ECE6DF] p-6 h-fit sticky top-[100px]">
+      <aside className="bg-white border border-[#ECE6DF] p-6 h-fit md:sticky md:top-[100px]">
         <h3 className="text-[12px] tracking-[0.18em] uppercase font-semibold mb-4">{lang==="zh"?"訂單摘要":"Order Summary"}</h3>
         <div className="space-y-3 text-[13px]">
           <div className="flex justify-between"><span>{lang==="zh"?"小計":"Subtotal"}</span><span>{formatPrice(subtotal.hkd, subtotal.usd, currency)}</span></div>
-          {couponCalc.valid && couponCalc.discountHKD>0 && <div className="flex justify-between text-green-700"><span>折扣 {couponObj?.code}</span><span>-{formatPrice(couponCalc.discountHKD, couponCalc.discountUSD, currency)}</span></div>}
+          {couponCalc.valid && couponCalc.discountHKD>0 && <div className="flex justify-between text-green-700"><span>{lang==="zh"?"折扣":"Discount"} {couponObj?.code}</span><span>-{formatPrice(couponCalc.discountHKD, couponCalc.discountUSD, currency)}</span></div>}
           <div className="flex justify-between"><span>{lang==="zh"?"運費":"Shipping"}</span><span>{shipping.free ? (lang==="zh"?"免費":"Free") : formatPrice(shipping.shippingHKD, shipping.shippingUSD, currency)}</span></div>
-          {!shipping.free && <p className="text-[11px] text-[#8F8881]">滿 HK$800 免費送貨，還差 HK${800-subtotal.hkd}</p>}
-          <div className="border-t border-[#ECE6DF] pt-3 flex justify-between font-semibold text-[16px]"><span>Total</span><span>{formatPrice(totalHKD, totalUSD, currency)}</span></div>
+          {!shipping.free && <p className="text-[11px] text-[#8F8881]">{lang==="zh"?`滿 HK$800 免費送貨，還差 HK$${800-subtotal.hkd}`:`Free shipping over HK$800, add HK$${800-subtotal.hkd} more`}</p>}
+          <div className="border-t border-[#ECE6DF] pt-3 flex justify-between font-semibold text-[16px]"><span>{lang==="zh"?"合計":"Total"}</span><span>{formatPrice(totalHKD, totalUSD, currency)}</span></div>
         </div>
 
         <div className="mt-6">
-          <label className="text-[10px] tracking-[0.18em] uppercase font-semibold">Coupon / 優惠碼</label>
+          <label className="text-[10px] tracking-[0.18em] uppercase font-semibold">{lang==="zh"?"優惠碼":"Coupon Code"}</label>
           <div className="flex mt-2">
             <input value={couponInput} onChange={e=>setCouponInput(e.target.value.toUpperCase())} placeholder="NEWCS12" className="flex-1 border border-[#ECE6DF] px-3 h-9 text-[12px] uppercase"/>
-            <button onClick={applyCoupon} className="bg-[#111] text-white px-4 text-[11px] uppercase">Apply</button>
+            <button onClick={applyCoupon} className="bg-[#111] text-white px-4 text-[11px] uppercase">{lang==="zh"?"套用":"Apply"}</button>
           </div>
           {couponMsg && <p className="text-[11px] mt-2 text-[#8F8881]">{couponMsg} {!couponCalc.valid && `(${couponCalc.reason})`}</p>}
         </div>
@@ -128,8 +131,8 @@ export function CartPage() {
         <button onClick={()=>{clear(); setCoupon(null); setCouponObj(null); showToast("info", lang==="zh"?"購物車已清空":"Cart cleared")}} className="mt-2 w-full border border-[#111] h-[42px] text-[11px] uppercase">{lang==="zh"?"清空購物車":"Clear Cart"}</button>
 
         <div className="mt-6 border-t border-[#F2ECE4] pt-4 text-[11px] text-[#8F8881] leading-relaxed">
-          <p>• 積分回贈：本次可獲 {Math.floor(subtotal.hkd)} 積分</p>
-          <p>• 信用卡 / FPS / PayMe / Apple Pay 支援 (Cloudflare Payments Ready)</p>
+          <p>{lang==="zh"?`• 積分回贈：本次可獲 ${Math.floor(subtotal.hkd)} 積分`:`• Points earned: ${Math.floor(subtotal.hkd)} points this order`}</p>
+          <p>{lang==="zh"?"• 信用卡 / FPS / PayMe / Apple Pay 支援":"• Credit Card / FPS / PayMe / Apple Pay supported"}</p>
         </div>
       </aside>
     </main>
