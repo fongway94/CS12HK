@@ -1,8 +1,29 @@
 import { Link } from "react-router-dom"
 import { useAppStore } from "../../stores/useAppStore"
+import { showToast } from "../ui/Toast"
+import { useState } from "react"
 
 export function Footer() {
   const { lang } = useAppStore()
+  const [newsletterEmail, setNewsletterEmail] = useState("")
+
+  const handleNewsletter = (e: React.FormEvent) => {
+    e.preventDefault()
+    if (!newsletterEmail.trim()) return
+    // Save to localStorage
+    try {
+      const existing = JSON.parse(localStorage.getItem("cs12_newsletter") || "[]")
+      if (!existing.includes(newsletterEmail.toLowerCase())) {
+        existing.push(newsletterEmail.toLowerCase())
+        localStorage.setItem("cs12_newsletter", JSON.stringify(existing))
+      }
+    } catch {
+      localStorage.setItem("cs12_newsletter", JSON.stringify([newsletterEmail.toLowerCase()]))
+    }
+    showToast("success", lang==="zh"?`已訂閱！感謝 ${newsletterEmail} 的訂閱`:`Subscribed! Thank you ${newsletterEmail}`)
+    setNewsletterEmail("")
+  }
+
   return (
     <footer className="border-t border-[#ECE6DF] mt-20 bg-white">
       <div className="w-[min(calc(100%-48px),1440px)] mx-auto py-16 grid md:grid-cols-4 gap-12 text-[13px] leading-relaxed">
@@ -23,27 +44,34 @@ export function Footer() {
         <div>
           <h5 className="text-[10px] tracking-[0.2em] uppercase font-semibold text-[#8F8881] mb-4">{lang==="zh"?"幫助":"Help"}</h5>
           <ul className="space-y-2 text-[#3A3734]">
-            <li>{lang==="zh"?"配送及退貨":"Shipping & Returns"}</li>
-            <li>{lang==="zh"?"常見問題":"FAQ"}</li>
-            <li>{lang==="zh"?"敏感肌須知":"Sensitive Skin Guide"}</li>
-            <li>{lang==="zh"?"私隱政策":"Privacy Policy"}</li>
+            <li><Link to="/shop">{lang==="zh"?"配送及退貨":"Shipping & Returns"}</Link></li>
+            <li><Link to="/shop">{lang==="zh"?"常見問題":"FAQ"}</Link></li>
+            <li><Link to="/shop">{lang==="zh"?"敏感肌須知":"Sensitive Skin Guide"}</Link></li>
+            <li><Link to="/shop">{lang==="zh"?"私隱政策":"Privacy Policy"}</Link></li>
           </ul>
         </div>
         <div>
           <h5 className="text-[10px] tracking-[0.2em] uppercase font-semibold text-[#8F8881] mb-4">Newsletter</h5>
           <p className="text-[#5C5651] text-[12px] mb-3">{lang==="zh"?"訂閱獲取最新優惠及抗敏護膚技巧":"Get offers & repair tips."}</p>
-          <form onSubmit={e=>{e.preventDefault(); alert(lang==="zh"?"已訂閱":"Subscribed")}} className="flex border border-[#111]">
-            <input placeholder={lang==="zh"?"輸入您的電郵":"Your email"} className="flex-1 px-3 py-2 text-[12px] outline-none" />
-            <button className="bg-[#111] text-white px-4 text-[10px] tracking-[0.18em] uppercase">→</button>
+          <form onSubmit={handleNewsletter} className="flex border border-[#111]">
+            <input
+              type="email"
+              value={newsletterEmail}
+              onChange={e=>setNewsletterEmail(e.target.value)}
+              placeholder={lang==="zh"?"輸入您的電郵":"Your email"}
+              className="flex-1 px-3 py-2 text-[12px] outline-none"
+              required
+            />
+            <button type="submit" className="bg-[#111] text-white px-4 text-[10px] tracking-[0.18em] uppercase">→</button>
           </form>
           <div className="mt-6 flex gap-3 text-[11px]">
-            <a href="https://instagram.com/cs12skincare_hk" target="_blank" className="border border-[#ECE6DF] px-3 py-1">Instagram</a>
-            <a href="#" className="border border-[#ECE6DF] px-3 py-1">WhatsApp CS</a>
+            <a href="https://instagram.com/cs12skincare_hk" target="_blank" className="border border-[#ECE6DF] px-3 py-1 hover:bg-[#FBF6F0] transition">Instagram</a>
+            <a href="https://wa.me/85200000000" target="_blank" className="border border-[#ECE6DF] px-3 py-1 hover:bg-[#FBF6F0] transition">WhatsApp CS</a>
           </div>
         </div>
       </div>
       <div className="border-t border-[#F2ECE4] py-6 text-center text-[10px] tracking-[0.14em] uppercase text-[#8F8881]">
-        © {new Date().getFullYear()} CS12 Skin Experts Limited. All rights reserved. | Cloudflare Hosted • D1 Ready
+        © {new Date().getFullYear()} CS12 Skin Experts Limited. All rights reserved.
       </div>
     </footer>
   )

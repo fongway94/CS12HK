@@ -15,6 +15,7 @@ import { initLocalDB } from "../lib/db/localAdapter"
 import { setDBClient } from "../lib/db/client"
 import { useAuthStore } from "../stores/useAuthStore"
 import { useAppStore } from "../stores/useAppStore"
+import { ToastContainer } from "../components/ui/Toast"
 
 let dbInitialized = false
 
@@ -100,6 +101,7 @@ function AppShell() {
         </Routes>
       </div>
       <Footer />
+      <ToastContainer />
       {/* WhatsApp Float */}
       <a href="https://wa.me/85200000000" target="_blank" className="fixed bottom-6 right-6 bg-[#25D366] text-white w-14 h-14 rounded-full flex items-center justify-center shadow-lg hover:scale-105 transition z-50 text-[12px] font-semibold">WA</a>
     </div>

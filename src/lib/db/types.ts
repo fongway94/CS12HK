@@ -53,6 +53,7 @@ export interface PointsTransaction {
   reason: string // e.g. "Order #123", "Birthday Bonus", "Review"
   orderId?: string
   createdAt: string
+  [key: string]: any // allow extra fields for flexibility
 }
 
 export interface OrderItem {
