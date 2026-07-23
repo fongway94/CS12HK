@@ -160,7 +160,7 @@ export function HomePage() {
   ]
 
   return (
-    <main className="bg-paper min-h-screen text-ink overflow-x-hidden">
+    <main className="bg-paper min-h-screen text-ink overflow-x-clip">
       
       {/* 1. Campaign Announcement & GWP Benefit Tiers Section */}
       <section className="bg-gradient-to-br from-[#FDFBF8] via-[#FAF4ED] to-[#EAD8BE]/30 border-b border-[#ECE6DF] relative py-12 md:py-20">
