@@ -924,48 +924,82 @@ export function AdminPage() {
           {/* ==================== FONT SETTINGS ==================== */}
           <div className="bg-white border border-[#ECE6DF] p-6">
             <h3 className="text-[12px] uppercase font-semibold mb-4">🔤 {lang === "zh" ? "字型與排版設定" : "Font & Typography Settings"}</h3>
-            <p className="text-[11px] text-[#8F8881] mb-4">
-              {lang === "zh" ? "客製化網站中英文、繁體中文的字型和大小。支援思源黑體與思源宋體等多種高品質繁中字體設定。" : "Customize fonts and sizes. Google Fonts are supported. The site uses a sans-serif body font and a serif display font for headings."}
+            <p className="text-[11px] text-[#8F8881] mb-6">
+              {lang === "zh" ? "分別為英文與繁體中文設定「正文字型」與「標題字型」，系統會依訪客當前選用的語言自動套用對應字型。" : "Set a Body font and a Heading font separately for English and for Traditional Chinese. The site automatically applies the matching pair based on the visitor's selected language."}
             </p>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-[12px]">
-              <div>
-                <label className="text-[10px] uppercase text-[#8F8881]">{lang === "zh" ? "正文 / 無襯線字型 (Sans-Serif)" : "Body / Sans-Serif Font"}</label>
-                <select value={settings.fontFamily} onChange={e => setSettings({ ...settings, fontFamily: e.target.value })} className="w-full border border-[#ECE6DF] h-9 px-2 mt-1 bg-white">
-                  <option value="Instrument Sans">Instrument Sans (Default)</option>
-                  <option value="Noto Sans TC">思源黑體 (Noto Sans TC)</option>
-                  <option value="Microsoft JhengHei">微軟正黑體 (Microsoft JhengHei)</option>
-                  <option value="PingFang TC">蘋果蘋方 (PingFang TC)</option>
-                  <option value="Heiti TC">黑體-繁 (Heiti TC)</option>
-                  <option value="Inter">Inter</option>
-                  <option value="Poppins">Poppins</option>
-                  <option value="Nunito Sans">Nunito Sans</option>
-                  <option value="Lato">Lato</option>
-                  <option value="Open Sans">Open Sans</option>
-                  <option value="Roboto">Roboto</option>
-                  <option value="Montserrat">Montserrat</option>
-                  <option value="DM Sans">DM Sans</option>
-                  <option value="Work Sans">Work Sans</option>
-                  <option value="Quicksand">Quicksand</option>
-                  <option value="Outfit">Outfit</option>
-                </select>
+
+            {/* English fonts */}
+            <div className="mb-6">
+              <p className="text-[10px] uppercase tracking-[0.14em] font-semibold text-[#111] mb-3 pb-2 border-b border-[#F2ECE4]">EN {lang === "zh" ? "英文字型" : "English Fonts"}</p>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-[12px]">
+                <div>
+                  <label className="text-[10px] uppercase text-[#8F8881]">{lang === "zh" ? "英文 · 正文字型 (Sans-Serif)" : "English · Body Font (Sans-Serif)"}</label>
+                  <select value={settings.fontFamilyEnBody} onChange={e => setSettings({ ...settings, fontFamilyEnBody: e.target.value })} className="w-full border border-[#ECE6DF] h-9 px-2 mt-1 bg-white">
+                    <option value="Instrument Sans">Instrument Sans (Default)</option>
+                    <option value="Inter">Inter</option>
+                    <option value="Poppins">Poppins</option>
+                    <option value="Nunito Sans">Nunito Sans</option>
+                    <option value="Lato">Lato</option>
+                    <option value="Open Sans">Open Sans</option>
+                    <option value="Roboto">Roboto</option>
+                    <option value="Montserrat">Montserrat</option>
+                    <option value="DM Sans">DM Sans</option>
+                    <option value="Work Sans">Work Sans</option>
+                    <option value="Quicksand">Quicksand</option>
+                    <option value="Outfit">Outfit</option>
+                  </select>
+                </div>
+                <div>
+                  <label className="text-[10px] uppercase text-[#8F8881]">{lang === "zh" ? "英文 · 標題字型 (Serif)" : "English · Heading Font (Serif)"}</label>
+                  <select value={settings.fontFamilyEnHeading} onChange={e => setSettings({ ...settings, fontFamilyEnHeading: e.target.value })} className="w-full border border-[#ECE6DF] h-9 px-2 mt-1 bg-white">
+                    <option value="Cormorant Garamond">Cormorant Garamond (Default)</option>
+                    <option value="Playfair Display">Playfair Display</option>
+                    <option value="Lora">Lora</option>
+                    <option value="Libre Baskerville">Libre Baskerville</option>
+                    <option value="Crimson Text">Crimson Text</option>
+                    <option value="EB Garamond">EB Garamond</option>
+                    <option value="Merriweather">Merriweather</option>
+                    <option value="Source Serif Pro">Source Serif Pro</option>
+                    <option value="DM Serif Display">DM Serif Display</option>
+                  </select>
+                </div>
               </div>
-              <div>
-                <label className="text-[10px] uppercase text-[#8F8881]">{lang === "zh" ? "標題 / 襯線字型 (Serif)" : "Heading / Serif Font"}</label>
-                <select value={settings.fontFamilySerif} onChange={e => setSettings({ ...settings, fontFamilySerif: e.target.value })} className="w-full border border-[#ECE6DF] h-9 px-2 mt-1 bg-white">
-                  <option value="Cormorant Garamond">Cormorant Garamond (Default)</option>
-                  <option value="Noto Serif TC">思源宋體 (Noto Serif TC)</option>
-                  <option value="Songti TC">宋體-繁 (Songti TC)</option>
-                  <option value="PMingLiU">新細明體 (PMingLiU)</option>
-                  <option value="Playfair Display">Playfair Display</option>
-                  <option value="Lora">Lora</option>
-                  <option value="Libre Baskerville">Libre Baskerville</option>
-                  <option value="Crimson Text">Crimson Text</option>
-                  <option value="EB Garamond">EB Garamond</option>
-                  <option value="Merriweather">Merriweather</option>
-                  <option value="Source Serif Pro">Source Serif Pro</option>
-                  <option value="DM Serif Display">DM Serif Display</option>
-                </select>
+              <div className="mt-3 bg-[#FBF6F0] p-4">
+                <p style={{ fontFamily: `"${settings.fontFamilyEnBody}", sans-serif` }} className="text-[13px]">Body: {settings.fontFamilyEnBody} — Gentle, dermatologist-formulated repair for sensitive skin</p>
+                <p style={{ fontFamily: `"${settings.fontFamilyEnHeading}", serif` }} className="text-[22px] mt-2">Heading: {settings.fontFamilyEnHeading} — CS12 Skincare</p>
               </div>
+            </div>
+
+            {/* Chinese fonts */}
+            <div>
+              <p className="text-[10px] uppercase tracking-[0.14em] font-semibold text-[#111] mb-3 pb-2 border-b border-[#F2ECE4]">繁 {lang === "zh" ? "中文字型" : "Chinese Fonts"}</p>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-[12px]">
+                <div>
+                  <label className="text-[10px] uppercase text-[#8F8881]">{lang === "zh" ? "中文 · 正文字型 (無襯線)" : "Chinese · Body Font (Sans-Serif)"}</label>
+                  <select value={settings.fontFamilyZhBody} onChange={e => setSettings({ ...settings, fontFamilyZhBody: e.target.value })} className="w-full border border-[#ECE6DF] h-9 px-2 mt-1 bg-white">
+                    <option value="Noto Sans TC">思源黑體 (Noto Sans TC) (Default)</option>
+                    <option value="Microsoft JhengHei">微軟正黑體 (Microsoft JhengHei)</option>
+                    <option value="PingFang TC">蘋方 (PingFang TC)</option>
+                    <option value="Heiti TC">黑體-繁 (Heiti TC)</option>
+                  </select>
+                </div>
+                <div>
+                  <label className="text-[10px] uppercase text-[#8F8881]">{lang === "zh" ? "中文 · 標題字型 (襯線)" : "Chinese · Heading Font (Serif)"}</label>
+                  <select value={settings.fontFamilyZhHeading} onChange={e => setSettings({ ...settings, fontFamilyZhHeading: e.target.value })} className="w-full border border-[#ECE6DF] h-9 px-2 mt-1 bg-white">
+                    <option value="Noto Serif TC">思源宋體 (Noto Serif TC) (Default)</option>
+                    <option value="Songti TC">宋體-繁 (Songti TC)</option>
+                    <option value="PMingLiU">新細明體 (PMingLiU)</option>
+                  </select>
+                </div>
+              </div>
+              <div className="mt-3 bg-[#FBF6F0] p-4">
+                <p style={{ fontFamily: `"${settings.fontFamilyZhBody}", sans-serif` }} className="text-[13px]">正文：{settings.fontFamilyZhBody} — 為敏感肌而生的溫和醫研修護</p>
+                <p style={{ fontFamily: `"${settings.fontFamilyZhHeading}", serif` }} className="text-[22px] mt-2">標題：{settings.fontFamilyZhHeading} — CS12 護膚</p>
+              </div>
+            </div>
+
+            {/* Shared sizing */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-[12px] mt-6 pt-6 border-t border-[#F2ECE4]">
               <div>
                 <label className="text-[10px] uppercase text-[#8F8881]">{lang === "zh" ? "基礎字型大小 (px)" : "Base Font Size (px)"}</label>
                 <input type="range" min="12" max="20" step="1" value={settings.fontSizeBase} onChange={e => setSettings({ ...settings, fontSizeBase: Number(e.target.value) })} className="w-full mt-2" />
@@ -976,12 +1010,6 @@ export function AdminPage() {
                 <input type="range" min="0.8" max="1.3" step="0.05" value={settings.fontSizeScale} onChange={e => setSettings({ ...settings, fontSizeScale: Number(e.target.value) })} className="w-full mt-2" />
                 <p className="text-[10px] text-[#8F8881] mt-1">{lang === "zh" ? "當前選用" : "Current"}: {settings.fontSizeScale}x</p>
               </div>
-            </div>
-            {/* Font Preview */}
-            <div className="mt-4 pt-4 border-t border-[#F2ECE4] bg-[#FBF6F0] p-4">
-              <p className="text-[10px] uppercase text-[#8F8881] mb-2 font-semibold">{lang === "zh" ? "即時預覽效果：" : "Preview:"}</p>
-              <p className="text-[13px]" style={{ fontFamily: `"${settings.fontFamily}", sans-serif` }}>Body text: {settings.fontFamily} — 為敏感肌而生的溫和醫研修護</p>
-              <p className="text-[24px] mt-2" style={{ fontFamily: `"${settings.fontFamilySerif}", serif` }}>Heading: {settings.fontFamilySerif} — CS12 Skincare</p>
             </div>
           </div>
 

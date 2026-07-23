@@ -23,12 +23,19 @@ function applyCSS(settings: SiteSettings) {
   root.style.setProperty("--font-base", `${settings.fontSizeBase}px`)
   root.style.setProperty("--font-scale", String(settings.fontSizeScale))
 
-  const sansFonts = `"${settings.fontFamily}", "Noto Sans TC", system-ui, sans-serif`
-  const serifFonts = `"${settings.fontFamilySerif}", "Noto Serif TC", Georgia, serif`
-  root.style.setProperty("--font-sans", sansFonts)
-  root.style.setProperty("--font-serif", serifFonts)
+  // Language-specific font pairs (body/sans + heading/serif) for English and Traditional Chinese.
+  // These feed the body[data-lang="zh"|"en"] rules in index.css, which pick the active pair
+  // and expose it as --font-sans / --font-serif for the rest of the site to consume.
+  const enBody = settings.fontFamilyEnBody || settings.fontFamily
+  const enHeading = settings.fontFamilyEnHeading || settings.fontFamilySerif
+  const zhBody = settings.fontFamilyZhBody || settings.fontFamily
+  const zhHeading = settings.fontFamilyZhHeading || settings.fontFamilySerif
 
-  document.body.style.fontFamily = sansFonts
+  root.style.setProperty("--font-en-sans", `"${enBody}", "Instrument Sans", "Helvetica Neue", Arial, sans-serif`)
+  root.style.setProperty("--font-en-serif", `"${enHeading}", "Cormorant Garamond", Georgia, "Times New Roman", serif`)
+  root.style.setProperty("--font-zh-sans", `"${zhBody}", "Noto Sans TC", "PingFang TC", "Microsoft JhengHei", "Instrument Sans", "Helvetica Neue", Arial, sans-serif`)
+  root.style.setProperty("--font-zh-serif", `"${zhHeading}", "Noto Serif TC", "PingFang TC", "Microsoft JhengHei", "Cormorant Garamond", Georgia, serif`)
+
   document.body.style.fontSize = `${settings.fontSizeBase}px`
   document.body.style.background = settings.backgroundColor
   document.body.style.color = settings.textColor

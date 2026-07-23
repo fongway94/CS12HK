@@ -191,8 +191,18 @@ export interface SiteSettings {
   textColor: string
   mutedTextColor: string
   borderColor: string
+  // Kept for backward-compatibility with older saved settings / DB rows.
+  // New code should prefer the language-specific fields below.
   fontFamily: string
   fontFamilySerif: string
+
+  // English fonts
+  fontFamilyEnBody: string
+  fontFamilyEnHeading: string
+  // Traditional Chinese fonts
+  fontFamilyZhBody: string
+  fontFamilyZhHeading: string
+
   fontSizeBase: number // in px
   fontSizeScale: number // multiplier
 
@@ -250,6 +260,12 @@ export const DEFAULT_SITE_SETTINGS: SiteSettings = {
   borderColor: "#ECE6DF",
   fontFamily: "Instrument Sans",
   fontFamilySerif: "Cormorant Garamond",
+
+  fontFamilyEnBody: "Instrument Sans",
+  fontFamilyEnHeading: "Cormorant Garamond",
+  fontFamilyZhBody: "Noto Sans TC",
+  fontFamilyZhHeading: "Noto Serif TC",
+
   fontSizeBase: 16,
   fontSizeScale: 1.0,
 
