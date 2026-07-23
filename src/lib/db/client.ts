@@ -1,4 +1,4 @@
-import { Product, User, Order, Coupon, GiftTier, PointsTransaction, BirthdayReward, SiteSettings } from "./types"
+import { Product, User, Order, Coupon, GiftTier, PointsTransaction, BirthdayReward, SiteSettings, NewsletterSubscriber, InventoryLog, BackInStockWaitlist, SEOPageSettings, ProductVariant } from "./types"
 
 export interface DBClient {
   // products
@@ -8,6 +8,12 @@ export interface DBClient {
   createProduct(p: Product): Promise<void>
   updateProduct(id: string, patch: Partial<Product>): Promise<void>
   deleteProduct(id: string): Promise<void>
+
+  // product variants
+  getProductVariants(productId: string): Promise<ProductVariant[]>
+  createProductVariant(variant: ProductVariant): Promise<void>
+  updateProductVariant(variantId: string, patch: Partial<ProductVariant>): Promise<void>
+  deleteProductVariant(variantId: string): Promise<void>
 
   // users
   getUsers(): Promise<User[]>
@@ -44,6 +50,26 @@ export interface DBClient {
   // site settings
   getSiteSettings(): Promise<SiteSettings>
   updateSiteSettings(patch: Partial<SiteSettings>): Promise<void>
+
+  // newsletter subscribers
+  getNewsletterSubscribers(): Promise<NewsletterSubscriber[]>
+  createNewsletterSubscriber(subscriber: NewsletterSubscriber): Promise<void>
+  updateNewsletterSubscriber(id: string, patch: Partial<NewsletterSubscriber>): Promise<void>
+  deleteNewsletterSubscriber(id: string): Promise<void>
+
+  // inventory log
+  getInventoryLogs(productId?: string): Promise<InventoryLog[]>
+  createInventoryLog(log: InventoryLog): Promise<void>
+
+  // back in stock waitlist
+  getBackInStockWaitlist(productId?: string): Promise<BackInStockWaitlist[]>
+  addToWaitlist(entry: BackInStockWaitlist): Promise<void>
+  markWaitlistNotified(id: string): Promise<void>
+
+  // SEO page settings
+  getSEOPageSettings(): Promise<SEOPageSettings[]>
+  upsertSEOPageSettings(settings: SEOPageSettings): Promise<void>
+  deleteSEOPageSettings(path: string): Promise<void>
 }
 
 let _client: DBClient | null = null

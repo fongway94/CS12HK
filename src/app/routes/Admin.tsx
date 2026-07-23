@@ -1,13 +1,14 @@
 import { useEffect, useState, useMemo } from "react"
 import { useAuthStore } from "../../stores/useAuthStore"
 import { getDBClient } from "../../lib/db/client"
-import { Product, User, Order, Coupon, GiftTier, SiteSettings } from "../../lib/db/types"
+import { Product, User, Order, Coupon, GiftTier, SiteSettings, NewsletterSubscriber, InventoryLog, SEOPageSettings } from "../../lib/db/types"
 import { useNavigate } from "react-router-dom"
 import { showToast } from "../../components/ui/Toast"
 import { useAppStore } from "../../stores/useAppStore"
 import { useThemeStore } from "../../stores/useThemeStore"
+import { Download, Search, Filter, Mail, Eye, Trash2, FileText } from "lucide-react"
 
-type AdminTab = "dashboard" | "crm" | "products" | "orders" | "coupons" | "bundles" | "gifts" | "settings"
+type AdminTab = "dashboard" | "crm" | "products" | "orders" | "coupons" | "bundles" | "gifts" | "newsletter" | "inventory" | "reviews" | "seo" | "settings"
 
 export function AdminPage() {
   const { user } = useAuthStore()
@@ -20,15 +21,25 @@ export function AdminPage() {
   const [coupons, setCoupons] = useState<Coupon[]>([])
   const [giftTiers, setGiftTiers] = useState<GiftTier[]>([])
   const [settings, setSettings] = useState<SiteSettings | null>(null)
+  const [newsletterSubscribers, setNewsletterSubscribers] = useState<NewsletterSubscriber[]>([])
+  const [inventoryLogs, setInventoryLogs] = useState<InventoryLog[]>([])
+  const [seoPages, setSeoPages] = useState<SEOPageSettings[]>([])
   const [tab, setTab] = useState<AdminTab>("dashboard")
   const [editingProduct, setEditingProduct] = useState<Partial<Product> | null>(null)
   const [isAdding, setIsAdding] = useState(false)
   const [searchTerm, setSearchTerm] = useState("")
   const [orderFilter, setOrderFilter] = useState<string>("all")
+  const [newsletterSearch, setNewsletterSearch] = useState("")
+  const [inventoryFilter, setInventoryFilter] = useState<string>("all")
+  const [inventoryProductFilter, setInventoryProductFilter] = useState<string>("")
 
   // Coupon editing
   const [editingCoupon, setEditingCoupon] = useState<Partial<Coupon> | null>(null)
   const [isAddingCoupon, setIsAddingCoupon] = useState(false)
+
+  // SEO editing
+  const [editingSeoPage, setEditingSeoPage] = useState<Partial<SEOPageSettings> | null>(null)
+  const [isAddingSeoPage, setIsAddingSeoPage] = useState(false)
 
   useEffect(() => {
     if (!user || user.role !== "admin") { nav("/login"); return }
@@ -43,6 +54,9 @@ export function AdminPage() {
     setCoupons(await db.getCoupons())
     setGiftTiers(await db.getGiftTiers())
     setSettings(await db.getSiteSettings())
+    setNewsletterSubscribers(await db.getNewsletterSubscribers())
+    setInventoryLogs(await db.getInventoryLogs())
+    setSeoPages(await db.getSEOPageSettings())
   }
 
   // Analytics calculations
@@ -236,6 +250,45 @@ export function AdminPage() {
     refresh()
   }
 
+  // ========== SEO Page Settings ==========
+  const handleSaveSeoPage = async () => {
+    if (!editingSeoPage) return
+    const db = getDBClient()
+    if (isAddingSeoPage) {
+      if (!editingSeoPage.path) {
+        showToast("error", lang === "zh" ? "請填寫頁面路徑" : "Please enter page path")
+        return
+      }
+      const newSeoPage: SEOPageSettings = {
+        path: editingSeoPage.path,
+        title_zh: editingSeoPage.title_zh || "",
+        title_en: editingSeoPage.title_en || "",
+        description_zh: editingSeoPage.description_zh || "",
+        description_en: editingSeoPage.description_en || "",
+        image: editingSeoPage.image,
+        noIndex: editingSeoPage.noIndex || false,
+        noFollow: editingSeoPage.noFollow || false
+      }
+      await db.upsertSEOPageSettings(newSeoPage)
+      showToast("success", lang === "zh" ? `SEO 設定已新增: ${newSeoPage.path}` : `SEO settings added: ${newSeoPage.path}`)
+    } else {
+      await db.upsertSEOPageSettings(editingSeoPage as SEOPageSettings)
+      showToast("success", lang === "zh" ? `SEO 設定已更新: ${editingSeoPage.path}` : `SEO settings updated: ${editingSeoPage.path}`)
+    }
+    setEditingSeoPage(null)
+    setIsAddingSeoPage(false)
+    refresh()
+  }
+
+  const handleDeleteSeoPage = async (path: string) => {
+    const msg = lang === "zh" ? `確定刪除「${path}」的 SEO 設定？` : `Are you sure you want to delete SEO settings for "${path}"?`
+    if (!confirm(msg)) return
+    const db = getDBClient()
+    await db.deleteSEOPageSettings(path)
+    showToast("success", lang === "zh" ? `已刪除: ${path}` : `Deleted: ${path}`)
+    refresh()
+  }
+
   const tabLabels: Record<AdminTab, string> = {
     dashboard: lang === "zh" ? "📊 控制台" : "📊 Dashboard",
     crm: lang === "zh" ? "👥 會員 CRM" : "👥 CRM",
@@ -244,6 +297,10 @@ export function AdminPage() {
     coupons: lang === "zh" ? "🏷️ 優惠碼" : "🏷️ Coupons",
     bundles: lang === "zh" ? "🎁 組合包" : "🎁 Bundles",
     gifts: lang === "zh" ? "🎀 滿額贈" : "🎀 Gift Tiers",
+    newsletter: lang === "zh" ? "📧 電子報訂閱" : "📧 Newsletter",
+    inventory: lang === "zh" ? "📋 庫存記錄" : "📋 Inventory Log",
+    reviews: lang === "zh" ? "⭐ 評價管理" : "⭐ Reviews",
+    seo: lang === "zh" ? "🔍 SEO 設定" : "🔍 SEO Settings",
     settings: lang === "zh" ? "⚙️ 系統設定" : "⚙️ Settings"
   }
 
@@ -776,6 +833,358 @@ export function AdminPage() {
             <button onClick={handleSaveGiftTiers} className="bg-[#111] text-white px-6 h-9 text-[11px] uppercase">
               {lang === "zh" ? "儲存贈品階梯設定" : "Save Gift Tiers"}
             </button>
+          </div>
+        </div>
+      )}
+
+      {/* ==================== NEWSLETTER TAB ==================== */}
+      {tab === "newsletter" && (
+        <div className="space-y-4">
+          <div className="bg-white border border-[#ECE6DF] p-6">
+            <div className="flex justify-between items-center mb-4">
+              <h3 className="text-[12px] uppercase font-semibold">{lang === "zh" ? "電子報訂閱管理 (" + newsletterSubscribers.length + ")" : "Newsletter Subscribers (" + newsletterSubscribers.length + ")"}</h3>
+              <div className="flex gap-2">
+                <button onClick={() => {
+                  const csv = ["ID,Email,Source,Subscribed At,Confirmed At,Unsubscribed At,Active,Tags", 
+                    ...newsletterSubscribers.map(s => `${s.id},${s.email},${s.source},${s.subscribedAt},${s.confirmedAt||""},${s.unsubscribedAt||""},${s.isActive},"${(s.tags||[]).join(";")}"`
+                  )].join("\n")
+                  const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" })
+                  const link = document.createElement("a")
+                  link.href = URL.createObjectURL(blob)
+                  link.download = `newsletter_subscribers_${new Date().toISOString().split("T")[0]}.csv`
+                  link.click()
+                  showToast("success", lang === "zh" ? "已匯出 CSV" : "CSV exported")
+                }} className="border border-[#ECE6DF] px-3 h-8 text-[11px] uppercase hover:bg-[#FBF6F0] flex items-center gap-1">
+                  <Download size={12} /> {lang === "zh" ? "匯出 CSV" : "Export CSV"}
+                </button>
+              </div>
+            </div>
+
+            <div className="mb-4">
+              <input 
+                value={newsletterSearch} 
+                onChange={e => setNewsletterSearch(e.target.value)} 
+                placeholder={lang === "zh" ? "搜尋電郵、來源..." : "Search email, source..."} 
+                className="border border-[#ECE6DF] h-9 px-3 text-[11px] w-64" 
+              />
+            </div>
+
+            <div className="overflow-auto">
+              <table className="w-full text-[12px]">
+                <thead>
+                  <tr className="text-[10px] uppercase text-[#8F8881]">
+                    <th className="text-left p-2">{lang === "zh" ? "電郵" : "Email"}</th>
+                    <th className="text-left p-2">{lang === "zh" ? "來源" : "Source"}</th>
+                    <th className="text-left p-2">{lang === "zh" ? "訂閱時間" : "Subscribed"}</th>
+                    <th className="text-left p-2">{lang === "zh" ? "確認時間" : "Confirmed"}</th>
+                    <th className="text-left p-2">{lang === "zh" ? "狀態" : "Status"}</th>
+                    <th className="text-left p-2">{lang === "zh" ? "標籤" : "Tags"}</th>
+                    <th className="text-left p-2">{lang === "zh" ? "操作" : "Actions"}</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {newsletterSubscribers.filter(s => {
+                    if (!newsletterSearch) return true
+                    return (s.email + s.source).toLowerCase().includes(newsletterSearch.toLowerCase())
+                  }).map(s => (
+                    <tr key={s.id} className="border-t border-[#F2ECE4]">
+                      <td className="p-2 font-mono text-[11px]">{s.email}</td>
+                      <td className="p-2">
+                        <span className="bg-[#FBF6F0] text-[10px] px-2 py-[1px] rounded">{s.source}</span>
+                      </td>
+                      <td className="p-2 text-[10px] text-[#8F8881]">{new Date(s.subscribedAt).toLocaleString()}</td>
+                      <td className="p-2 text-[10px] text-[#8F8881]">{s.confirmedAt ? new Date(s.confirmedAt).toLocaleString() : "-"}</td>
+                      <td className="p-2">
+                        <button onClick={() => { const db = getDBClient(); db.updateNewsletterSubscriber(s.id, { isActive: !s.isActive }); refresh() }} className={`px-2 py-[1px] text-[10px] ${s.isActive ? "bg-green-100 text-green-700" : "bg-gray-100 text-gray-500"}`}>
+                          {s.isActive ? (lang === "zh" ? "已訂閱" : "Subscribed") : (lang === "zh" ? "已退訂" : "Unsubscribed")}
+                        </button>
+                      </td>
+                      <td className="p-2 text-[10px] text-[#8F8881]">{(s.tags||[]).join(", ") || "-"}</td>
+                      <td className="p-2">
+                        <button onClick={() => { const msg = lang === "zh" ? `確定刪除 ${s.email}？` : `Delete ${s.email}?`; if(confirm(msg)) { const db = getDBClient(); db.deleteNewsletterSubscriber(s.id); refresh() } }} className="underline text-red-400 text-[10px]">
+                          {lang === "zh" ? "刪除" : "Delete"}
+                        </button>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+            {newsletterSubscribers.length === 0 && <p className="p-8 text-center text-[12px] text-[#8F8881]">{lang === "zh" ? "暫無訂閱記錄" : "No subscribers yet."}</p>}
+          </div>
+        </div>
+      )}
+
+      {/* ==================== INVENTORY LOG TAB ==================== */}
+      {tab === "inventory" && (
+        <div className="space-y-4">
+          <div className="bg-white border border-[#ECE6DF] p-6">
+            <h3 className="text-[12px] uppercase font-semibold mb-4">{lang === "zh" ? "庫存異動記錄" : "Inventory Logs"} ({inventoryLogs.length})</h3>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-3 mb-4">
+              <select value={inventoryFilter} onChange={e => setInventoryFilter(e.target.value)} className="border border-[#ECE6DF] h-9 px-3 text-[11px]">
+                <option value="all">{lang === "zh" ? "全部類型" : "All Types"}</option>
+                <option value="restock">{lang === "zh" ? "進貨/補貨" : "Restock"}</option>
+                <option value="sale">{lang === "zh" ? "銷售出貨" : "Sale"}</option>
+                <option value="adjustment">{lang === "zh" ? "手動調整" : "Adjustment"}</option>
+                <option value="return">{lang === "zh" ? "退貨入庫" : "Return"}</option>
+                <option value="damaged">{lang === "zh" ? "損壞/報廢" : "Damaged"}</option>
+                <option value="initial">{lang === "zh" ? "初始庫存" : "Initial"}</option>
+              </select>
+              <input value={inventoryProductFilter} onChange={e => setInventoryProductFilter(e.target.value)} placeholder={lang === "zh" ? "搜尋產品名稱、SKU..." : "Search product name, SKU..."} className="border border-[#ECE6DF] h-9 px-3 text-[11px]" />
+              <button onClick={() => {
+                const csv = ["ID,Product ID,Variant ID,Type,Quantity,Previous Stock,New Stock,Reason,Order ID,Admin ID,Created At",
+                  ...inventoryLogs.map(l => `${l.id},${l.productId},${l.variantId||""},${l.type},${l.quantity},${l.previousStock},${l.newStock},${l.reason||""},${l.orderId||""},${l.adminId||""},${l.createdAt}`
+                )].join("\n")
+                const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" })
+                const link = document.createElement("a")
+                link.href = URL.createObjectURL(blob)
+                link.download = `inventory_logs_${new Date().toISOString().split("T")[0]}.csv`
+                link.click()
+                showToast("success", lang === "zh" ? "已匯出 CSV" : "CSV exported")
+              }} className="border border-[#ECE6DF] px-3 h-9 text-[11px] uppercase hover:bg-[#FBF6F0] flex items-center justify-center gap-1">
+                <Download size={12} /> {lang === "zh" ? "匯出 CSV" : "Export CSV"}
+              </button>
+            </div>
+
+            <div className="overflow-auto">
+              <table className="w-full text-[12px]">
+                <thead>
+                  <tr className="text-[10px] uppercase text-[#8F8881]">
+                    <th className="text-left p-2">{lang === "zh" ? "時間" : "Time"}</th>
+                    <th className="text-left p-2">{lang === "zh" ? "產品" : "Product"}</th>
+                    <th className="text-left p-2">{lang === "zh" ? "類型" : "Type"}</th>
+                    <th className="text-left p-2">{lang === "zh" ? "數量" : "Qty"}</th>
+                    <th className="text-left p-2">{lang === "zh" ? "之前庫存" : "Prev Stock"}</th>
+                    <th className="text-left p-2">{lang === "zh" ? "之後庫存" : "New Stock"}</th>
+                    <th className="text-left p-2">{lang === "zh" ? "原因/備註" : "Reason"}</th>
+                    <th className="text-left p-2">{lang === "zh" ? "相關訂單" : "Order ID"}</th>
+                    <th className="text-left p-2">{lang === "zh" ? "操作員" : "Admin"}</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {inventoryLogs.filter(l => {
+                    const matchType = inventoryFilter === "all" || l.type === inventoryFilter
+                    const matchProduct = !inventoryProductFilter || 
+                      products.find(p => p.id === l.productId)?.name_zh.toLowerCase().includes(inventoryProductFilter.toLowerCase()) ||
+                      products.find(p => p.id === l.productId)?.sku.toLowerCase().includes(inventoryProductFilter.toLowerCase()) ||
+                      l.productId.toLowerCase().includes(inventoryProductFilter.toLowerCase())
+                    return matchType && matchProduct
+                  }).map(l => {
+                    const product = products.find(p => p.id === l.productId)
+                    const typeLabels: Record<string, {zh: string, en: string}> = {
+                      restock: {zh: "進貨", en: "Restock"},
+                      sale: {zh: "銷售", en: "Sale"},
+                      adjustment: {zh: "調整", en: "Adjustment"},
+                      return: {zh: "退貨", en: "Return"},
+                      damaged: {zh: "損壞", en: "Damaged"},
+                      initial: {zh: "初始", en: "Initial"}
+                    }
+                    const typeLabel = typeLabels[l.type] || {zh: l.type, en: l.type}
+                    return (
+                      <tr key={l.id} className="border-t border-[#F2ECE4] hover:bg-[#FBF6F0]">
+                        <td className="p-2 text-[10px] text-[#8F8881]">{new Date(l.createdAt).toLocaleString()}</td>
+                        <td className="p-2">
+                          <span className="font-medium">{product?.name_zh || l.productId}</span>
+                          <br /><span className="text-[10px] text-[#8F8881] font-mono">{product?.sku || ""}</span>
+                        </td>
+                        <td className="p-2">
+                          <span className={`px-2 py-[1px] text-[10px] rounded ${l.type === "restock" ? "bg-green-100 text-green-700" : l.type === "sale" ? "bg-blue-100 text-blue-700" : l.type === "adjustment" ? "bg-yellow-100 text-yellow-700" : l.type === "return" ? "bg-purple-100 text-purple-700" : l.type === "damaged" ? "bg-red-100 text-red-700" : "bg-gray-100 text-gray-700"}`}>
+                            {lang === "zh" ? typeLabel.zh : typeLabel.en}
+                          </span>
+                        </td>
+                        <td className="p-2 font-mono">{l.quantity > 0 ? "+" : ""}{l.quantity}</td>
+                        <td className="p-2 font-mono">{l.previousStock}</td>
+                        <td className="p-2 font-mono">{l.newStock}</td>
+                        <td className="p-2 text-[10px] text-[#8F8881]">{l.reason || "-"}</td>
+                        <td className="p-2 text-[10px] text-[#8F8881] font-mono">{l.orderId || "-"}</td>
+                        <td className="p-2 text-[10px] text-[#8F8881]">{l.adminId || "-"}</td>
+                      </tr>
+                    )
+                  })}
+                </tbody>
+              </table>
+            </div>
+            {inventoryLogs.length === 0 && <p className="p-8 text-center text-[12px] text-[#8F8881]">{lang === "zh" ? "暫無庫存記錄" : "No inventory logs yet."}</p>}
+          </div>
+        </div>
+      )}
+
+      {/* ==================== REVIEWS TAB ==================== */}
+      {tab === "reviews" && (
+        <div className="space-y-4">
+          <div className="bg-white border border-[#ECE6DF] p-6">
+            <h3 className="text-[12px] uppercase font-semibold mb-4">{lang === "zh" ? "產品評價管理" : "Product Reviews Management"}</h3>
+            <p className="text-[11px] text-[#8F8881] mb-4">{lang === "zh" ? "評價資料儲存在瀏覽器 localStorage 中 (鍵名：cs12_reviews_<productId>)，此處提供檢視與管理介面。" : "Reviews are stored in browser localStorage (key: cs12_reviews_<productId>). This interface allows viewing and management."}</p>
+            
+            <div className="space-y-4">
+              {products.map(product => {
+                try {
+                  const raw = localStorage.getItem(`cs12_reviews_${product.id}`)
+                  const reviews = raw ? JSON.parse(raw) : []
+                  if (reviews.length === 0) return null
+                  return (
+                    <div key={product.id} className="border border-[#F2ECE4] p-4">
+                      <div className="flex justify-between items-start mb-3">
+                        <div>
+                          <h4 className="font-serif text-[16px]">{product.name_zh}</h4>
+                          <p className="text-[11px] text-[#8F8881]">SKU: {product.sku} • ID: {product.id}</p>
+                        </div>
+                        <span className="bg-[#111] text-white text-[10px] px-2 py-1 rounded">{reviews.length} {lang === "zh" ? "則評價" : "reviews"}</span>
+                      </div>
+                      <div className="space-y-2 max-h-60 overflow-y-auto">
+                        {reviews.map((r: any) => (
+                          <div key={r.id} className="border border-[#F2ECE4] p-3 text-[11px]">
+                            <div className="flex items-center gap-2 mb-1">
+                              <span className="font-medium">{r.name}</span>
+                              <span className="text-[12px]">{"★".repeat(r.rating)}{"☆".repeat(5-r.rating)}</span>
+                              <span className="text-[10px] text-[#8F8881] ml-auto">{new Date(r.date).toLocaleDateString()}</span>
+                            </div>
+                            <p className="text-[#5C5651]">{r.comment}</p>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )
+                } catch { return null }
+              })}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ==================== SEO SETTINGS TAB ==================== */}
+      {tab === "seo" && settings && (
+        <div className="space-y-6">
+          {/* Global SEO Settings */}
+          <div className="bg-white border border-[#ECE6DF] p-6">
+            <h3 className="text-[12px] uppercase font-semibold mb-4">🌐 {lang === "zh" ? "全域 SEO 設定" : "Global SEO Settings"}</h3>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-[12px] mb-6">
+              <div><label className="text-[10px] uppercase text-[#8F8881]">{lang === "zh" ? "預設標題 (中)" : "Default Title (ZH)"}</label><input value={settings.seoDefaultTitle_zh} onChange={e => setSettings({ ...settings, seoDefaultTitle_zh: e.target.value })} className="w-full border border-[#ECE6DF] h-9 px-2 mt-1" /></div>
+              <div><label className="text-[10px] uppercase text-[#8F8881]">{lang === "zh" ? "預設標題 (EN)" : "Default Title (EN)"}</label><input value={settings.seoDefaultTitle_en} onChange={e => setSettings({ ...settings, seoDefaultTitle_en: e.target.value })} className="w-full border border-[#ECE6DF] h-9 px-2 mt-1" /></div>
+              <div className="md:col-span-2"><label className="text-[10px] uppercase text-[#8F8881]">{lang === "zh" ? "預設描述 (中)" : "Default Description (ZH)"}</label><textarea value={settings.seoDefaultDescription_zh} onChange={e => setSettings({ ...settings, seoDefaultDescription_zh: e.target.value })} className="w-full border border-[#ECE6DF] h-16 px-2 mt-1 text-[11px]" /></div>
+              <div className="md:col-span-2"><label className="text-[10px] uppercase text-[#8F8881]">{lang === "zh" ? "預設描述 (EN)" : "Default Description (EN)"}</label><textarea value={settings.seoDefaultDescription_en} onChange={e => setSettings({ ...settings, seoDefaultDescription_en: e.target.value })} className="w-full border border-[#ECE6DF] h-16 px-2 mt-1 text-[11px]" /></div>
+              <div><label className="text-[10px] uppercase text-[#8F8881]">{lang === "zh" ? "預設分享圖片 URL" : "Default OG Image URL"}</label><input value={settings.seoDefaultImage} onChange={e => setSettings({ ...settings, seoDefaultImage: e.target.value })} className="w-full border border-[#ECE6DF] h-9 px-2 mt-1 font-mono text-[11px]" /></div>
+              <div><label className="text-[10px] uppercase text-[#8F8881]">Twitter Handle</label><input value={settings.seoTwitterHandle} onChange={e => setSettings({ ...settings, seoTwitterHandle: e.target.value })} className="w-full border border-[#ECE6DF] h-9 px-2 mt-1 font-mono text-[11px]" /></div>
+              <div><label className="text-[10px] uppercase text-[#8F8881]">Facebook App ID</label><input value={settings.seoFacebookAppId} onChange={e => setSettings({ ...settings, seoFacebookAppId: e.target.value })} className="w-full border border-[#ECE6DF] h-9 px-2 mt-1 font-mono text-[11px]" /></div>
+              <div><label className="text-[10px] uppercase text-[#8F8881]">Google Analytics ID</label><input value={settings.googleAnalyticsId} onChange={e => setSettings({ ...settings, googleAnalyticsId: e.target.value })} className="w-full border border-[#ECE6DF] h-9 px-2 mt-1 font-mono text-[11px]" /></div>
+              <div><label className="text-[10px] uppercase text-[#8F8881]">GTM Container ID</label><input value={settings.gtmContainerId} onChange={e => setSettings({ ...settings, gtmContainerId: e.target.value })} className="w-full border border-[#ECE6DF] h-9 px-2 mt-1 font-mono text-[11px]" /></div>
+            </div>
+          </div>
+
+          {/* Per-Page SEO Settings */}
+          <div className="bg-white border border-[#ECE6DF] p-6">
+            <div className="flex justify-between items-center mb-4">
+              <h3 className="text-[12px] uppercase font-semibold">{lang === "zh" ? "分頁 SEO 設定 (" + seoPages.length + ")" : "Per-Page SEO Settings (" + seoPages.length + ")"}</h3>
+              <button onClick={() => { setEditingSeoPage({}); setIsAddingSeoPage(true) }} className="bg-[#111] text-white px-4 h-8 text-[11px] uppercase">
+                + {lang === "zh" ? "新增頁面 SEO" : "Add Page SEO"}
+              </button>
+            </div>
+
+            {/* SEO Edit/Add Form */}
+            {editingSeoPage && (
+              <div className="mb-6 p-4 bg-[#FBF6F0] border border-[#ECE6DF]">
+                <h4 className="text-[12px] uppercase font-semibold mb-3">
+                  {isAddingSeoPage ? (lang === "zh" ? "+ 新增分頁 SEO 設定" : "+ Add New Page SEO") : `${lang === "zh" ? "編輯 SEO 設定" : "Edit SEO"}: ${editingSeoPage.path}`}
+                </h4>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-3 text-[12px]">
+                  <div><label className="text-[10px] uppercase text-[#8F8881]">{lang === "zh" ? "頁面路徑 *" : "Page Path *"}</label><input value={editingSeoPage.path || ""} onChange={e => setEditingSeoPage({ ...editingSeoPage, path: e.target.value })} className="w-full border border-[#ECE6DF] h-9 px-2 mt-1 font-mono text-[11px]" placeholder="/shop" disabled={!isAddingSeoPage} /></div>
+                  <div><label className="text-[10px] uppercase text-[#8F8881]">{lang === "zh" ? "標題 (中)" : "Title (ZH)"}</label><input value={editingSeoPage.title_zh || ""} onChange={e => setEditingSeoPage({ ...editingSeoPage, title_zh: e.target.value })} className="w-full border border-[#ECE6DF] h-9 px-2 mt-1" /></div>
+                  <div><label className="text-[10px] uppercase text-[#8F8881]">{lang === "zh" ? "標題 (EN)" : "Title (EN)"}</label><input value={editingSeoPage.title_en || ""} onChange={e => setEditingSeoPage({ ...editingSeoPage, title_en: e.target.value })} className="w-full border border-[#ECE6DF] h-9 px-2 mt-1" /></div>
+                  <div className="md:col-span-2"><label className="text-[10px] uppercase text-[#8F8881]">{lang === "zh" ? "描述 (中)" : "Description (ZH)"}</label><textarea value={editingSeoPage.description_zh || ""} onChange={e => setEditingSeoPage({ ...editingSeoPage, description_zh: e.target.value })} className="w-full border border-[#ECE6DF] h-16 px-2 mt-1 text-[11px]" /></div>
+                  <div className="md:col-span-2"><label className="text=[10px] uppercase text-[#8F8881]">{lang === "zh" ? "描述 (EN)" : "Description (EN)"}</label><textarea value={editingSeoPage.description_en || ""} onChange={e => setEditingSeoPage({ ...editingSeoPage, description_en: e.target.value })} className="w-full border border-[#ECE6DF] h-16 px-2 mt-1 text-[11px]" /></div>
+                  <div><label className="text-[10px] uppercase text-[#8F8881]">{lang === "zh" ? "分享圖片 URL" : "OG Image URL"}</label><input value={editingSeoPage.image || ""} onChange={e => setEditingSeoPage({ ...editingSeoPage, image: e.target.value })} className="w-full border border-[#ECE6DF] h-9 px-2 mt-1 font-mono text-[11px]" /></div>
+                  <div className="flex items-end gap-4 col-span-1 md:col-span-2">
+                    <label className="flex items-center gap-2 text-[11px]"><input type="checkbox" checked={editingSeoPage.noIndex || false} onChange={e => setEditingSeoPage({ ...editingSeoPage, noIndex: e.target.checked })} />{lang === "zh" ? "No Index" : "No Index"}</label>
+                    <label className="flex items-center gap-2 text-[11px]"><input type="checkbox" checked={editingSeoPage.noFollow || false} onChange={e => setEditingSeoPage({ ...editingSeoPage, noFollow: e.target.checked })} />{lang === "zh" ? "No Follow" : "No Follow"}</label>
+                  </div>
+                </div>
+                <div className="flex gap-2 mt-4">
+                  <button onClick={handleSaveSeoPage} className="bg-[#111] text-white px-6 h-9 text-[11px] uppercase">
+                    {isAddingSeoPage ? (lang === "zh" ? "建立 SEO 設定" : "Create SEO Settings") : (lang === "zh" ? "儲存變更" : "Save Changes")}
+                  </button>
+                  <button onClick={() => { setEditingSeoPage(null); setIsAddingSeoPage(false) }} className="border border-[#ECE6DF] px-6 h-9 text-[11px] uppercase">
+                    {lang === "zh" ? "取消" : "Cancel"}
+                  </button>
+                </div>
+              </div>
+            )}
+
+            <div className="overflow-auto">
+              <table className="w-full text-[12px]">
+                <thead>
+                  <tr className="text-[10px] uppercase text-[#8F8881]">
+                    <th className="text-left p-2">{lang === "zh" ? "路徑" : "Path"}</th>
+                    <th className="text-left p-2">{lang === "zh" ? "標題 (中)" : "Title (ZH)"}</th>
+                    <th className="text-left p-2">{lang === "zh" ? "標題 (EN)" : "Title (EN)"}</th>
+                    <th className="text-left p-2">{lang === "zh" ? "描述 (中)" : "Description (ZH)"}</th>
+                    <th className="text-left p-2">{lang === "zh" ? "No Index" : "No Index"}</th>
+                    <th className="text-left p-2">{lang === "zh" ? "No Follow" : "No Follow"}</th>
+                    <th className="text-left p-2">{lang === "zh" ? "操作" : "Actions"}</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {seoPages.map(s => (
+                    <tr key={s.path} className="border-t border-[#F2ECE4]">
+                      <td className="p-2 font-mono text-[11px]">{s.path}</td>
+                      <td className="p-2 text-[11px] max-w-[200px] truncate">{s.title_zh}</td>
+                      <td className="p-2 text-[11px] max-w-[200px] truncate">{s.title_en}</td>
+                      <td className="p-2 text-[10px] text-[#8F8881] max-w-[250px] truncate">{s.description_zh}</td>
+                      <td className="p-2">{s.noIndex ? "✓" : "-"}</td>
+                      <td className="p-2">{s.noFollow ? "✓" : "-"}</td>
+                      <td className="p-2">
+                        <div className="flex gap-2">
+                          <button onClick={() => { setEditingSeoPage(s); setIsAddingSeoPage(false) }} className="underline text-[#8F8881] text-[10px]">{lang === "zh" ? "編輯" : "Edit"}</button>
+                          <button onClick={() => handleDeleteSeoPage(s.path)} className="underline text-red-400 text-[10px]">{lang === "zh" ? "刪除" : "Delete"}</button>
+                        </div>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+            {seoPages.length === 0 && <p className="p-8 text-center text-[12px] text-[#8F8881]">{lang === "zh" ? "尚未設定分頁 SEO，將使用全域預設值" : "No per-page SEO settings, using global defaults"}</p>}
+          </div>
+
+          {/* Product SEO Helper */}
+          <div className="bg-white border border-[#ECE6DF] p-6">
+            <h3 className="text-[12px] uppercase font-semibold mb-4">{lang === "zh" ? "產品 SEO 檢查" : "Product SEO Audit"}</h3>
+            <p className="text-[11px] text-[#8F8881] mb-4">{lang === "zh" ? "檢查哪些產品缺少 SEO 標題、描述或圖片。" : "Check which products are missing SEO title, description, or image."}</p>
+            <div className="overflow-auto">
+              <table className="w-full text-[12px]">
+                <thead>
+                  <tr className="text-[10px] uppercase text-[#8F8881]">
+                    <th className="text-left p-2">{lang === "zh" ? "產品" : "Product"}</th>
+                    <th className="text-left p-2">{lang === "zh" ? "SKU" : "SKU"}</th>
+                    <th className="text-left p-2">{lang === "zh" ? "SEO 標題" : "SEO Title"}</th>
+                    <th className="text-left p-2">{lang === "zh" ? "SEO 描述" : "SEO Desc"}</th>
+                    <th className="text-left p-2">{lang === "zh" ? "SEO 圖片" : "SEO Image"}</th>
+                    <th className="text-left p-2">{lang === "zh" ? "狀態" : "Status"}</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {products.map(p => {
+                    const hasTitle = !!(p.seoTitle_zh || p.seoTitle_en)
+                    const hasDesc = !!(p.seoDescription_zh || p.seoDescription_en)
+                    const hasImage = !!p.seoImage
+                    const missing = [!hasTitle, !hasDesc, !hasImage].filter(Boolean).length
+                    return (
+                      <tr key={p.id} className="border-t border-[#F2ECE4] hover:bg-[#FBF6F0]">
+                        <td className="p-2">{p.name_zh}</td>
+                        <td className="p-2 font-mono text-[11px]">{p.sku}</td>
+                        <td className="p-2">{hasTitle ? "✓" : "✗"}</td>
+                        <td className="p-2">{hasDesc ? "✓" : "✗"}</td>
+                        <td className="p-2">{hasImage ? "✓" : "✗"}</td>
+                        <td className="p-2">
+                          <span className={missing === 0 ? "text-green-600" : missing <= 1 ? "text-yellow-600" : "text-red-600"}>
+                            {missing === 0 ? (lang === "zh" ? "完整" : "Complete") : missing <= 1 ? (lang === "zh" ? "輕微缺漏" : "Minor gaps") : (lang === "zh" ? "需補齊" : "Needs work")}
+                          </span>
+                        </td>
+                      </tr>
+                    )
+                  })}
+                </tbody>
+              </table>
+            </div>
           </div>
         </div>
       )}

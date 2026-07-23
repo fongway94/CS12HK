@@ -40,7 +40,31 @@ export function CheckoutPage() {
   const isBirthday = user ? checkBirthdayMonth(user.birthday) : false
   const birthdayMultiplier = isBirthday ? 2 : 1
 
-  const subtotal = useMemo(()=> calcSubtotal(items.map(i=>({ priceHKD: i.product.price_hkd, priceUSD: i.product.price_usd, qty: i.qty }))),[items])
+  // Helper to get display price (variant or base product)
+  const getItemPrice = (item: any) => {
+    const v = item.variant
+    return {
+      priceHKD: v?.price_hkd ?? item.product.price_hkd,
+      priceUSD: v?.price_usd ?? item.product.price_usd,
+      qty: item.qty
+    }
+  }
+
+  const getItemStock = (item: any) => {
+    return item.variant?.stock ?? item.product.stock
+  }
+
+  const getItemName = (item: any) => {
+    const v = item.variant
+    return lang==="zh" ? (v?.name_zh ?? item.product.name_zh) : (v?.name_en ?? item.product.name_en)
+  }
+
+  const getItemImage = (item: any) => {
+    const v = item.variant
+    return v?.image ? [v.image, ...item.product.images.slice(1)] : item.product.images
+  }
+
+  const subtotal = useMemo(()=> calcSubtotal(items.map(getItemPrice)),[items])
   const giftTier = getGiftTier(subtotal.hkd, subtotal.usd, giftTiers, currency)
   const couponCalc = useMemo(()=> calcCouponDiscount(subtotal.hkd, subtotal.usd, couponObj, currency, user?.isFirstOrder ?? true),[subtotal, couponObj, currency, user])
   const shipping = calcShipping(subtotal.hkd - couponCalc.discountHKD, subtotal.usd - couponCalc.discountUSD, currency)
@@ -68,8 +92,9 @@ export function CheckoutPage() {
       const db = getDBClient()
       for (const item of items) {
         const currentProduct = await db.getProductById(item.product.id)
-        if (!currentProduct || currentProduct.stock < item.qty) {
-          showToast("error", lang==="zh"?`${item.product.name_zh} 庫存不足`:`Insufficient stock for ${item.product.name_en}`)
+        const stock = getItemStock(item)
+        if (!currentProduct || stock < item.qty) {
+          showToast("error", lang==="zh"?`${getItemName(item)} 庫存不足`:`Insufficient stock for ${getItemName(item)}`)
           setIsPlacing(false)
           return
         }
@@ -77,7 +102,13 @@ export function CheckoutPage() {
       const order: Order = {
         id: "ORD-" + Date.now(),
         userId: user.id,
-        items: items.map(i=>({ productId: i.product.id, qty: i.qty, priceHKDAtPurchase: i.product.price_hkd, priceUSDAtPurchase: i.product.price_usd })),
+        items: items.map(i=>({ 
+          productId: i.product.id, 
+          qty: i.qty, 
+          priceHKDAtPurchase: getItemPrice(i).priceHKD, 
+          priceUSDAtPurchase: getItemPrice(i).priceUSD,
+          variantId: i.variantId
+        })),
         subtotalHKD: subtotal.hkd, subtotalUSD: subtotal.usd,
         discountHKD: couponCalc.discountHKD + pointsDiscountHKD,
         discountUSD: couponCalc.discountUSD + pointsDiscountHKD*0.128,
@@ -94,7 +125,7 @@ export function CheckoutPage() {
       await db.createOrder(order)
       for (const item of items) {
         const currentProduct = await db.getProductById(item.product.id)
-        if (currentProduct) await db.updateProduct(item.product.id, { stock: Math.max(0, currentProduct.stock - item.qty) })
+        if (currentProduct) await db.updateProduct(item.product.id, { stock: Math.max(0, getItemStock(item) - item.qty) })
       }
       let bonusPoints = 0
       if (isBirthday) {
@@ -198,20 +229,28 @@ export function CheckoutPage() {
       <section className="bg-white border border-[#ECE6DF] p-6 h-fit md:sticky md:top-[100px]">
         <h3 className="text-[12px] tracking-[0.18em] uppercase font-semibold mb-4">{lang==="zh"?"訂單摘要":"Order Summary"}</h3>
         <div className="space-y-2 text-[13px]">
-          {items.map(i=>
-            <div key={i.product.id} className="flex justify-between text-[#5C5651] py-2 border-b border-[#F2ECE4]">
-              <div className="flex gap-3">
-                <div className="w-14 h-14 bg-[#FBF6F0] border border-[#F2ECE4] shrink-0">
-                  <img src={i.product.images[0]} className="w-full h-full object-cover" alt=""/>
+          {items.map((i, idx) => {
+            const images = getItemImage(i)
+            const name = getItemName(i)
+            const priceHKD = getItemPrice(i).priceHKD
+            const priceUSD = getItemPrice(i).priceUSD
+            const variant = i.variant
+            return (
+              <div key={`${i.product.id}-${i.variantId || "base"}-${idx}`} className="flex justify-between text-[#5C5651] py-2 border-b border-[#F2ECE4]">
+                <div className="flex gap-3">
+                  <div className="w-14 h-14 bg-[#FBF6F0] border border-[#F2ECE4] shrink-0">
+                    <img src={images[0]} className="w-full h-full object-cover" alt=""/>
+                  </div>
+                  <div>
+                    <p className="text-[12px] leading-tight">{name}</p>
+                    {variant && <p className="text-[10px] text-[#8F8881]">{lang==="zh"?"規格":"Variant"}: {lang==="zh"?variant.name_zh:variant.name_en}</p>}
+                    <p className="text-[10px] text-[#8F8881]">x{i.qty}</p>
+                  </div>
                 </div>
-                <div>
-                  <p className="text-[12px] leading-tight">{lang==="zh"?i.product.name_zh:i.product.name_en}</p>
-                  <p className="text-[10px] text-[#8F8881]">x{i.qty}</p>
-                </div>
+                <span className="text-[12px] font-medium shrink-0">{formatPrice(priceHKD*i.qty, priceUSD*i.qty,currency)}</span>
               </div>
-              <span className="text-[12px] font-medium shrink-0">{formatPrice(i.product.price_hkd*i.qty, i.product.price_usd*i.qty,currency)}</span>
-            </div>
-          )}
+            )
+          })}
           <div className="pt-3 space-y-2">
             <div className="flex justify-between"><span>{lang==="zh"?"小計":"Subtotal"}</span><span>{formatPrice(subtotal.hkd, subtotal.usd, currency)}</span></div>
             {couponCalc.valid && <div className="flex justify-between text-green-700"><span>{lang==="zh"?"折扣":"Discount"} {couponObj?.code}</span><span>-{formatPrice(couponCalc.discountHKD, couponCalc.discountUSD,currency)}</span></div>}

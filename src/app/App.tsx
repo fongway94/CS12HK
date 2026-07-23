@@ -12,6 +12,7 @@ import { AccountPage } from "./routes/Account"
 import { CheckoutPage } from "./routes/Checkout"
 import { AdminPage } from "./routes/Admin"
 import { WishlistPage } from "./routes/Wishlist"
+import { OrderDetailPage } from "./routes/OrderDetail"
 import { initLocalDB } from "../lib/db/localAdapter"
 import { setDBClient } from "../lib/db/client"
 import { useAuthStore } from "../stores/useAuthStore"
@@ -111,6 +112,7 @@ function AppShell() {
           <Route path="/account" element={<AccountPage />} />
           <Route path="/admin" element={<AdminPage />} />
           <Route path="/wishlist" element={<WishlistPage />} />
+          <Route path="/order/:id" element={<OrderDetailPage />} />
           <Route path="*" element={<div className="py-20 text-center">404 – Not Found<br/><a href="/" className="underline">Go Home</a></div>} />
         </Routes>
       </div>

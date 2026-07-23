@@ -81,6 +81,27 @@ export function AccountPage() {
     { key: "settings", label_zh: "帳戶設定", label_en: "Settings" },
   ]
 
+  const renderBirthdaySection = () => {
+    if (!user.birthday) {
+      return (
+        <p className="text-[12px] text-[#8F8881] mt-2">
+          <button onClick={()=>setTab("birthday")} className="underline">{lang==="zh"?"設定生日日期":"Set your birthday"}</button>
+          {lang==="zh"?"，享生日禮遇及驚喜。":" to unlock birthday rewards."}
+        </p>
+      )
+    }
+    return (
+      <div className="mt-2 text-[13px]">
+        <p>{lang==="zh"?"生日":"Birthday"}: {user.birthday} {isBirthdayMonth && <span className="bg-[#111] text-white px-2 py-[1px] text-[10px] ml-2">{lang==="zh"?"本月生日！":"BIRTHDAY MONTH"}</span>}</p>
+        {isBirthdayMonth ? (
+          <p className="mt-2 text-[#825F59]">{lang==="zh"?"生日月份尊享 10% OFF 優惠碼 BIRTHDAY10 已自動激活，購物即可使用！另獲 200 積分獎勵。":"Your birthday 10% OFF code BIRTHDAY10 is active! Plus 200 bonus points on your birthday month order."}</p>
+        ) : (
+          <p className="text-[#8F8881] mt-2">{lang==="zh"?"生日當月可享 10% OFF 及雙倍積分。":"Enjoy 10% OFF and double points during your birthday month."}</p>
+        )}
+      </div>
+    )
+  }
+
   return (
     <main className="w-[min(calc(100%-24px),1440px)] mx-auto py-6 md:py-10 grid grid-cols-1 md:grid-cols-[260px_1fr] gap-6 md:gap-10">
       <aside className="bg-white border border-[#ECE6DF] p-6 h-fit">
@@ -109,14 +130,7 @@ export function AccountPage() {
         {tab==="overview" && (<>
           <div className={`border p-6 ${isBirthdayMonth ? "bg-[#FFF7ED] border-[#FED7AA]" : "bg-[#FBF6F0] border-[#ECE6DF]"}`}>
             <h3 className="font-serif text-[20px]">🎂 {lang==="zh"?"生日禮遇":"Birthday Special"}</h3>
-            {user.birthday ? (
-              <div className="mt-2 text-[13px]">
-                <p>{lang==="zh"?"生日":"Birthday"}: {user.birthday} {isBirthdayMonth && <span className="bg-[#111] text-white px-2 py-[1px] text-[10px] ml-2">{lang==="zh"?"本月生日！":"BIRTHDAY MONTH"}</span>}</p>
-                {isBirthdayMonth
-                  ? <p className="mt-2 text-[#825F59]">{lang==="zh"?"生日月份尊享 10% OFF 優惠碼 BIRTHDAY10 已自動激活，購物即可使用！另獲 200 積分獎勵。":"Your birthday 10% OFF code BIRTHDAY10 is active! Plus 200 bonus points on your birthday month order."}</p>
-                  : <p className="text-[#8F8881] mt-2">{lang==="zh"?"生日當月可享 10% OFF 及雙倍積分。":"Enjoy 10% OFF and double points during your birthday month."}</p>}
-              </div>
-            ) : <p className="text-[12px] text-[#8F8881] mt-2"><button onClick={()=>setTab("birthday")} className="underline">{lang==="zh"?"設定生日日期":"Set your birthday"}</button>{lang==="zh"?"，享生日禮遇及驚喜。":" to unlock birthday rewards."}</p>}
+            {renderBirthdaySection()}
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
@@ -138,10 +152,10 @@ export function AccountPage() {
             {orders.length===0
               ? <p className="text-[12px] text-[#8F8881]">{lang==="zh"?"暫無訂單。去 ":"No orders yet. Visit "}<Link to="/exclusive" className="underline">{lang==="zh"?"官網限定":"Exclusive"}</Link>{lang==="zh"?" 選購。":" to shop."}</p>
               : <div className="space-y-3">{orders.slice(0,3).map(o=>(
-                  <div key={o.id} className="border border-[#F2ECE4] p-4 flex justify-between text-[12px]">
+                  <Link to={`/order/${o.id}`} key={o.id} className="border border-[#F2ECE4] p-4 flex justify-between text-[12px] hover:bg-[#FBF6F0] transition">
                     <div><p className="font-semibold">{o.id} • {new Date(o.createdAt).toLocaleDateString()}</p><p className="text-[#8F8881]">{o.items.length} items • <span className={o.status==="paid"?"text-green-600":o.status==="shipped"?"text-blue-600":""}>{o.status}</span></p></div>
                     <div className="text-right"><p>{formatPrice(o.totalHKD, o.totalUSD, currency)}</p><p className="text-[#8F8881] text-[11px]">+{o.pointsEarned} pts {o.giftTier?`• 🎁 ${o.giftTier}`:""}</p></div>
-                  </div>
+                  </Link>
                 ))}</div>}
           </div>
         </>)}
@@ -153,7 +167,7 @@ export function AccountPage() {
             {orders.length===0
               ? <p className="text-[12px] text-[#8F8881]">{lang==="zh"?"暫無訂單。去 ":"No orders yet. Visit "}<Link to="/exclusive" className="underline">{lang==="zh"?"官網限定":"Exclusive"}</Link>{lang==="zh"?" 選購。":" to shop."}</p>
               : <div className="space-y-4">{orders.map(o=>(
-                  <div key={o.id} className="border border-[#F2ECE4] p-5">
+                  <Link to={`/order/${o.id}`} key={o.id} className="border border-[#F2ECE4] p-5 hover:bg-[#FBF6F0] transition block">
                     <div className="flex justify-between items-start">
                       <div><p className="font-semibold text-[13px]">{o.id}</p><p className="text-[11px] text-[#8F8881]">{new Date(o.createdAt).toLocaleDateString()} • {o.items.length} items</p></div>
                       <div className="text-right">
@@ -167,7 +181,7 @@ export function AccountPage() {
                       <p>{lang==="zh"?"積分":"Points"}: +{o.pointsEarned} {o.pointsUsed > 0 ? `(-${o.pointsUsed} used)` : ""}</p>
                       {o.shippingAddress && <p>{lang==="zh"?"送貨":"Ship to"}: {o.shippingAddress.name} - {o.shippingAddress.address}, {o.shippingAddress.district}</p>}
                     </div>
-                  </div>
+                  </Link>
                 ))}</div>}
           </div>
         )}

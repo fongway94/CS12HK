@@ -26,6 +26,43 @@ export interface Product {
   rating: number
   reviewsCount: number
   createdAt: string
+
+  // SEO per product
+  seoTitle_zh?: string
+  seoTitle_en?: string
+  seoDescription_zh?: string
+  seoDescription_en?: string
+  seoImage?: string
+
+  // Product variants (size, color, etc.)
+  variants?: ProductVariant[]
+  hasVariants?: boolean
+}
+
+export interface ProductVariant {
+  id: string
+  productId: string
+  name_zh: string
+  name_en: string
+  sku: string
+  price_hkd: number
+  price_usd: number
+  stock: number
+  weight_kg?: number
+  image?: string
+  attributes: Record<string, string> // e.g. { size: "30ml", color: "Ivory" }
+  isDefault?: boolean
+}
+
+export interface SEOPageSettings {
+  path: string
+  title_zh: string
+  title_en: string
+  description_zh: string
+  description_en: string
+  image?: string
+  noIndex?: boolean
+  noFollow?: boolean
 }
 
 export interface User {
@@ -145,6 +182,45 @@ export interface BirthdayReward {
   validTo: string
 }
 
+export interface NewsletterSubscriber {
+  id: string
+  email: string
+  source: string // e.g. "homepage", "checkout", "popup", "account"
+  subscribedAt: string
+  confirmedAt?: string
+  unsubscribedAt?: string
+  isActive: boolean
+  tags?: string[] // e.g. "vip", "birthday-month", "new-customer"
+}
+
+export interface InventoryLog {
+  id: string
+  productId: string
+  variantId?: string
+  type: "restock" | "sale" | "adjustment" | "return" | "damaged" | "initial"
+  quantity: number // positive for in, negative for out
+  previousStock: number
+  newStock: number
+  reason?: string
+  orderId?: string
+  adminId?: string
+  createdAt: string
+}
+
+export interface BackInStockWaitlist {
+  id: string
+  productId: string
+  variantId?: string
+  email: string
+  notifiedAt?: string
+  createdAt: string
+}
+
+export interface RecentlyViewedProduct {
+  productId: string
+  viewedAt: string
+}
+
 export interface SiteSettings {
   // Store Info
   storeName: string
@@ -216,6 +292,17 @@ export interface SiteSettings {
   maintenanceMessage_zh: string
   maintenanceMessage_en: string
 
+  // SEO / Meta Settings
+  seoDefaultTitle_zh: string
+  seoDefaultTitle_en: string
+  seoDefaultDescription_zh: string
+  seoDefaultDescription_en: string
+  seoDefaultImage: string
+  seoTwitterHandle: string
+  seoFacebookAppId: string
+  googleAnalyticsId: string
+  gtmContainerId: string
+
   updatedAt: string
 }
 
@@ -276,6 +363,17 @@ export const DEFAULT_SITE_SETTINGS: SiteSettings = {
   maintenanceMode: false,
   maintenanceMessage_zh: "網站維護中，請稍後再訪",
   maintenanceMessage_en: "We are performing maintenance. Please check back soon.",
+
+  // SEO / Meta Settings
+  seoDefaultTitle_zh: "CS12 Skincare | 敏感肌修復專家",
+  seoDefaultTitle_en: "CS12 Skincare | Sensitive Skin Repair Specialist",
+  seoDefaultDescription_zh: "CS12 為敏感肌而生的溫和醫研修護品牌，源自德國頂尖醫美科技，累計銷量突破百萬片。官網限定修護套裝、滿額贈品、會員積分獎勵。",
+  seoDefaultDescription_en: "CS12 - Gentle clinical skincare for sensitive skin. German dermatological technology, 1M+ masks sold. Exclusive bundles, gift-with-purchase, loyalty rewards.",
+  seoDefaultImage: "https://cs12skincare.com.hk/wp-content/uploads/2026/03/CS12-LOGO_White-Background-800x800_t.png",
+  seoTwitterHandle: "@cs12skincare",
+  seoFacebookAppId: "",
+  googleAnalyticsId: "",
+  gtmContainerId: "",
 
   updatedAt: new Date().toISOString()
 }

@@ -72,22 +72,35 @@ export function CartPage() {
       <section>
         <h1 className="font-serif text-[32px] mb-6">{lang==="zh"?"購物車":"Cart"} ({items.length})</h1>
         <div className="border-t border-[#ECE6DF]">
-          {items.map(({product, qty})=>(
-            <div key={product.id} className="py-6 border-b border-[#F2ECE4] flex gap-4">
-              <Link to={`/product/${product.slug}`} className="w-24 h-24 bg-[#FBF6F0] border border-[#F2ECE4]"><img src={product.images[0]} className="w-full h-full object-cover" alt=""/></Link>
-              <div className="flex-1">
-                <Link to={`/product/${product.slug}`} className="font-serif text-[18px] leading-tight block">{lang==="zh"?product.name_zh:product.name_en}</Link>
-                <p className="text-[11px] text-[#8F8881] mt-1">{product.series} • {formatPrice(product.price_hkd, product.price_usd, currency)}</p>
-                <div className="flex items-center gap-2 mt-3">
-                  <button onClick={()=>updateQty(product.id, qty-1)} className="w-7 h-7 border border-[#ECE6DF]">-</button>
-                  <span className="w-8 text-center text-[13px]">{qty}</span>
-                  <button onClick={()=>updateQty(product.id, qty+1)} className="w-7 h-7 border border-[#ECE6DF]">+</button>
-                  <button onClick={()=>{removeItem(product.id); showToast("info", lang==="zh"?`已移除：${product.name_zh}`:`Removed: ${product.name_en}`)}} className="ml-4 text-[11px] underline text-[#8F8881]">{lang==="zh"?"移除":"Remove"}</button>
+          {items.map((item, idx) => {
+            const { product, qty, variant, variantId } = item
+            const displayProduct = variant || product
+            const displayName = lang==="zh"?displayProduct.name_zh:displayProduct.name_en
+            const displayPriceHKD = displayProduct.price_hkd
+            const displayPriceUSD = displayProduct.price_usd
+            const displayImages = variant?.image ? [variant.image, ...product.images.slice(1)] : product.images
+            const displaySKU = variant?.sku || product.sku
+            const uniqueKey = `${product.id}-${variantId || "base"}`
+            return (
+              <div key={uniqueKey} className="py-6 border-b border-[#F2ECE4] flex gap-4">
+                <Link to={`/product/${product.slug}`} className="w-24 h-24 bg-[#FBF6F0] border border-[#F2ECE4]"><img src={displayImages[0]} className="w-full h-full object-cover" alt=""/></Link>
+                <div className="flex-1">
+                  <Link to={`/product/${product.slug}`} className="font-serif text-[18px] leading-tight block">{displayName}</Link>
+                  {variant && (
+                    <p className="text-[10px] text-[#8F8881] mt-0.5">{lang==="zh"?"規格":"Variant"}: {lang==="zh"?variant.name_zh:variant.name_en}</p>
+                  )}
+                  <p className="text-[11px] text-[#8F8881] mt-1">{product.series} • {formatPrice(displayPriceHKD, displayPriceUSD, currency)}</p>
+                  <div className="flex items-center gap-2 mt-3">
+                    <button onClick={()=>updateQty(product.id, qty-1, variantId)} className="w-7 h-7 border border-[#ECE6DF]">-</button>
+                    <span className="w-8 text-center text-[13px]">{qty}</span>
+                    <button onClick={()=>updateQty(product.id, qty+1, variantId)} className="w-7 h-7 border border-[#ECE6DF]">+</button>
+                    <button onClick={()=>{removeItem(product.id, variantId); showToast("info", lang==="zh"?`已移除：${displayName}`:`Removed: ${displayName}`)}} className="ml-4 text-[11px] underline text-[#8F8881]">{lang==="zh"?"移除":"Remove"}</button>
+                  </div>
                 </div>
+                <div className="text-right"><span className="text-[14px] font-medium">{formatPrice(displayPriceHKD*qty, displayPriceUSD*qty, currency)}</span></div>
               </div>
-              <div className="text-right"><span className="text-[14px] font-medium">{formatPrice(product.price_hkd*qty, product.price_usd*qty, currency)}</span></div>
-            </div>
-          ))}
+            )
+          })}
         </div>
 
         {giftTier ? (
