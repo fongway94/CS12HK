@@ -5,9 +5,9 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "vite build",
+    "build": "vite build && node scripts/copy-spa-fallback.mjs",
     "preview": "vite preview",
-    "pages:build": "vite build",
+    "pages:build": "vite build && node scripts/copy-spa-fallback.mjs",
     "cf-typegen": "wrangler types"
   },
   "dependencies": {

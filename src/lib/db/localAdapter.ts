@@ -11,7 +11,16 @@ const LS_GIFT_TIERS = "cs12_gift_tiers"
 const LS_POINTS = "cs12_points"
 const LS_BIRTHDAY = "cs12_birthday"
 
+function isBrowser() {
+  try {
+    return typeof window !== "undefined" && typeof window.localStorage !== "undefined"
+  } catch {
+    return false
+  }
+}
+
 function load<T>(key: string, fallback: T): T {
+  if (!isBrowser()) return fallback
   try {
     const raw = localStorage.getItem(key)
     if (raw) return JSON.parse(raw) as T
@@ -19,6 +28,7 @@ function load<T>(key: string, fallback: T): T {
   return fallback
 }
 function save(key: string, v: any) {
+  if (!isBrowser()) return
   try { localStorage.setItem(key, JSON.stringify(v)) } catch {}
 }
 
@@ -32,7 +42,10 @@ export class LocalDBAdapter implements DBClient {
   private birthday: BirthdayReward[]
 
   constructor() {
-    const hasInitiated = !!localStorage.getItem(LS_PRODUCTS)
+    const hasInitiated = (() => {
+      try { return isBrowser() && !!localStorage.getItem(LS_PRODUCTS) }
+      catch { return false }
+    })()
     if (!hasInitiated) {
       this.products = seedProducts
       this.users = [
