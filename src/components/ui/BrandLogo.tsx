@@ -5,8 +5,8 @@ interface BrandLogoProps {
 export function BrandLogo({ className = "" }: BrandLogoProps) {
   return (
     <img
-      src="/cs12-logo.png"
-      alt="CS12"
+      src="/CS12_Logo_transparent.png"
+      alt=""
       className={className}
       loading="eager"
       decoding="async"
