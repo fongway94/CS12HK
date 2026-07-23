@@ -82,7 +82,7 @@ export class LocalDBAdapter implements DBClient {
       this.giftTiers = load<GiftTier[]>(LS_GIFT_TIERS, seedGiftTiers)
       this.points = load<PointsTransaction[]>(LS_POINTS, [])
       this.birthday = load<BirthdayReward[]>(LS_BIRTHDAY, [])
-      this.siteSettings = load<SiteSettings>(LS_SETTINGS, DEFAULT_SITE_SETTINGS)
+      this.siteSettings = { ...DEFAULT_SITE_SETTINGS, ...load<Partial<SiteSettings>>(LS_SETTINGS, DEFAULT_SITE_SETTINGS) }
       // Merge new seed products not in stored to allow updates
       const existingIds = new Set(this.products.map(p => p.id))
       for (const p of seedProducts) {
