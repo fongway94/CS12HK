@@ -38,6 +38,33 @@ function save(key: string, v: any) {
   try { localStorage.setItem(key, JSON.stringify(v)) } catch {}
 }
 
+// Older newsletter forms stored plain email strings under the database key.
+// Convert those records so existing sign-ups are not lost and the admin table
+// always receives NewsletterSubscriber objects.
+function normalizeNewsletter(value: unknown): NewsletterSubscriber[] {
+  if (!Array.isArray(value)) return []
+
+  const subscribers = new Map<string, NewsletterSubscriber>()
+  for (const item of value) {
+    const legacyEmail = typeof item === "string" ? item : undefined
+    const record = item && typeof item === "object" ? item as Partial<NewsletterSubscriber> : undefined
+    const email = (legacyEmail || record?.email || "").trim().toLowerCase()
+    if (!email || subscribers.has(email)) continue
+
+    subscribers.set(email, {
+      id: record?.id || `newsletter_migrated_${subscribers.size}_${Date.now()}`,
+      email,
+      source: record?.source || "legacy-form",
+      subscribedAt: record?.subscribedAt || new Date().toISOString(),
+      confirmedAt: record?.confirmedAt,
+      unsubscribedAt: record?.unsubscribedAt,
+      isActive: record?.isActive !== false,
+      tags: Array.isArray(record?.tags) ? record.tags : []
+    })
+  }
+  return [...subscribers.values()]
+}
+
 export class LocalDBAdapter implements DBClient {
   private products: Product[]
   private users: User[]
@@ -98,7 +125,10 @@ export class LocalDBAdapter implements DBClient {
       this.points = load<PointsTransaction[]>(LS_POINTS, [])
       this.birthday = load<BirthdayReward[]>(LS_BIRTHDAY, [])
       this.siteSettings = { ...DEFAULT_SITE_SETTINGS, ...load<Partial<SiteSettings>>(LS_SETTINGS, DEFAULT_SITE_SETTINGS) }
-      this.newsletter = load<NewsletterSubscriber[]>(LS_NEWSLETTER, [])
+      this.newsletter = normalizeNewsletter(load<unknown>(LS_NEWSLETTER, []))
+      // Persist the normalized shape immediately to repair data written by the
+      // old homepage/footer implementations.
+      save(LS_NEWSLETTER, this.newsletter)
       this.inventoryLogs = load<InventoryLog[]>(LS_INVENTORY_LOG, [])
       this.waitlist = load<BackInStockWaitlist[]>(LS_WAITLIST, [])
       this.seoPages = load<SEOPageSettings[]>(LS_SEO_PAGES, [])
@@ -200,7 +230,11 @@ export class LocalDBAdapter implements DBClient {
 
   // Newsletter Subscribers
   async getNewsletterSubscribers() { return [...this.newsletter] }
-  async createNewsletterSubscriber(subscriber: NewsletterSubscriber) { this.newsletter.push(subscriber); this.persist() }
+  async createNewsletterSubscriber(subscriber: NewsletterSubscriber) {
+    if (this.newsletter.some(item => item.email.toLowerCase() === subscriber.email.toLowerCase())) return
+    this.newsletter.push(subscriber)
+    this.persist()
+  }
   async updateNewsletterSubscriber(id: string, patch: Partial<NewsletterSubscriber>) {
     const idx = this.newsletter.findIndex(s => s.id === id)
     if (idx >= 0) { this.newsletter[idx] = { ...this.newsletter[idx], ...patch }; this.persist() }
@@ -219,7 +253,16 @@ export class LocalDBAdapter implements DBClient {
     if (productId) return this.waitlist.filter(w => w.productId === productId)
     return [...this.waitlist]
   }
-  async addToWaitlist(entry: BackInStockWaitlist) { this.waitlist.push(entry); this.persist() }
+  async addToWaitlist(entry: BackInStockWaitlist) {
+    const duplicate = this.waitlist.some(item =>
+      item.productId === entry.productId &&
+      item.email.toLowerCase() === entry.email.toLowerCase() &&
+      !item.notifiedAt
+    )
+    if (duplicate) return
+    this.waitlist.push(entry)
+    this.persist()
+  }
   async markWaitlistNotified(id: string) {
     const idx = this.waitlist.findIndex(w => w.id === id)
     if (idx >= 0) { this.waitlist[idx] = { ...this.waitlist[idx], notifiedAt: new Date().toISOString() }; this.persist() }

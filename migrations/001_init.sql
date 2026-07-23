@@ -62,4 +62,17 @@ CREATE TABLE IF NOT EXISTS birthday_rewards (
   PRIMARY KEY(user_id, year)
 );
 
+CREATE TABLE IF NOT EXISTS newsletter_subscribers (
+  id TEXT PRIMARY KEY,
+  email TEXT UNIQUE NOT NULL COLLATE NOCASE,
+  source TEXT NOT NULL,
+  subscribed_at TEXT NOT NULL,
+  confirmed_at TEXT,
+  unsubscribed_at TEXT,
+  is_active INTEGER NOT NULL DEFAULT 1,
+  tags TEXT NOT NULL DEFAULT '[]'
+);
+CREATE INDEX IF NOT EXISTS idx_newsletter_subscribed_at ON newsletter_subscribers(subscribed_at);
+CREATE INDEX IF NOT EXISTS idx_newsletter_active ON newsletter_subscribers(is_active);
+
 -- Seed data will be inserted via adapter once D1 live
