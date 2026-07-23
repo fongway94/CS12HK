@@ -133,10 +133,13 @@ export class LocalDBAdapter implements DBClient {
       this.waitlist = load<BackInStockWaitlist[]>(LS_WAITLIST, [])
       this.seoPages = load<SEOPageSettings[]>(LS_SEO_PAGES, [])
       this.variants = load<ProductVariant[]>(LS_VARIANTS, [])
-      // Merge new seed products not in stored to allow updates
+      // Always ensure the latest seed products exist (by id).
+      // This fixes the case where bundles were added after a user first visited.
       const existingIds = new Set(this.products.map(p => p.id))
       for (const p of seedProducts) {
-        if (!existingIds.has(p.id)) this.products.push(p)
+        if (!existingIds.has(p.id)) {
+          this.products.push(p)
+        }
       }
     }
   }

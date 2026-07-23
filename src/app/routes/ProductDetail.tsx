@@ -126,7 +126,7 @@ export function ProductDetailPage() {
     setWaitlistSubmitting(false)
   }
 
-  if(!product) return <div className="py-20 text-center">Loading...</div>
+  if(!product) return <div className="py-20 text-center">Product not found.<br/><Link to="/shop" className="underline">Back to Shop</Link></div>
 
   return (
     <main className="w-[min(calc(100%-24px),1440px)] mx-auto py-6 md:py-8">
