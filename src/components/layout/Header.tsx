@@ -251,7 +251,7 @@ export function Header() {
             </button>
 
             {/* Premium Logo */}
-            <Link to="/" className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 flex items-center leading-none select-none" aria-label="CS12 home">
+            <Link to="/" className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 flex items-center leading-none select-none" aria-label="Brand home">
               <BrandLogo className="w-[118px] sm:w-[160px] h-auto" />
             </Link>
 
