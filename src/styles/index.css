@@ -11,10 +11,28 @@
   --primary: #111111;
   --secondary: #825F59;
   --accent: #D8C6A6;
-  --font-sans: "Instrument Sans", "Noto Sans TC", system-ui, sans-serif;
-  --font-serif: "Cormorant Garamond", "Noto Serif TC", Georgia, serif;
+  /* Font family stacks. Active stack is chosen per language via [data-lang] on <body>. */
+  --font-en-serif: "Cormorant Garamond", Georgia, "Times New Roman", serif;
+  --font-en-sans:  "Instrument Sans", "Helvetica Neue", Arial, sans-serif;
+  --font-zh-serif: "Noto Serif TC", "PingFang TC", "Microsoft JhengHei", "Cormorant Garamond", Georgia, serif;
+  --font-zh-sans:  "Noto Sans TC", "PingFang TC", "Microsoft JhengHei", "Instrument Sans", "Helvetica Neue", Arial, sans-serif;
+  /* Default: English-active so a freshly-mounted page (before data-lang is set) still looks right. */
+  --font-sans:  var(--font-en-sans);
+  --font-serif: var(--font-en-serif);
   --font-base: 16px;
   --font-scale: 1;
+}
+
+/* Chinese-active: swap to the CJK stacks. English glyphs inside Chinese text fall back to the en stack at the end. */
+body[data-lang="zh"] {
+  --font-sans:  var(--font-zh-sans);
+  --font-serif: var(--font-zh-serif);
+}
+
+/* English-active: pin the English stacks (also re-asserts on toggle). */
+body[data-lang="en"] {
+  --font-sans:  var(--font-en-sans);
+  --font-serif: var(--font-en-serif);
 }
 
 html {

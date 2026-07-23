@@ -13,8 +13,13 @@ export default {
         espresso: "#211C19"
       },
       fontFamily: {
-        serif: ["Cormorant Garamond", "Noto Serif TC", "serif"],
-        sans: ["Instrument Sans", "Noto Sans TC", "sans-serif"]
+        // Active font stack is selected per-language via CSS variables
+        // (see src/styles/index.css, body[data-lang="..."]). The lists
+        // here are static fallbacks used by any Tailwind tooling that
+        // reads theme.fontFamily directly. The .font-serif class in
+        // index.css overrides these at runtime.
+        serif: ["Cormorant Garamond", "Noto Serif TC", "PingFang TC", "Microsoft JhengHei", "Georgia", "serif"],
+        sans:  ["Instrument Sans", "Noto Sans TC", "PingFang TC", "Microsoft JhengHei", "Helvetica Neue", "Arial", "sans-serif"]
       }
     }
   },
