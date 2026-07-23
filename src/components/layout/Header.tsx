@@ -189,6 +189,47 @@ export function Header() {
       )}
 
       <header className="sticky top-0 z-50 bg-[rgba(253,251,248,0.95)] backdrop-blur-[16px] border-b border-[#ECE6DF]">
+        {/* Mobile-Only Language & Currency Quick Switcher (Explicitly visible, prevents overlapping with Title) */}
+        <div className="md:hidden bg-[#FBF6F0]/80 border-b border-[#ECE6DF] py-1.5 px-4 flex justify-between items-center text-[10.5px]">
+          {/* Mobile Language Selector */}
+          <div className="flex items-center gap-[10px] text-[#BBB5AD] select-none font-semibold">
+            <button 
+              onClick={() => setLang("zh")} 
+              className={`transition-colors hover:text-black ${lang === "zh" ? "text-black underline font-bold" : ""}`}
+            >
+              繁體
+            </button>
+            <span className="opacity-35 text-[9px]">/</span>
+            <button 
+              onClick={() => setLang("en")} 
+              className={`transition-colors hover:text-black ${lang === "en" ? "text-black underline font-bold" : ""}`}
+            >
+              EN
+            </button>
+          </div>
+
+          {/* Mobile Currency Selector */}
+          <div className="flex items-center gap-1">
+            <button 
+              onClick={() => setCurrency("HKD")} 
+              className={`px-1.5 py-0.5 rounded-[2px] text-[9.5px] font-semibold transition-all duration-200 border ${
+                currency === "HKD" ? "border-black bg-[#111] text-white" : "border-transparent text-[#8F8881]"
+              }`}
+            >
+              HKD
+            </button>
+            <button 
+              onClick={() => setCurrency("USD")} 
+              className={`px-1.5 py-0.5 rounded-[2px] text-[9.5px] font-semibold transition-all duration-200 border ${
+                currency === "USD" ? "border-black bg-[#111] text-white" : "border-transparent text-[#8F8881]"
+              }`}
+            >
+              USD
+            </button>
+          </div>
+        </div>
+
+        {/* Main Header Row */}
         <div className="h-[74px] flex items-center">
           <div className="w-[min(calc(100%-24px),1440px)] mx-auto flex items-center justify-between relative h-full">
             
@@ -226,7 +267,7 @@ export function Header() {
                 <Search size={17} />
               </button>
 
-              {/* Language Switcher */}
+              {/* Desktop Language Switcher (Hidden on Mobile) */}
               <div className="hidden md:flex items-center gap-[6px] text-[10px] text-[#BBB5AD] select-none font-medium">
                 <button 
                   onClick={() => setLang("zh")} 
@@ -243,8 +284,8 @@ export function Header() {
                 </button>
               </div>
 
-              {/* Currency Selector */}
-              <div className="flex items-center gap-1 text-[10.5px]">
+              {/* Desktop Currency Selector (Hidden on Mobile to avoid overlapping CS12 Logo) */}
+              <div className="hidden md:flex items-center gap-1 text-[10.5px]">
                 <button 
                   onClick={() => setCurrency("HKD")} 
                   className={`px-2 py-1 rounded-[2px] text-[10px] font-medium transition-all duration-200 border ${
@@ -361,155 +402,6 @@ export function Header() {
           </div>
         </nav>
 
-        {/* Mobile Navigation Drawer / Sidebar */}
-        {mobileOpen && (
-          <div 
-            className="md:hidden fixed inset-0 z-[40]"
-            onClick={() => setMobileOpen(false)}
-          >
-            {/* Backdrop */}
-            <div className="absolute inset-0 bg-black/50 backdrop-blur-sm" />
-            
-            {/* Drawer Panel */}
-            <div 
-              className="absolute top-0 left-0 bg-[#FDFBF8] w-[85vw] max-w-[360px] h-full shadow-2xl border-r border-[#ECE6DF] overflow-y-auto flex flex-col animate-slideRight z-[41]"
-              onClick={(e) => e.stopPropagation()}
-              style={{ paddingTop: "128px" }}
-            >
-              <div className="p-6 flex-1 space-y-5">
-                
-                {/* Search in Mobile Drawer */}
-                <form onSubmit={handleSearch} className="relative flex items-center border border-[#ECE6DF] rounded-[4px] bg-white px-3 py-2">
-                  <input
-                    value={searchQuery}
-                    onChange={(e) => setSearchQuery(e.target.value)}
-                    placeholder={lang === "zh" ? "搜尋關鍵字..." : "Search..."}
-                    className="flex-1 text-[12px] bg-transparent outline-none text-[#111]"
-                  />
-                  <button type="submit" className="text-[#8F8881] hover:text-black">
-                    <Search size={15} />
-                  </button>
-                </form>
-
-                {/* Mobile Navigation Links Accordion */}
-                <div className="space-y-1">
-                  {menuItems.map((item) => {
-                    const label = lang === "zh" ? item.label_zh : item.label_en
-                    const hasChildren = !!item.children
-                    const isExpanded = mobileExpanded === label
-
-                    return (
-                      <div key={label} className="border-b border-[#ECE6DF]/50 pb-2 pt-2">
-                        <div className="flex items-center justify-between">
-                          <button
-                            onClick={() => {
-                              if (hasChildren) {
-                                toggleMobileExpanded(label)
-                              } else if (item.path) {
-                                handleNavigation(item.path)
-                              }
-                            }}
-                            className="text-[13px] tracking-[0.12em] uppercase font-semibold text-[#3A3734] hover:text-black text-left flex-1 py-2"
-                          >
-                            {label}
-                          </button>
-                          {hasChildren && (
-                            <button 
-                              onClick={() => toggleMobileExpanded(label)}
-                              className="p-2 focus:outline-none"
-                            >
-                              <ChevronDown 
-                                size={16} 
-                                className={`text-[#8F8881] transition-transform duration-300 ${isExpanded ? "rotate-180 text-black" : ""}`} 
-                              />
-                            </button>
-                          )}
-                        </div>
-
-                        {/* Accordion Children */}
-                        {hasChildren && isExpanded && (
-                          <div className="mt-1 pl-4 space-y-1 border-l-2 border-[#EAD8BE] ml-1 pb-2">
-                            {item.children?.map((sub) => {
-                              const subLabel = lang === "zh" ? sub.label_zh : sub.label_en
-                              return (
-                                <button
-                                  key={subLabel}
-                                  onClick={() => handleNavigation(sub.path)}
-                                  className="block text-left text-[12px] tracking-[0.08em] text-[#5C5651] hover:text-black w-full py-2 font-medium"
-                                >
-                                  {subLabel}
-                                </button>
-                              )
-                            })}
-                          </div>
-                        )}
-                      </div>
-                    )
-                  })}
-
-                  {/* Wishlist Link */}
-                  <div className="border-b border-[#ECE6DF]/50 pb-2 pt-2">
-                    <Link
-                      to="/wishlist"
-                      onClick={() => setMobileOpen(false)}
-                      className="block text-[13px] tracking-[0.12em] uppercase font-semibold text-[#3A3734] hover:text-black py-2"
-                    >
-                      {lang === "zh" ? "願望清單" : "Wishlist"} {wishlistItems.length > 0 && `(${wishlistItems.length})`}
-                    </Link>
-                  </div>
-
-                  {/* Account Link in Mobile List */}
-                  <div className="border-b border-[#ECE6DF]/50 pb-2 pt-2">
-                    <Link
-                      to={user ? "/account" : "/login"}
-                      onClick={() => setMobileOpen(false)}
-                      className="block text-[13px] tracking-[0.12em] uppercase font-semibold text-[#3A3734] hover:text-black py-2"
-                    >
-                      {user ? (lang === "zh" ? "我的會員帳戶" : "My Account") : (lang === "zh" ? "會員登入 / 註冊" : "Login / Register")}
-                    </Link>
-                  </div>
-
-                  {user?.role === "admin" && (
-                    <div className="border-b border-[#ECE6DF]/50 pb-2 pt-2">
-                      <Link
-                        to="/admin"
-                        onClick={() => setMobileOpen(false)}
-                        className="block text-[13px] tracking-[0.12em] uppercase font-semibold text-[#825F59] py-2"
-                      >
-                        Admin Dashboard
-                      </Link>
-                    </div>
-                  )}
-                </div>
-              </div>
-
-              {/* Drawer Footer Utilities */}
-              <div className="p-6 bg-[#FBF6F0] border-t border-[#ECE6DF] space-y-4">
-                <div className="flex justify-between items-center text-[11px] text-[#8F8881]">
-                  <span>{lang === "zh" ? "選擇語言：" : "Language:"}</span>
-                  <div className="flex gap-3">
-                    <button onClick={() => { setLang("zh"); setMobileOpen(false) }} className={`${lang === "zh" ? "text-black font-bold underline" : ""}`}>繁體中文</button>
-                    <button onClick={() => { setLang("en"); setMobileOpen(false) }} className={`${lang === "en" ? "text-black font-bold underline" : ""}`}>English</button>
-                  </div>
-                </div>
-
-                {user && (
-                  <button 
-                    onClick={() => {
-                      logout()
-                      setMobileOpen(false)
-                      nav("/")
-                    }} 
-                    className="w-full text-center py-2 border border-[#825F59] text-[#825F59] text-[11px] tracking-[0.16em] uppercase font-bold hover:bg-[#825F59] hover:text-white transition duration-200"
-                  >
-                    {lang === "zh" ? "登出帳戶" : "Log Out"}
-                  </button>
-                )}
-              </div>
-            </div>
-          </div>
-        )}
-
         {/* Search Bar Panel Slider */}
         {searchOpen && (
           <div className="border-t border-[#ECE6DF] bg-[#FDFBF8] transition-all duration-300 shadow-md">
@@ -527,6 +419,171 @@ export function Header() {
           </div>
         )}
       </header>
+
+      {/* 
+        Mobile Navigation Drawer (Rendered at Root level, completely OUTSIDE the sticky/backdrop header).
+        This guarantees the menu is never stuck inside the header box or clipped by layout overflow!
+      */}
+      {mobileOpen && (
+        <div 
+          className="md:hidden fixed inset-0 z-[100] flex"
+          onClick={() => setMobileOpen(false)}
+        >
+          {/* Blur Backdrop */}
+          <div className="fixed inset-0 bg-black/55 backdrop-blur-sm transition-opacity" />
+          
+          {/* Drawer Panel */}
+          <div 
+            className="relative bg-[#FDFBF8] w-[85vw] max-w-[350px] h-full shadow-2xl border-r border-[#ECE6DF] overflow-y-auto flex flex-col animate-slideRight z-[101]"
+            onClick={(e) => e.stopPropagation()}
+          >
+            {/* Drawer Premium Header */}
+            <div className="flex items-center justify-between px-6 py-5 border-b border-[#ECE6DF] bg-white select-none">
+              <span className="font-serif text-[28px] tracking-[0.18em] font-light text-black">CS12</span>
+              <button 
+                onClick={() => setMobileOpen(false)} 
+                aria-label="Close menu" 
+                className="p-1.5 text-black hover:opacity-60 transition"
+              >
+                <X size={22} />
+              </button>
+            </div>
+
+            <div className="p-6 flex-1 space-y-5">
+              
+              {/* Search in Mobile Drawer */}
+              <form onSubmit={handleSearch} className="relative flex items-center border border-[#ECE6DF] rounded-[4px] bg-white px-3 py-2">
+                <input
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  placeholder={lang === "zh" ? "搜尋關鍵字..." : "Search..."}
+                  className="flex-1 text-[12px] bg-transparent outline-none text-[#111]"
+                />
+                <button type="submit" className="text-[#8F8881] hover:text-black">
+                  <Search size={15} />
+                </button>
+              </form>
+
+              {/* Mobile Navigation Links Accordion */}
+              <div className="space-y-1">
+                {menuItems.map((item) => {
+                  const label = lang === "zh" ? item.label_zh : item.label_en
+                  const hasChildren = !!item.children
+                  const isExpanded = mobileExpanded === label
+
+                  return (
+                    <div key={label} className="border-b border-[#ECE6DF]/50 pb-2 pt-2">
+                      <div className="flex items-center justify-between">
+                        <button
+                          onClick={() => {
+                            if (hasChildren) {
+                              toggleMobileExpanded(label)
+                            } else if (item.path) {
+                              handleNavigation(item.path)
+                            }
+                          }}
+                          className="text-[13px] tracking-[0.12em] uppercase font-semibold text-[#3A3734] hover:text-black text-left flex-1 py-2"
+                        >
+                          {label}
+                        </button>
+                        {hasChildren && (
+                          <button 
+                            onClick={() => toggleMobileExpanded(label)}
+                            className="p-2 focus:outline-none"
+                            aria-label="Expand submenu"
+                          >
+                            <ChevronDown 
+                              size={16} 
+                              className={`text-[#8F8881] transition-transform duration-300 ${isExpanded ? "rotate-180 text-black" : ""}`} 
+                            />
+                          </button>
+                        )}
+                      </div>
+
+                      {/* Accordion Children */}
+                      {hasChildren && isExpanded && (
+                        <div className="mt-1 pl-4 space-y-1 border-l-2 border-[#EAD8BE] ml-1 pb-2 animate-fadeIn">
+                          {item.children?.map((sub) => {
+                            const subLabel = lang === "zh" ? sub.label_zh : sub.label_en
+                            return (
+                              <button
+                                key={subLabel}
+                                onClick={() => handleNavigation(sub.path)}
+                                className="block text-left text-[12px] tracking-[0.08em] text-[#5C5651] hover:text-black w-full py-2 font-medium"
+                              >
+                                {subLabel}
+                              </button>
+                            )
+                          })}
+                        </div>
+                      )}
+                    </div>
+                  )
+                })}
+
+                {/* Wishlist Link */}
+                <div className="border-b border-[#ECE6DF]/50 pb-2 pt-2">
+                  <Link
+                    to="/wishlist"
+                    onClick={() => setMobileOpen(false)}
+                    className="block text-[13px] tracking-[0.12em] uppercase font-semibold text-[#3A3734] hover:text-black py-2"
+                  >
+                    {lang === "zh" ? "願望清單" : "Wishlist"} {wishlistItems.length > 0 && `(${wishlistItems.length})`}
+                  </Link>
+                </div>
+
+                {/* Account Link in Mobile List */}
+                <div className="border-b border-[#ECE6DF]/50 pb-2 pt-2">
+                  <Link
+                    to={user ? "/account" : "/login"}
+                    onClick={() => setMobileOpen(false)}
+                    className="block text-[13px] tracking-[0.12em] uppercase font-semibold text-[#3A3734] hover:text-black py-2"
+                  >
+                    {user ? (lang === "zh" ? "我的會員帳戶" : "My Account") : (lang === "zh" ? "會員登入 / 註冊" : "Login / Register")}
+                  </Link>
+                </div>
+
+                {user?.role === "admin" && (
+                  <div className="border-b border-[#ECE6DF]/50 pb-2 pt-2">
+                    <Link
+                      to="/admin"
+                      onClick={() => setMobileOpen(false)}
+                      className="block text-[13px] tracking-[0.12em] uppercase font-semibold text-[#825F59] py-2"
+                    >
+                      Admin Dashboard
+                    </Link>
+                  </div>
+                )}
+              </div>
+            </div>
+
+            {/* Drawer Footer Utilities */}
+            <div className="p-6 bg-[#FBF6F0] border-t border-[#ECE6DF] space-y-4">
+              <div className="flex justify-between items-center text-[11px] text-[#8F8881]">
+                <span>{lang === "zh" ? "選擇語言：" : "Language:"}</span>
+                <div className="flex gap-3">
+                  <button onClick={() => { setLang("zh"); setMobileOpen(false) }} className={`${lang === "zh" ? "text-black font-bold underline" : ""}`}>繁體中文</button>
+                  <button onClick={() => { setLang("en"); setMobileOpen(false) }} className={`${lang === "en" ? "text-black font-bold underline" : ""}`}>English</button>
+                </div>
+              </div>
+
+              {user && (
+                <button 
+                  onClick={() => {
+                    logout()
+                    setMobileOpen(false)
+                    nav("/")
+                  }} 
+                  className="w-full text-center py-2 border border-[#825F59] text-[#825F59] text-[11px] tracking-[0.16em] uppercase font-bold hover:bg-[#825F59] hover:text-white transition duration-200"
+                >
+                  {lang === "zh" ? "登出帳戶" : "Log Out"}
+                </button>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
+
       <MiniCart isOpen={miniCartOpen} onClose={() => setMiniCartOpen(false)} />
     </>
   )
