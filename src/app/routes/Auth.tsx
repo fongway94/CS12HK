@@ -45,7 +45,7 @@ export function LoginPage() {
         <p className="text-center text-[12px] text-[#8F8881] mb-8">{lang==="zh"?"輸入您的電郵地址":"Enter your email address"}</p>
         <div className="space-y-4 bg-white border border-[#ECE6DF] p-8">
           <div><label className="text-[11px] uppercase tracking-[0.14em]">Email *</label><input type="email" value={forgotEmail} onChange={e=>setForgotEmail(e.target.value)} className="mt-1 w-full border border-[#ECE6DF] h-11 px-3 text-[13px]" required/></div>
-          <button onClick={handleForgotPassword} className="w-full bg-[#111] text-white h-[46px] text-[11px] tracking-[0.18em] uppercase">{lang==="zh"?"查找帳號":"Find Account"}</button>
+          <button onClick={handleForgotPassword} className="w-full bg-[#9E7428] text-white h-[46px] text-[11px] tracking-[0.18em] uppercase">{lang==="zh"?"查找帳號":"Find Account"}</button>
           {forgotMsg && <div className="bg-[#FBF6F0] border border-[#ECE6DF] p-4 text-[12px] text-[#3A3734]">{forgotMsg}</div>}
           <button onClick={()=>{setShowForgot(false); setForgotMsg(""); setForgotEmail("")}} className="w-full text-center text-[11px] underline text-[#8F8881]">{lang==="zh"?"返回登入":"Back to Login"}</button>
         </div>
@@ -59,8 +59,8 @@ export function LoginPage() {
       <p className="text-center text-[12px] text-[#8F8881] mb-8">{lang==="zh"?"歡迎回來！請登入您的帳戶":"Welcome back! Please sign in"}</p>
       <form onSubmit={submit} className="space-y-4 bg-white border border-[#ECE6DF] p-8">
         <div><label className="text-[11px] uppercase tracking-[0.14em]">Email *</label><input value={email} onChange={e=>setEmail(e.target.value)} className="mt-1 w-full border border-[#ECE6DF] h-11 px-3 text-[13px]" required/></div>
-        <div><label className="text-[11px] uppercase tracking-[0.14em]">密碼 Password *</label><input type="password" value={password} onChange={e=>setPassword(e.target.value)} className="mt-1 w-full border border-[#ECE6DF] h-11 px-3 text-[13px]" required/></div>
-        <button disabled={isLoading} className="w-full bg-[#111] text-white h-[46px] text-[11px] tracking-[0.18em] uppercase disabled:opacity-50">{isLoading?"...": (lang==="zh"?"登入":"Login")}</button>
+        <div><label className="text-[11px] uppercase tracking-[0.14em]">{lang==="zh"?"密碼":"Password"} *</label><input type="password" value={password} onChange={e=>setPassword(e.target.value)} className="mt-1 w-full border border-[#ECE6DF] h-11 px-3 text-[13px]" required/></div>
+        <button disabled={isLoading} className="w-full bg-[#9E7428] text-white h-[46px] text-[11px] tracking-[0.18em] uppercase disabled:opacity-50">{isLoading?"...": (lang==="zh"?"登入":"Login")}</button>
         {error && <p className="text-red-600 text-[12px]">⚠ {error}</p>}
         <div className="flex justify-between text-[11px] text-[#8F8881]">
           <Link to="/register" className="underline">{lang==="zh"?"還沒有帳號？註冊":"No account? Register"}</Link>
@@ -114,13 +114,13 @@ export function RegisterPage() {
       <h1 className="font-serif text-[36px] text-center mb-2">{lang==="zh"?"註冊":"Register"}</h1>
       <p className="text-center text-[12px] text-[#8F8881] mb-8">{lang==="zh"?"建立您的CS12帳戶":"Create your CS12 account"}</p>
       <form onSubmit={submit} className="space-y-4 bg-white border border-[#ECE6DF] p-8">
-        <div><label className="text-[11px] uppercase tracking-[0.14em]">電子郵件 Email *</label><input type="email" value={email} onChange={e=>setEmail(e.target.value)} className="mt-1 w-full border border-[#ECE6DF] h-11 px-3" required/></div>
-        <div><label className="text-[11px] uppercase tracking-[0.14em]">密碼 Password *</label><input type="password" value={password} onChange={e=>setPassword(e.target.value)} className="mt-1 w-full border border-[#ECE6DF] h-11 px-3" required minLength={6}/><p className="text-[10px] text-[#8F8881] mt-1">至少6個字符</p></div>
-        <div><label className="text-[11px] uppercase tracking-[0.14em]">確認密碼 Confirm *</label><input type="password" value={confirmPassword} onChange={e=>setConfirmPassword(e.target.value)} className="mt-1 w-full border border-[#ECE6DF] h-11 px-3" required/></div>
-        <div><label className="text-[11px] uppercase tracking-[0.14em]">生日日期 (選填) - 生日禮遇</label><input type="date" value={birthday} onChange={e=>setBirthday(e.target.value)} className="mt-1 w-full border border-[#ECE6DF] h-11 px-3"/></div>
-        <label className="flex gap-2 items-start text-[12px] cursor-pointer"><input type="checkbox" checked={newsletter} onChange={e=>setNewsletter(e.target.checked)} className="mt-[3px]"/><span>{lang==="zh"?"訂閱我們的電子報":"Subscribe newsletter"} - {lang==="zh"?"生日月份享額外優惠":"Birthday special offers"}</span></label>
-        <p className="text-[10px] text-[#8F8881]">您的個人資料將用於提升體驗、管理帳戶及隱私政策所述用途。註冊即表示您同意我們的服務條款。</p>
-        <button disabled={isLoading} className="w-full bg-[#111] text-white h-[46px] text-[11px] tracking-[0.18em] uppercase disabled:opacity-50">{isLoading?"...":(lang==="zh"?"註冊":"Register")}</button>
+        <div><label className="text-[11px] uppercase tracking-[0.14em]">{lang==="zh"?"電子郵件":"Email"} *</label><input type="email" value={email} onChange={e=>setEmail(e.target.value)} className="mt-1 w-full border border-[#ECE6DF] h-11 px-3" required/></div>
+        <div><label className="text-[11px] uppercase tracking-[0.14em]">{lang==="zh"?"密碼":"Password"} *</label><input type="password" value={password} onChange={e=>setPassword(e.target.value)} className="mt-1 w-full border border-[#ECE6DF] h-11 px-3" required minLength={6}/><p className="text-[10px] text-[#8F8881] mt-1">{lang==="zh"?"至少6個字符":"At least 6 characters"}</p></div>
+        <div><label className="text-[11px] uppercase tracking-[0.14em]">{lang==="zh"?"確認密碼":"Confirm Password"} *</label><input type="password" value={confirmPassword} onChange={e=>setConfirmPassword(e.target.value)} className="mt-1 w-full border border-[#ECE6DF] h-11 px-3" required/></div>
+        <div><label className="text-[11px] uppercase tracking-[0.14em]">{lang==="zh"?"生日日期 (選填) - 生日禮遇":"Birthday (optional) - Birthday Rewards"}</label><input type="date" value={birthday} onChange={e=>setBirthday(e.target.value)} className="mt-1 w-full border border-[#ECE6DF] h-11 px-3"/></div>
+        <label className="flex gap-2 items-start text-[12px] cursor-pointer"><input type="checkbox" checked={newsletter} onChange={e=>setNewsletter(e.target.checked)} className="mt-[3px] accent-[#9E7428]"/><span>{lang==="zh"?"訂閱我們的電子報":"Subscribe newsletter"} - {lang==="zh"?"生日月份享額外優惠":"Birthday special offers"}</span></label>
+        <p className="text-[10px] text-[#8F8881]">{lang==="zh"?"您的個人資料將用於提升體驗、管理帳戶及隱私政策所述用途。註冊即表示您同意我們的服務條款。":"Your personal data will be used to improve your experience, manage your account, and for purposes described in our privacy policy. By registering, you agree to our terms of service."}</p>
+        <button disabled={isLoading} className="w-full bg-[#9E7428] text-white h-[46px] text-[11px] tracking-[0.18em] uppercase disabled:opacity-50">{isLoading?"...":(lang==="zh"?"註冊":"Register")}</button>
         {error && <p className="text-red-600 text-[12px]">⚠ {error}</p>}
         <Link to="/login" className="block text-center text-[11px] underline text-[#8F8881]">{lang==="zh"?"已有帳號？登入":"Have account? Login"}</Link>
       </form>

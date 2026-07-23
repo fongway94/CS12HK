@@ -337,7 +337,7 @@ export const DEFAULT_SITE_SETTINGS: SiteSettings = {
   vipThresholdHKD: 5000,
   prestigeThresholdHKD: 10000,
 
-  primaryColor: "#111111",
+  primaryColor: "#9E7428",
   secondaryColor: "#825F59",
   accentColor: "#D8C6A6",
   backgroundColor: "#FDFBF8",

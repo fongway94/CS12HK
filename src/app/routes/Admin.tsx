@@ -7,6 +7,7 @@ import { showToast } from "../../components/ui/Toast"
 import { useAppStore } from "../../stores/useAppStore"
 import { useThemeStore } from "../../stores/useThemeStore"
 import { Download, Search, Filter, Mail, Eye, Trash2, FileText } from "lucide-react"
+import { displayBundleGiftLabel } from "../../lib/i18n/productLabels"
 
 type AdminTab = "dashboard" | "crm" | "products" | "orders" | "coupons" | "bundles" | "gifts" | "newsletter" | "inventory" | "reviews" | "seo" | "settings"
 
@@ -306,7 +307,7 @@ export function AdminPage() {
 
   // Premium color palette
   const premiumColors = [
-    "#111111", // Charcoal Black
+    "#9E7428", // CS12 logo gold
     "#825F59", // Rose Wood
     "#D8C6A6", // Champagne Gold
     "#FDFBF8", // Soft Cream (Default BG)
@@ -348,7 +349,7 @@ export function AdminPage() {
 
       <div className="flex gap-1.5 mb-8 text-[10px] md:text-[11px] uppercase tracking-[0.12em] flex-wrap overflow-x-auto pb-2">
         {(Object.keys(tabLabels) as AdminTab[]).map(t =>
-          <button key={t} onClick={() => setTab(t)} className={`border px-3 md:px-4 h-8 whitespace-nowrap ${tab === t ? "bg-black text-white border-black" : "bg-white border-[#ECE6DF] hover:border-[#111]"}`}>{tabLabels[t]}</button>
+          <button key={t} onClick={() => setTab(t)} className={`border px-3 md:px-4 h-8 whitespace-nowrap ${tab === t ? "bg-[#9E7428] text-white border-[#9E7428]" : "bg-white border-[#ECE6DF] hover:border-[#9E7428]"}`}>{tabLabels[t]}</button>
         )}
       </div>
 
@@ -391,7 +392,7 @@ export function AdminPage() {
                 return (
                   <div key={i} className="flex-1 flex flex-col items-center justify-end h-full">
                     <p className="text-[10px] text-[#8F8881] mb-1">HK${(m.revenue / 1000).toFixed(0)}k</p>
-                    <div className="w-full bg-[#111] rounded-t transition-all duration-500" style={{ height: `${Math.max(height, 4)}%` }}></div>
+                    <div className="w-full bg-[#9E7428] rounded-t transition-all duration-500" style={{ height: `${Math.max(height, 4)}%` }}></div>
                     <p className="text-[9px] text-[#8F8881] mt-2">{m.label}</p>
                   </div>
                 )
@@ -487,7 +488,7 @@ export function AdminPage() {
               <tr key={u.id} className="border-t border-[#F2ECE4] hover:bg-[#FBF6F0]">
                 <td className="p-3 font-medium">{u.username}</td>
                 <td className="p-3">{u.email}</td>
-                <td className="p-3"><span className="bg-[#111] text-white px-2 py-[1px] text-[10px]">{u.tier}</span></td>
+                <td className="p-3"><span className="bg-[#9E7428] text-white px-2 py-[1px] text-[10px]">{u.tier}</span></td>
                 <td className="p-3">{u.points}</td>
                 <td className="p-3 font-mono text-[11px]">HK${u.totalSpentHKD}</td>
                 <td className="p-3">{u.totalOrders}</td>
@@ -518,7 +519,7 @@ export function AdminPage() {
                 placeholder={lang === "zh" ? "搜尋 SKU、名稱..." : "Search SKU, name..."} 
                 className="border border-[#ECE6DF] h-8 px-3 text-[11px] w-40 md:w-48" 
               />
-              <button onClick={() => { setEditingProduct({}); setIsAdding(true) }} className="bg-[#111] text-white px-4 h-8 text-[11px] uppercase whitespace-nowrap">
+              <button onClick={() => { setEditingProduct({}); setIsAdding(true) }} className="bg-[#9E7428] text-white px-4 h-8 text-[11px] uppercase whitespace-nowrap">
                 + {lang === "zh" ? "新增產品" : "Add Product"}
               </button>
             </div>
@@ -555,7 +556,7 @@ export function AdminPage() {
                 <div><label className="text-[10px] uppercase text-[#8F8881]">{lang === "zh" ? "標籤 (逗號隔開)" : "Tags (comma)"}</label><input value={(editingProduct.tags || []).join(",")} onChange={e => setEditingProduct({ ...editingProduct, tags: e.target.value.split(",").map(s => s.trim()).filter(Boolean) })} className="w-full border border-[#ECE6DF] h-9 px-2 mt-1 text-[10px]" /></div>
               </div>
               <div className="flex gap-2 mt-4">
-                <button onClick={handleSaveProduct} className="bg-[#111] text-white px-6 h-9 text-[11px] uppercase">
+                <button onClick={handleSaveProduct} className="bg-[#9E7428] text-white px-6 h-9 text-[11px] uppercase">
                   {isAdding ? (lang === "zh" ? "建立新產品" : "Create Product") : (lang === "zh" ? "儲存變更" : "Save Changes")}
                 </button>
                 <button onClick={() => { setEditingProduct(null); setIsAdding(false) }} className="border border-[#ECE6DF] px-6 h-9 text-[11px] uppercase">
@@ -586,10 +587,10 @@ export function AdminPage() {
                 <td className="p-3 font-mono">HK${p.price_hkd} {p.original_price_hkd ? <span className="text-[10px] text-[#BBB5AD] line-through ml-1">HK${p.original_price_hkd}</span> : ""}</td>
                 <td className="p-3"><span className={p.stock <= 5 ? "text-red-500 font-semibold" : ""}>{p.stock}</span></td>
                 <td className="p-3 font-mono">{p.points}</td>
-                <td className="p-3">{p.isBundle ? <span className="bg-[#111] text-white px-1.5 py-0.5 rounded text-[9px] uppercase font-bold">YES</span> : "-"}</td>
+                <td className="p-3">{p.isBundle ? <span className="bg-[#9E7428] text-white px-1.5 py-0.5 rounded text-[9px] uppercase font-bold">YES</span> : "-"}</td>
                 <td className="p-3">
                   <div className="flex gap-2">
-                    <button onClick={() => { setEditingProduct(p); setIsAdding(false) }} className="underline text-[#8F8881] hover:text-[#111]">
+                    <button onClick={() => { setEditingProduct(p); setIsAdding(false) }} className="underline text-[#8F8881] hover:text-[#9E7428]">
                       {lang === "zh" ? "編輯" : "Edit"}
                     </button>
                     <button onClick={() => handleDeleteProduct(p.id, p.name_zh)} className="underline text-red-400 hover:text-red-600">
@@ -616,7 +617,7 @@ export function AdminPage() {
                 delivered: lang === "zh" ? "已妥投" : "delivered"
               }
               return (
-                <button key={s} onClick={() => setOrderFilter(s)} className={`border px-3 py-3 text-center text-[11px] ${orderFilter === s ? "bg-[#111] text-white border-[#111]" : "bg-white border-[#ECE6DF]"}`}>
+                <button key={s} onClick={() => setOrderFilter(s)} className={`border px-3 py-3 text-center text-[11px] ${orderFilter === s ? "bg-[#9E7428] text-white border-[#9E7428]" : "bg-white border-[#ECE6DF]"}`}>
                   <p className="uppercase tracking-[0.12em] font-medium">{statusLabels[s]}</p>
                   <p className="font-serif text-[16px] md:text-[18px] mt-1">{s === "all" ? orders.length : orders.filter(o => o.status === s).length}</p>
                 </button>
@@ -652,7 +653,7 @@ export function AdminPage() {
                     <td className="p-3 text-[11px]">{o.gifts.length > 0 ? `🎁 ${o.gifts.length} ${lang === "zh" ? "件禮品" : "items"}` : "-"}</td>
                     <td className="p-3 text-[11px] font-mono">+{o.pointsEarned} {o.pointsUsed > 0 ? `(-${o.pointsUsed})` : ""}</td>
                     <td className="p-3">
-                      <select value={o.status} onChange={e => handleUpdateOrderStatus(o.id, e.target.value as any)} className={`border text-[10px] h-6 px-1 ${o.status === "paid" ? "bg-green-50 border-green-200" : o.status === "shipped" ? "bg-blue-50 border-blue-200" : o.status === "delivered" ? "bg-[#111] text-white border-[#111]" : o.status === "cancelled" ? "bg-red-50 border-red-200" : ""}`}>
+                      <select value={o.status} onChange={e => handleUpdateOrderStatus(o.id, e.target.value as any)} className={`border text-[10px] h-6 px-1 ${o.status === "paid" ? "bg-green-50 border-green-200" : o.status === "shipped" ? "bg-blue-50 border-blue-200" : o.status === "delivered" ? "bg-[#9E7428] text-white border-[#9E7428]" : o.status === "cancelled" ? "bg-red-50 border-red-200" : ""}`}>
                         <option value="pending">pending</option><option value="paid">paid</option><option value="shipped">shipped</option><option value="delivered">delivered</option><option value="cancelled">cancelled</option>
                       </select>
                     </td>
@@ -677,7 +678,7 @@ export function AdminPage() {
           <div className="bg-white border border-[#ECE6DF] p-6">
             <div className="flex justify-between items-center mb-4">
               <h3 className="text-[12px] uppercase font-semibold">{lang === "zh" ? `宣傳折扣碼管理 (${coupons.length})` : `Promotion Coupons (${coupons.length})`}</h3>
-              <button onClick={() => { setEditingCoupon({ type: "percent", value: 10, isActive: true }); setIsAddingCoupon(true) }} className="bg-[#111] text-white px-4 h-8 text-[11px] uppercase">
+              <button onClick={() => { setEditingCoupon({ type: "percent", value: 10, isActive: true }); setIsAddingCoupon(true) }} className="bg-[#9E7428] text-white px-4 h-8 text-[11px] uppercase">
                 + {lang === "zh" ? "新增優惠碼" : "Add Coupon"}
               </button>
             </div>
@@ -708,7 +709,7 @@ export function AdminPage() {
                   </div>
                 </div>
                 <div className="flex gap-2 mt-4">
-                  <button onClick={handleSaveCoupon} className="bg-[#111] text-white px-6 h-9 text-[11px] uppercase">
+                  <button onClick={handleSaveCoupon} className="bg-[#9E7428] text-white px-6 h-9 text-[11px] uppercase">
                     {isAddingCoupon ? (lang === "zh" ? "建立優惠碼" : "Create Coupon") : (lang === "zh" ? "儲存變更" : "Save Changes")}
                   </button>
                   <button onClick={() => { setEditingCoupon(null); setIsAddingCoupon(false) }} className="border border-[#ECE6DF] px-6 h-9 text-[11px] uppercase">
@@ -779,7 +780,7 @@ export function AdminPage() {
                   {lang === "zh" ? "編輯" : "Edit"}
                 </button>
               </div>
-              <p className="text-[11px] text-[#8F8881] mt-2">{b.bundleGiftLabel} • HK${b.price_hkd} (原 HK${b.original_price_hkd}) • {lang === "zh" ? "庫存" : "Stock"}: {b.stock}</p>
+              <p className="text-[11px] text-[#8F8881] mt-2">{displayBundleGiftLabel(b.bundleGiftLabel, lang)} • HK${b.price_hkd} (原 HK${b.original_price_hkd}) • {lang === "zh" ? "庫存" : "Stock"}: {b.stock}</p>
               <p className="text-[12px] mt-2">{b.description_zh}</p>
               {b.bundleItems && (
                 <div className="mt-3 pt-3 border-t border-[#F2ECE4] text-[11px] text-[#8F8881]">
@@ -792,7 +793,7 @@ export function AdminPage() {
               )}
             </div>
           ))}
-          <button onClick={() => { setEditingProduct({ isBundle: true, bundleGiftLabel: "買2送3" }); setIsAdding(true); setTab("products") }} className="border-2 border-dashed border-[#ECE6DF] p-5 text-center text-[12px] text-[#8F8881] hover:border-[#111] hover:text-[#111] transition cursor-pointer min-h-[120px] flex items-center justify-center">
+          <button onClick={() => { setEditingProduct({ isBundle: true, bundleGiftLabel: "買2送3" }); setIsAdding(true); setTab("products") }} className="border-2 border-dashed border-[#ECE6DF] p-5 text-center text-[12px] text-[#8F8881] hover:border-[#9E7428] hover:text-[#9E7428] transition cursor-pointer min-h-[120px] flex items-center justify-center">
             + {lang === "zh" ? "創建新組合包" : "Create New Bundle"}
           </button>
         </div>
@@ -830,7 +831,7 @@ export function AdminPage() {
                 </button>
               </div>
             ))}
-            <button onClick={handleSaveGiftTiers} className="bg-[#111] text-white px-6 h-9 text-[11px] uppercase">
+            <button onClick={handleSaveGiftTiers} className="bg-[#9E7428] text-white px-6 h-9 text-[11px] uppercase">
               {lang === "zh" ? "儲存贈品階梯設定" : "Save Gift Tiers"}
             </button>
           </div>
@@ -1029,7 +1030,7 @@ export function AdminPage() {
                           <h4 className="font-serif text-[16px]">{product.name_zh}</h4>
                           <p className="text-[11px] text-[#8F8881]">SKU: {product.sku} • ID: {product.id}</p>
                         </div>
-                        <span className="bg-[#111] text-white text-[10px] px-2 py-1 rounded">{reviews.length} {lang === "zh" ? "則評價" : "reviews"}</span>
+                        <span className="bg-[#9E7428] text-white text-[10px] px-2 py-1 rounded">{reviews.length} {lang === "zh" ? "則評價" : "reviews"}</span>
                       </div>
                       <div className="space-y-2 max-h-60 overflow-y-auto">
                         {reviews.map((r: any) => (
@@ -1075,7 +1076,7 @@ export function AdminPage() {
           <div className="bg-white border border-[#ECE6DF] p-6">
             <div className="flex justify-between items-center mb-4">
               <h3 className="text-[12px] uppercase font-semibold">{lang === "zh" ? "分頁 SEO 設定 (" + seoPages.length + ")" : "Per-Page SEO Settings (" + seoPages.length + ")"}</h3>
-              <button onClick={() => { setEditingSeoPage({}); setIsAddingSeoPage(true) }} className="bg-[#111] text-white px-4 h-8 text-[11px] uppercase">
+              <button onClick={() => { setEditingSeoPage({}); setIsAddingSeoPage(true) }} className="bg-[#9E7428] text-white px-4 h-8 text-[11px] uppercase">
                 + {lang === "zh" ? "新增頁面 SEO" : "Add Page SEO"}
               </button>
             </div>
@@ -1099,7 +1100,7 @@ export function AdminPage() {
                   </div>
                 </div>
                 <div className="flex gap-2 mt-4">
-                  <button onClick={handleSaveSeoPage} className="bg-[#111] text-white px-6 h-9 text-[11px] uppercase">
+                  <button onClick={handleSaveSeoPage} className="bg-[#9E7428] text-white px-6 h-9 text-[11px] uppercase">
                     {isAddingSeoPage ? (lang === "zh" ? "建立 SEO 設定" : "Create SEO Settings") : (lang === "zh" ? "儲存變更" : "Save Changes")}
                   </button>
                   <button onClick={() => { setEditingSeoPage(null); setIsAddingSeoPage(false) }} className="border border-[#ECE6DF] px-6 h-9 text-[11px] uppercase">
@@ -1307,7 +1308,7 @@ export function AdminPage() {
                         key={color}
                         type="button"
                         onClick={() => setSettings({ ...settings, [key]: color })}
-                        className={`w-4 h-4 rounded-full border border-gray-300 transition-all hover:scale-125 focus:outline-none ${settings[key].toLowerCase() === color.toLowerCase() ? "ring-1 ring-black scale-110" : ""}`}
+                        className={`w-4 h-4 rounded-full border border-gray-300 transition-all hover:scale-125 focus:outline-none ${settings[key].toLowerCase() === color.toLowerCase() ? "ring-1 ring-[#9E7428] scale-110" : ""}`}
                         style={{ backgroundColor: color }}
                         title={color}
                       />
@@ -1321,11 +1322,11 @@ export function AdminPage() {
             <div className="mt-4 pt-4 border-t border-[#F2ECE4]">
               <p className="text-[10px] uppercase text-[#8F8881] mb-2 font-semibold">{lang === "zh" ? "快速主題模板預設值：" : "Quick Presets:"}</p>
               <div className="flex gap-2 flex-wrap">
-                <button onClick={() => setSettings({ ...settings, primaryColor: "#111111", secondaryColor: "#825F59", accentColor: "#D8C6A6", backgroundColor: "#FDFBF8", cardColor: "#FFFFFF", textColor: "#111111", mutedTextColor: "#8F8881", borderColor: "#ECE6DF" })} className="border border-[#ECE6DF] bg-white px-3 py-1.5 text-[10px] hover:border-[#111]">{lang === "zh" ? "典雅米白" : "Classic Cream"}</button>
-                <button onClick={() => setSettings({ ...settings, primaryColor: "#1a1a2e", secondaryColor: "#16213e", accentColor: "#e94560", backgroundColor: "#f8f9fa", cardColor: "#ffffff", textColor: "#1a1a2e", mutedTextColor: "#6c757d", borderColor: "#dee2e6" })} className="border border-[#ECE6DF] bg-white px-3 py-1.5 text-[10px] hover:border-[#111]">{lang === "zh" ? "午夜深藍" : "Dark Navy"}</button>
-                <button onClick={() => setSettings({ ...settings, primaryColor: "#2d3436", secondaryColor: "#6c5ce7", accentColor: "#fd79a8", backgroundColor: "#fafafa", cardColor: "#ffffff", textColor: "#2d3436", mutedTextColor: "#636e72", borderColor: "#dfe6e9" })} className="border border-[#ECE6DF] bg-white px-3 py-1.5 text-[10px] hover:border-[#111]">{lang === "zh" ? "現代粉紫" : "Modern Purple"}</button>
-                <button onClick={() => setSettings({ ...settings, primaryColor: "#000000", secondaryColor: "#c0392b", accentColor: "#e74c3c", backgroundColor: "#ffffff", cardColor: "#f5f5f5", textColor: "#000000", mutedTextColor: "#7f8c8d", borderColor: "#ecf0f1" })} className="border border-[#ECE6DF] bg-white px-3 py-1.5 text-[10px] hover:border-[#111]">{lang === "zh" ? "經典正紅" : "Bold Red"}</button>
-                <button onClick={() => setSettings({ ...settings, primaryColor: "#1b4332", secondaryColor: "#2d6a4f", accentColor: "#95d5b2", backgroundColor: "#f0fdf4", cardColor: "#ffffff", textColor: "#1b4332", mutedTextColor: "#52796f", borderColor: "#d8f3dc" })} className="border border-[#ECE6DF] bg-white px-3 py-1.5 text-[10px] hover:border-[#111]">{lang === "zh" ? "自然森綠" : "Natural Green"}</button>
+                <button onClick={() => setSettings({ ...settings, primaryColor: "#9E7428", secondaryColor: "#825F59", accentColor: "#D8C6A6", backgroundColor: "#FDFBF8", cardColor: "#FFFFFF", textColor: "#111111", mutedTextColor: "#8F8881", borderColor: "#ECE6DF" })} className="border border-[#ECE6DF] bg-white px-3 py-1.5 text-[10px] hover:border-[#9E7428]">{lang === "zh" ? "典雅米白" : "Classic Cream"}</button>
+                <button onClick={() => setSettings({ ...settings, primaryColor: "#1a1a2e", secondaryColor: "#16213e", accentColor: "#e94560", backgroundColor: "#f8f9fa", cardColor: "#ffffff", textColor: "#1a1a2e", mutedTextColor: "#6c757d", borderColor: "#dee2e6" })} className="border border-[#ECE6DF] bg-white px-3 py-1.5 text-[10px] hover:border-[#9E7428]">{lang === "zh" ? "午夜深藍" : "Dark Navy"}</button>
+                <button onClick={() => setSettings({ ...settings, primaryColor: "#2d3436", secondaryColor: "#6c5ce7", accentColor: "#fd79a8", backgroundColor: "#fafafa", cardColor: "#ffffff", textColor: "#2d3436", mutedTextColor: "#636e72", borderColor: "#dfe6e9" })} className="border border-[#ECE6DF] bg-white px-3 py-1.5 text-[10px] hover:border-[#9E7428]">{lang === "zh" ? "現代粉紫" : "Modern Purple"}</button>
+                <button onClick={() => setSettings({ ...settings, primaryColor: "#000000", secondaryColor: "#c0392b", accentColor: "#e74c3c", backgroundColor: "#ffffff", cardColor: "#f5f5f5", textColor: "#000000", mutedTextColor: "#7f8c8d", borderColor: "#ecf0f1" })} className="border border-[#ECE6DF] bg-white px-3 py-1.5 text-[10px] hover:border-[#9E7428]">{lang === "zh" ? "經典正紅" : "Bold Red"}</button>
+                <button onClick={() => setSettings({ ...settings, primaryColor: "#1b4332", secondaryColor: "#2d6a4f", accentColor: "#95d5b2", backgroundColor: "#f0fdf4", cardColor: "#ffffff", textColor: "#1b4332", mutedTextColor: "#52796f", borderColor: "#d8f3dc" })} className="border border-[#ECE6DF] bg-white px-3 py-1.5 text-[10px] hover:border-[#9E7428]">{lang === "zh" ? "自然森綠" : "Natural Green"}</button>
               </div>
             </div>
           </div>
@@ -1339,7 +1340,7 @@ export function AdminPage() {
 
             {/* English fonts */}
             <div className="mb-6">
-              <p className="text-[10px] uppercase tracking-[0.14em] font-semibold text-[#111] mb-3 pb-2 border-b border-[#F2ECE4]">EN {lang === "zh" ? "英文字型" : "English Fonts"}</p>
+              <p className="text-[10px] uppercase tracking-[0.14em] font-semibold text-[#9E7428] mb-3 pb-2 border-b border-[#F2ECE4]">EN {lang === "zh" ? "英文字型" : "English Fonts"}</p>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-[12px]">
                 <div>
                   <label className="text-[10px] uppercase text-[#8F8881]">{lang === "zh" ? "英文 · 正文字型 (Sans-Serif)" : "English · Body Font (Sans-Serif)"}</label>
@@ -1381,7 +1382,7 @@ export function AdminPage() {
 
             {/* Chinese fonts */}
             <div>
-              <p className="text-[10px] uppercase tracking-[0.14em] font-semibold text-[#111] mb-3 pb-2 border-b border-[#F2ECE4]">繁 {lang === "zh" ? "中文字型" : "Chinese Fonts"}</p>
+              <p className="text-[10px] uppercase tracking-[0.14em] font-semibold text-[#9E7428] mb-3 pb-2 border-b border-[#F2ECE4]">繁 {lang === "zh" ? "中文字型" : "Chinese Fonts"}</p>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-[12px]">
                 <div>
                   <label className="text-[10px] uppercase text-[#8F8881]">{lang === "zh" ? "中文 · 正文字型 (無襯線)" : "Chinese · Body Font (Sans-Serif)"}</label>
@@ -1437,7 +1438,7 @@ export function AdminPage() {
 
           {/* Save Button */}
           <div className="flex gap-3">
-            <button onClick={handleSaveSettings} className="bg-[#111] text-white px-8 h-11 text-[12px] tracking-[0.14em] uppercase font-bold rounded-[3px] shadow">
+            <button onClick={handleSaveSettings} className="bg-[#9E7428] text-white px-8 h-11 text-[12px] tracking-[0.14em] uppercase font-bold rounded-[3px] shadow">
               💾 {lang === "zh" ? "儲存所有後台設定" : "Save All Settings"}
             </button>
             <button onClick={refresh} className="border border-[#ECE6DF] bg-white px-6 h-11 text-[12px] uppercase hover:bg-[#FBF6F0]">

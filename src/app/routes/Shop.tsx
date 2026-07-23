@@ -4,6 +4,7 @@ import { getDBClient } from "../../lib/db/client"
 import { Product } from "../../lib/db/types"
 import { ProductCard } from "../../components/product/ProductCard"
 import { useAppStore } from "../../stores/useAppStore"
+import { displayProductLabel } from "../../lib/i18n/productLabels"
 
 export function ShopPage() {
   const [products, setProducts] = useState<Product[]>([])
@@ -15,6 +16,10 @@ export function ShopPage() {
   const skin = params.get("skin")
   const q = params.get("q") || ""
   const sort = params.get("sort") || "popular"
+
+  const categoryFilters = ["面膜","安瓶","微精華","精華","面霜","防曬","緊緻拉提","煥亮美白"]
+  const skinFilters = ["敏感肌","泛紅/玫瑰痤瘡","乾性肌","油性/痘痘/暗瘡","成熟肌","暗沉/不均勻膚色"]
+  const pageTitle = series || (cat ? displayProductLabel(cat, lang) : skin ? displayProductLabel(skin, lang) : (lang==="zh"?"選購":"Shop"))
 
   useEffect(()=>{ getDBClient().getProducts().then(setProducts) },[])
 
@@ -35,8 +40,8 @@ export function ShopPage() {
     <main className="w-[min(calc(100%-24px),1440px)] mx-auto py-6 md:py-8">
       <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 mb-6 md:mb-8">
         <div>
-          <h1 className="font-serif text-[40px] leading-[1]">{series||cat||skin|| (lang==="zh"?"選購":"Shop")}</h1>
-          <p className="text-[12px] text-[#8F8881] mt-2">{filtered.length} {lang==="zh"?"件產品":"products"} • {series?`Series ${series}`:"All collections"}</p>
+          <h1 className="font-serif text-[40px] leading-[1]">{pageTitle}</h1>
+          <p className="text-[12px] text-[#8F8881] mt-2">{filtered.length} {lang==="zh"?"件產品":"products"} • {series?`Series ${series}`:(lang==="zh"?"全部系列":"All collections")}</p>
         </div>
         <div className="flex gap-2 items-center">
           <select value={sort} onChange={e=>{ params.set("sort", e.target.value); setParams(params)}} className="border border-[#ECE6DF] h-9 px-3 text-[12px]">
@@ -53,37 +58,37 @@ export function ShopPage() {
       <div className="grid grid-cols-1 md:grid-cols-[220px_1fr] gap-8">
         <aside className="hidden md:block space-y-8">
           <div>
-            <h4 className="text-[10px] tracking-[0.18em] uppercase font-semibold mb-3">系列 Series</h4>
+            <h4 className="text-[10px] tracking-[0.18em] uppercase font-semibold mb-3">{lang==="zh"?"系列":"Series"}</h4>
             <ul className="space-y-2 text-[13px]">
-              <li><button onClick={()=>{params.delete("series"); setParams(params)}} className={!series?"font-semibold":"text-[#5C5651]"}>全部 All</button></li>
-              <li><button onClick={()=>{params.set("series","CalmEX"); setParams(params)}} className={series==="CalmEX"?"font-semibold":"text-[#5C5651]"}>#CalmEX</button></li>
-              <li><button onClick={()=>{params.set("series","SoCalm"); setParams(params)}} className={series==="SoCalm"?"font-semibold":"text-[#5C5651]"}>#SoCalm</button></li>
-              <li><button onClick={()=>{params.set("series","CellRevEX"); setParams(params)}} className={series==="CellRevEX"?"font-semibold":"text-[#5C5651]"}>#CellRevEX</button></li>
+              <li><button onClick={()=>{params.delete("series"); setParams(params)}} className={!series?"font-semibold text-[#9E7428]":"text-[#5C5651]"}>{lang==="zh"?"全部":"All"}</button></li>
+              <li><button onClick={()=>{params.set("series","CalmEX"); setParams(params)}} className={series==="CalmEX"?"font-semibold text-[#9E7428]":"text-[#5C5651]"}>#CalmEX</button></li>
+              <li><button onClick={()=>{params.set("series","SoCalm"); setParams(params)}} className={series==="SoCalm"?"font-semibold text-[#9E7428]":"text-[#5C5651]"}>#SoCalm</button></li>
+              <li><button onClick={()=>{params.set("series","CellRevEX"); setParams(params)}} className={series==="CellRevEX"?"font-semibold text-[#9E7428]":"text-[#5C5651]"}>#CellRevEX</button></li>
             </ul>
           </div>
           <div>
-            <h4 className="text-[10px] tracking-[0.18em] uppercase font-semibold mb-3">面部護理 Facial</h4>
+            <h4 className="text-[10px] tracking-[0.18em] uppercase font-semibold mb-3">{lang==="zh"?"面部護理":"Facial Care"}</h4>
             <ul className="space-y-2 text-[12px] text-[#5C5651]">
-              {["面膜","安瓶","微精華","精華","面霜","防曬","緊緻拉提","煥亮美白"].map(c=>
-                <li key={c}><button onClick={()=>{params.set("cat",c); setParams(params)}} className={`${cat===c?"text-black font-semibold":""}`}>{c}</button></li>
+              {categoryFilters.map(c=>
+                <li key={c}><button onClick={()=>{params.set("cat",c); setParams(params)}} className={`${cat===c?"text-[#9E7428] font-semibold":""}`}>{displayProductLabel(c, lang)}</button></li>
               )}
             </ul>
           </div>
           <div>
-            <h4 className="text-[10px] tracking-[0.18em] uppercase font-semibold mb-3">肌膚類別 Skin Type</h4>
+            <h4 className="text-[10px] tracking-[0.18em] uppercase font-semibold mb-3">{lang==="zh"?"肌膚類別":"Skin Type"}</h4>
             <ul className="space-y-2 text-[12px] text-[#5C5651]">
-              {["敏感肌","泛紅/玫瑰痤瘡","乾性肌","油性/痘痘/暗瘡","成熟肌","暗沉/不均勻膚色"].map(s=>
-                <li key={s}><button onClick={()=>{params.set("skin",s); setParams(params)}} className={`${skin===s?"text-black font-semibold":""}`}>{s}</button></li>
+              {skinFilters.map(skinFilter=>
+                <li key={skinFilter}><button onClick={()=>{params.set("skin",skinFilter); setParams(params)}} className={`${skin===skinFilter?"text-[#9E7428] font-semibold":""}`}>{displayProductLabel(skinFilter, lang)}</button></li>
               )}
             </ul>
           </div>
           <div className="border border-[#ECE6DF] p-4 bg-[#FBF6F0] text-[11px] leading-relaxed">
-            <p className="font-semibold mb-2">官網禮遇</p>
-            <p>• 滿 $800 免運費<br/>• 首購 NEWCS12 享 15% OFF<br/>• 每 $1 = 1 積分</p>
+            <p className="font-semibold mb-2">{lang==="zh"?"官網禮遇":"Online Benefits"}</p>
+            <p>{lang==="zh"?<><span>• 滿 $800 免運費</span><br/><span>• 首購 NEWCS12 享 15% OFF</span><br/><span>• 每 $1 = 1 積分</span></>:<><span>• Free shipping over $800</span><br/><span>• First order 15% OFF with NEWCS12</span><br/><span>• Earn 1 point per $1</span></>}</p>
           </div>
         </aside>
         <section>
-          {filtered.length===0 ? <p className="py-20 text-center text-[#8F8881]">No products found. / 未找到產品</p> :
+          {filtered.length===0 ? <p className="py-20 text-center text-[#8F8881]">{lang==="zh"?"未找到產品":"No products found."}</p> :
             <div className="grid grid-cols-2 md:grid-cols-3 gap-4 md:gap-6">
               {filtered.map(p=><ProductCard key={p.id} product={p}/>)}
             </div>

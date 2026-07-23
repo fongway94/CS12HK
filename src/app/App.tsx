@@ -64,7 +64,7 @@ class ErrorBoundary extends Component<{ children: ReactNode }, ErrorBoundaryStat
             <button
               type="button"
               onClick={() => window.location.reload()}
-              className="mt-6 rounded-full bg-black px-6 py-3 text-sm font-semibold text-white"
+              className="mt-6 rounded-full bg-[#9E7428] px-6 py-3 text-sm font-semibold text-white"
             >
               Reload page
             </button>
