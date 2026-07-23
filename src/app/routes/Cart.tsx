@@ -7,6 +7,7 @@ import { getDBClient } from "../../lib/db/client"
 import { GiftTier, Coupon } from "../../lib/db/types"
 import { calcSubtotal, getGiftTier, calcCouponDiscount, calcShipping } from "../../lib/promotions/engine"
 import { formatPrice } from "../../lib/currency"
+import { showToast } from "../../components/ui/Toast"
 
 export function CartPage() {
   const { items, updateQty, removeItem, couponCode, setCoupon, clear } = useCartStore()
@@ -39,16 +40,30 @@ export function CartPage() {
   const applyCoupon = async () => {
     const db = getDBClient()
     const c = await db.getCouponByCode(couponInput)
-    if(!c){ setCouponMsg(lang==="zh"?"優惠碼無效":"Invalid code"); return}
+    if(!c){
+      setCouponMsg(lang==="zh"?"優惠碼無效":"Invalid code")
+      showToast("error", lang==="zh"?"優惠碼無效":"Invalid coupon code")
+      return
+    }
     setCouponObj(c)
     setCoupon(c.code)
     setCouponMsg(lang==="zh"?`已套用 ${c.code}`:`Applied ${c.code}`)
+    showToast("success", lang==="zh"?`優惠碼 ${c.code} 已套用！`:`Coupon ${c.code} applied!`)
   }
 
   if(items.length===0) return (
     <main className="w-[min(calc(100%-48px),1440px)] mx-auto py-20 text-center">
-      <h1 className="font-serif text-[32px] mb-4">{lang==="zh"?"您的購物車裡還沒有任何商品":"Your cart is empty"}</h1>
-      <Link to="/exclusive" className="inline-flex bg-[#111] text-white px-8 h-[44px] items-center text-[11px] tracking-[0.18em] uppercase">回到商店</Link>
+      <div className="max-w-md mx-auto">
+        <div className="w-20 h-20 mx-auto mb-6 rounded-full bg-[#FBF6F0] flex items-center justify-center">
+          <span className="text-[32px]">🛒</span>
+        </div>
+        <h1 className="font-serif text-[32px] mb-3">{lang==="zh"?"您的購物車裡還沒有任何商品":"Your cart is empty"}</h1>
+        <p className="text-[13px] text-[#8F8881] mb-8">{lang==="zh"?"開始探索我們的敏感肌修護產品":"Explore our sensitive skin care products"}</p>
+        <div className="flex gap-3 justify-center">
+          <Link to="/exclusive" className="inline-flex bg-[#111] text-white px-8 h-[44px] items-center text-[11px] tracking-[0.18em] uppercase">{lang==="zh"?"官網限定":"Exclusive"}</Link>
+          <Link to="/shop" className="inline-flex border border-[#111] px-8 h-[44px] items-center text-[11px] tracking-[0.18em] uppercase">{lang==="zh"?"全部產品":"All Products"}</Link>
+        </div>
+      </div>
     </main>
   )
 
@@ -67,7 +82,7 @@ export function CartPage() {
                   <button onClick={()=>updateQty(product.id, qty-1)} className="w-7 h-7 border border-[#ECE6DF]">-</button>
                   <span className="w-8 text-center text-[13px]">{qty}</span>
                   <button onClick={()=>updateQty(product.id, qty+1)} className="w-7 h-7 border border-[#ECE6DF]">+</button>
-                  <button onClick={()=>removeItem(product.id)} className="ml-4 text-[11px] underline text-[#8F8881]">{lang==="zh"?"移除":"Remove"}</button>
+                  <button onClick={()=>{removeItem(product.id); showToast("info", lang==="zh"?`已移除：${product.name_zh}`:`Removed: ${product.name_en}`)}} className="ml-4 text-[11px] underline text-[#8F8881]">{lang==="zh"?"移除":"Remove"}</button>
                 </div>
               </div>
               <div className="text-right"><span className="text-[14px] font-medium">{formatPrice(product.price_hkd*qty, product.price_usd*qty, currency)}</span></div>
@@ -81,8 +96,11 @@ export function CartPage() {
           </div>
         ) : (
           <div className="mt-6 border border-dashed border-[#ECE6DF] p-4 text-[12px] text-[#8F8881]">
-            {lang==="zh"?`再買 HK$${2000-subtotal.hkd} 即享6件贈品禮遇` : `Add HK$${2000-subtotal.hkd} more to unlock gift tier`}
-            <div className="mt-2 h-2 bg-[#F2ECE4] rounded"><div className="h-2 bg-[#111] rounded" style={{width: `${Math.min(100, subtotal.hkd/3000*100)}%`}}></div></div>
+            {subtotal.hkd >= 2000
+              ? (lang==="zh"?`再買 HK$${3000-subtotal.hkd} 即享10件贈品禮遇`:`Add HK$${3000-subtotal.hkd} for 10-gift tier`)
+              : (lang==="zh"?`再買 HK$${2000-subtotal.hkd} 即享6件贈品禮遇`:`Add HK$${2000-subtotal.hkd} for 6-gift tier`)
+            }
+            <div className="mt-2 h-2 bg-[#F2ECE4] rounded overflow-hidden"><div className="h-2 bg-[#111] rounded transition-all duration-500" style={{width: `${Math.min(100, subtotal.hkd/3000*100)}%`}}></div></div>
           </div>
         )}
       </section>
@@ -107,7 +125,7 @@ export function CartPage() {
         </div>
 
         <Link to="/checkout" className="mt-6 w-full bg-[#111] text-white h-[48px] flex items-center justify-center text-[12px] tracking-[0.18em] uppercase">{lang==="zh"?"去結帳":"Checkout"}</Link>
-        <button onClick={()=>{clear(); setCoupon(null); setCouponObj(null)}} className="mt-2 w-full border border-[#111] h-[42px] text-[11px] uppercase">{lang==="zh"?"清空購物車":"Clear Cart"}</button>
+        <button onClick={()=>{clear(); setCoupon(null); setCouponObj(null); showToast("info", lang==="zh"?"購物車已清空":"Cart cleared")}} className="mt-2 w-full border border-[#111] h-[42px] text-[11px] uppercase">{lang==="zh"?"清空購物車":"Clear Cart"}</button>
 
         <div className="mt-6 border-t border-[#F2ECE4] pt-4 text-[11px] text-[#8F8881] leading-relaxed">
           <p>• 積分回贈：本次可獲 {Math.floor(subtotal.hkd)} 積分</p>

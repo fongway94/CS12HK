@@ -6,6 +6,7 @@ import { useAppStore } from "../../stores/useAppStore"
 import { formatPrice } from "../../lib/currency"
 import { useCartStore } from "../../stores/useCartStore"
 import { ProductCard } from "../../components/product/ProductCard"
+import { showToast } from "../../components/ui/Toast"
 
 export function ProductDetailPage() {
   const { slug } = useParams()
@@ -13,6 +14,10 @@ export function ProductDetailPage() {
   const [related, setRelated] = useState<Product[]>([])
   const [qty, setQty] = useState(1)
   const [tab, setTab] = useState<"desc"|"info"|"reviews">("desc")
+  const [reviews, setReviews] = useState<{ id: string; name: string; rating: number; comment: string; date: string }[]>([])
+  const [reviewName, setReviewName] = useState("")
+  const [reviewRating, setReviewRating] = useState(5)
+  const [reviewComment, setReviewComment] = useState("")
   const { currency, lang } = useAppStore()
   const { addItem } = useCartStore()
 
@@ -24,9 +29,39 @@ export function ProductDetailPage() {
         getDBClient().getProducts().then(all=>{
           setRelated(all.filter(a=>a.series===p.series && a.id!==p.id).slice(0,4))
         })
+        // Load reviews from localStorage
+        try {
+          const raw = localStorage.getItem(`cs12_reviews_${p.id}`)
+          if(raw) setReviews(JSON.parse(raw))
+        } catch {}
       }
     })
   },[slug])
+
+  const submitReview = () => {
+    if (!reviewName.trim() || !reviewComment.trim()) {
+      showToast("error", lang==="zh"?"請填寫姓名和評價":"Please fill in name and review")
+      return
+    }
+    const newReview = {
+      id: "rev_" + Date.now(),
+      name: reviewName.trim(),
+      rating: reviewRating,
+      comment: reviewComment.trim(),
+      date: new Date().toISOString()
+    }
+    const updated = [...reviews, newReview]
+    setReviews(updated)
+    if (product) {
+      localStorage.setItem(`cs12_reviews_${product.id}`, JSON.stringify(updated))
+      // Update review count
+      getDBClient().updateProduct(product.id, { reviewsCount: (product.reviewsCount || 0) + 1 })
+    }
+    setReviewName("")
+    setReviewRating(5)
+    setReviewComment("")
+    showToast("success", lang==="zh"?"感謝您的評價！獲得 50 積分獎勵":"Thank you for your review! Earned 50 bonus points")
+  }
 
   if(!product) return <div className="py-20 text-center">Loading...</div>
 
@@ -67,7 +102,7 @@ export function ProductDetailPage() {
             </div>
           </div>
 
-          <button onClick={()=>{addItem(product, qty); alert(lang==="zh"?"已加入購物車":"Added to cart")}} className="w-full h-[52px] bg-[#111] text-white text-[12px] tracking-[0.18em] uppercase hover:bg-black transition">{lang==="zh"?"加入購物車":"Add to Cart"} • {formatPrice(product.price_hkd*qty, product.price_usd*qty, currency)}</button>
+          <button onClick={()=>{addItem(product, qty); showToast("cart", lang==="zh"?`已加入購物車：${name}`:`Added to cart: ${name}`)}} className="w-full h-[52px] bg-[#111] text-white text-[12px] tracking-[0.18em] uppercase hover:bg-black transition">{lang==="zh"?"加入購物車":"Add to Cart"} • {formatPrice(product.price_hkd*qty, product.price_usd*qty, currency)}</button>
 
           <div className="mt-4 grid grid-cols-2 gap-2 text-[11px]">
             <div className="border border-[#ECE6DF] p-3 bg-[#FBF6F0]">🚚 {lang==="zh"?"滿 $800 免運費":"Free shipping over $800"}</div>
@@ -78,7 +113,7 @@ export function ProductDetailPage() {
             <div className="flex gap-6 text-[11px] tracking-[0.14em] uppercase mt-4">
               <button onClick={()=>setTab("desc")} className={`pb-2 border-b ${tab==="desc"?"border-black":"border-transparent text-[#8F8881]"}`}>描述</button>
               <button onClick={()=>setTab("info")} className={`pb-2 border-b ${tab==="info"?"border-black":"border-transparent text-[#8F8881]"}`}>額外資訊</button>
-              <button onClick={()=>setTab("reviews")} className={`pb-2 border-b ${tab==="reviews"?"border-black":"border-transparent text-[#8F8881]"}`}>評價 (0)</button>
+              <button onClick={()=>setTab("reviews")} className={`pb-2 border-b ${tab==="reviews"?"border-black":"border-transparent text-[#8F8881]"}`}>評價 ({reviews.length})</button>
             </div>
             <div className="py-6 text-[13px] leading-relaxed text-[#3A3734]">
               {tab==="desc" && (
@@ -95,7 +130,48 @@ export function ProductDetailPage() {
                 </div>
               )}
               {tab==="info" && <p>重量 | {product.weight_kg} 公斤<br/>貨號: {product.sku}<br/>分類: {product.category.join(", ")}<br/>膚質: {product.skinType.join(", ")}</p>}
-              {tab==="reviews" && <p>目前沒有評價。<br/>搶先評價此產品可獲額外 50 積分！</p>}
+              {tab==="reviews" && (
+                <div>
+                  {reviews.length === 0 ? (
+                    <p className="text-[#8F8881] mb-6">{lang==="zh"?"目前還沒有評價。搶先評價可獲額外 50 積分！":"No reviews yet. Be the first to review and earn 50 bonus points!"}</p>
+                  ) : (
+                    <div className="space-y-4 mb-8">
+                      {reviews.map(r => (
+                        <div key={r.id} className="border border-[#F2ECE4] p-4">
+                          <div className="flex items-center gap-2 mb-2">
+                            <span className="font-medium text-[13px]">{r.name}</span>
+                            <span className="text-[12px]">{"★".repeat(r.rating)}{"☆".repeat(5-r.rating)}</span>
+                            <span className="text-[10px] text-[#8F8881] ml-auto">{new Date(r.date).toLocaleDateString()}</span>
+                          </div>
+                          <p className="text-[12px] text-[#5C5651]">{r.comment}</p>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                  <div className="bg-[#FBF6F0] border border-[#ECE6DF] p-5">
+                    <h4 className="text-[12px] tracking-[0.14em] uppercase font-semibold mb-3">{lang==="zh"?"撰寫評價":"Write a Review"}</h4>
+                    <div className="space-y-3">
+                      <div>
+                        <label className="text-[11px] text-[#8F8881]">{lang==="zh"?"您的名稱":"Your Name"}</label>
+                        <input value={reviewName} onChange={e=>setReviewName(e.target.value)} className="w-full border border-[#ECE6DF] h-9 px-3 text-[12px] mt-1"/>
+                      </div>
+                      <div>
+                        <label className="text-[11px] text-[#8F8881]">{lang==="zh"?"評分":"Rating"}</label>
+                        <div className="flex gap-1 mt-1">
+                          {[1,2,3,4,5].map(s => (
+                            <button key={s} onClick={()=>setReviewRating(s)} className={`text-[18px] ${s <= reviewRating ? "text-[#111]" : "text-[#ECE6DF]"}`}>★</button>
+                          ))}
+                        </div>
+                      </div>
+                      <div>
+                        <label className="text-[11px] text-[#8F8881]">{lang==="zh"?"您的評價":"Your Review"}</label>
+                        <textarea value={reviewComment} onChange={e=>setReviewComment(e.target.value)} rows={3} className="w-full border border-[#ECE6DF] px-3 py-2 text-[12px] mt-1"/>
+                      </div>
+                      <button onClick={submitReview} className="bg-[#111] text-white px-6 h-9 text-[11px] tracking-[0.14em] uppercase">{lang==="zh"?"提交評價":"Submit Review"}</button>
+                    </div>
+                  </div>
+                </div>
+              )}
             </div>
           </div>
         </div>

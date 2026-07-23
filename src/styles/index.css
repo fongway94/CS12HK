@@ -29,3 +29,24 @@ body{
 .btn-premium { position:relative; overflow:hidden; }
 .btn-premium::after { content:""; position:absolute; inset:0; background:radial-gradient(600px circle at var(--x,50%) var(--y,50%), rgba(255,255,255,.15), transparent 40%); opacity:0; transition:opacity .3s; }
 .btn-premium:hover::after { opacity:1 }
+
+/* toast animation */
+@keyframes slideInRight {
+  from { opacity:0; transform: translateX(40px); }
+  to { opacity:1; transform: translateX(0); }
+}
+
+/* cart badge pop */
+@keyframes badgePop {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.4); }
+  100% { transform: scale(1); }
+}
+.badge-pop { animation: badgePop 0.3s ease-out; }
+
+/* mini cart slide */
+@keyframes slideDown {
+  from { opacity:0; transform: translateY(-8px); }
+  to { opacity:1; transform: translateY(0); }
+}
+.slide-down { animation: slideDown 0.25s ease-out; }
