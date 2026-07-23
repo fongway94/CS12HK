@@ -20,8 +20,8 @@
   --font-sans:  var(--font-en-sans);
   --font-serif: var(--font-en-serif);
   --font-base: 16px;
-  /* Increase or decrease this one value to scale every UI font size. */
-  --font-scale: 1.1;
+  /* Set by the Admin typography controls after site settings load. */
+  --font-scale: 1;
 }
 
 /* Chinese-active: swap to the CJK stacks. English glyphs inside Chinese text fall back to the en stack at the end. */

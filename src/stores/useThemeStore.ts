@@ -21,7 +21,11 @@ function applyCSS(settings: SiteSettings) {
   root.style.setProperty("--secondary", settings.secondaryColor)
   root.style.setProperty("--accent", settings.accentColor)
   root.style.setProperty("--font-base", `${settings.fontSizeBase}px`)
-  root.style.setProperty("--font-scale", String(settings.fontSizeScale))
+  // Most UI type uses fixed Tailwind px utilities. Combine the base-size setting
+  // (16px is the design baseline) and the multiplier so both Admin controls
+  // visibly scale that type rather than only the few inherited text elements.
+  const typographyScale = (settings.fontSizeBase / 16) * settings.fontSizeScale
+  root.style.setProperty("--font-scale", String(typographyScale))
 
   // Language-specific font pairs (body/sans + heading/serif) for English and Traditional Chinese.
   // These feed the body[data-lang="zh"|"en"] rules in index.css, which pick the active pair
