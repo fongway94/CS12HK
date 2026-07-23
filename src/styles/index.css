@@ -20,6 +20,7 @@
   --font-sans:  var(--font-en-sans);
   --font-serif: var(--font-en-serif);
   --font-base: 16px;
+  /* Set by the Admin typography controls after site settings load. */
   --font-scale: 1;
 }
 
@@ -56,6 +57,49 @@ body{
 }
 
 .font-serif { font-family: var(--font-serif); }
+
+/*
+ * Most interface copy uses Tailwind arbitrary pixel-size utilities (for example
+ * text-[11px]). Unlike rem utilities, those do not inherit a changed root font
+ * size. Keep them tied to --font-scale so typography adjustments apply site-wide.
+ */
+.text-\[7\.5px\] { font-size: calc(7.5px * var(--font-scale)); }
+.text-\[8px\] { font-size: calc(8px * var(--font-scale)); }
+.text-\[9px\] { font-size: calc(9px * var(--font-scale)); }
+.text-\[9\.5px\] { font-size: calc(9.5px * var(--font-scale)); }
+.text-\[10px\] { font-size: calc(10px * var(--font-scale)); }
+.text-\[10\.5px\] { font-size: calc(10.5px * var(--font-scale)); }
+.text-\[11px\] { font-size: calc(11px * var(--font-scale)); }
+.text-\[11\.5px\] { font-size: calc(11.5px * var(--font-scale)); }
+.text-\[12px\] { font-size: calc(12px * var(--font-scale)); }
+.text-\[12\.5px\] { font-size: calc(12.5px * var(--font-scale)); }
+.text-\[13px\] { font-size: calc(13px * var(--font-scale)); }
+.text-\[13\.5px\] { font-size: calc(13.5px * var(--font-scale)); }
+.text-\[14px\] { font-size: calc(14px * var(--font-scale)); }
+.text-\[14\.5px\] { font-size: calc(14.5px * var(--font-scale)); }
+.text-\[15px\] { font-size: calc(15px * var(--font-scale)); }
+.text-\[15\.5px\] { font-size: calc(15.5px * var(--font-scale)); }
+.text-\[16px\] { font-size: calc(16px * var(--font-scale)); }
+.text-\[18px\] { font-size: calc(18px * var(--font-scale)); }
+.text-\[20px\] { font-size: calc(20px * var(--font-scale)); }
+.text-\[22px\] { font-size: calc(22px * var(--font-scale)); }
+.text-\[24px\] { font-size: calc(24px * var(--font-scale)); }
+.text-\[26px\] { font-size: calc(26px * var(--font-scale)); }
+.text-\[28px\] { font-size: calc(28px * var(--font-scale)); }
+.text-\[30px\] { font-size: calc(30px * var(--font-scale)); }
+.text-\[32px\] { font-size: calc(32px * var(--font-scale)); }
+.text-\[34px\] { font-size: calc(34px * var(--font-scale)); }
+.text-\[36px\] { font-size: calc(36px * var(--font-scale)); }
+.text-\[38px\] { font-size: calc(38px * var(--font-scale)); }
+.text-\[40px\] { font-size: calc(40px * var(--font-scale)); }
+.text-\[42px\] { font-size: calc(42px * var(--font-scale)); }
+.text-\[44px\] { font-size: calc(44px * var(--font-scale)); }
+.text-\[46px\] { font-size: calc(46px * var(--font-scale)); }
+.text-\[48px\] { font-size: calc(48px * var(--font-scale)); }
+.text-\[54px\] { font-size: calc(54px * var(--font-scale)); }
+.text-\[56px\] { font-size: calc(56px * var(--font-scale)); }
+.text-\[62px\] { font-size: calc(62px * var(--font-scale)); }
+.text-\[68px\] { font-size: calc(68px * var(--font-scale)); }
 
 .reveal { opacity:1; transform:none; transition: opacity .8s cubic-bezier(.22,1,.36,1), transform .8s cubic-bezier(.22,1,.36,1); }
 .glass { backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px); }
