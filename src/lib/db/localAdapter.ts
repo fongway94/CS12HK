@@ -1,5 +1,5 @@
 import { DBClient } from "./client"
-import { Product, User, Order, Coupon, GiftTier, PointsTransaction, BirthdayReward, SiteSettings, DEFAULT_SITE_SETTINGS } from "./types"
+import { Product, User, Order, Coupon, GiftTier, PointsTransaction, BirthdayReward, SiteSettings, DEFAULT_SITE_SETTINGS, NewsletterSubscriber, InventoryLog, BackInStockWaitlist, SEOPageSettings, ProductVariant } from "./types"
 import { products as seedProducts } from "../../data/products"
 import { coupons as seedCoupons, giftTiers as seedGiftTiers } from "../../data/promotions"
 
@@ -11,6 +11,11 @@ const LS_GIFT_TIERS = "cs12_gift_tiers"
 const LS_POINTS = "cs12_points"
 const LS_BIRTHDAY = "cs12_birthday"
 const LS_SETTINGS = "cs12_site_settings"
+const LS_NEWSLETTER = "cs12_newsletter"
+const LS_INVENTORY_LOG = "cs12_inventory_log"
+const LS_WAITLIST = "cs12_waitlist"
+const LS_SEO_PAGES = "cs12_seo_pages"
+const LS_VARIANTS = "cs12_variants"
 
 function isBrowser() {
   try {
@@ -42,6 +47,11 @@ export class LocalDBAdapter implements DBClient {
   private points: PointsTransaction[]
   private birthday: BirthdayReward[]
   private siteSettings: SiteSettings
+  private newsletter: NewsletterSubscriber[]
+  private inventoryLogs: InventoryLog[]
+  private waitlist: BackInStockWaitlist[]
+  private seoPages: SEOPageSettings[]
+  private variants: ProductVariant[]
 
   constructor() {
     const hasInitiated = (() => {
@@ -73,6 +83,11 @@ export class LocalDBAdapter implements DBClient {
       this.points = []
       this.birthday = []
       this.siteSettings = DEFAULT_SITE_SETTINGS
+      this.newsletter = []
+      this.inventoryLogs = []
+      this.waitlist = []
+      this.seoPages = []
+      this.variants = []
       this.persist()
     } else {
       this.products = load<Product[]>(LS_PRODUCTS, seedProducts)
@@ -83,6 +98,11 @@ export class LocalDBAdapter implements DBClient {
       this.points = load<PointsTransaction[]>(LS_POINTS, [])
       this.birthday = load<BirthdayReward[]>(LS_BIRTHDAY, [])
       this.siteSettings = { ...DEFAULT_SITE_SETTINGS, ...load<Partial<SiteSettings>>(LS_SETTINGS, DEFAULT_SITE_SETTINGS) }
+      this.newsletter = load<NewsletterSubscriber[]>(LS_NEWSLETTER, [])
+      this.inventoryLogs = load<InventoryLog[]>(LS_INVENTORY_LOG, [])
+      this.waitlist = load<BackInStockWaitlist[]>(LS_WAITLIST, [])
+      this.seoPages = load<SEOPageSettings[]>(LS_SEO_PAGES, [])
+      this.variants = load<ProductVariant[]>(LS_VARIANTS, [])
       // Merge new seed products not in stored to allow updates
       const existingIds = new Set(this.products.map(p => p.id))
       for (const p of seedProducts) {
@@ -100,8 +120,14 @@ export class LocalDBAdapter implements DBClient {
     save(LS_POINTS, this.points)
     save(LS_BIRTHDAY, this.birthday)
     save(LS_SETTINGS, this.siteSettings)
+    save(LS_NEWSLETTER, this.newsletter)
+    save(LS_INVENTORY_LOG, this.inventoryLogs)
+    save(LS_WAITLIST, this.waitlist)
+    save(LS_SEO_PAGES, this.seoPages)
+    save(LS_VARIANTS, this.variants)
   }
 
+  // Products
   async getProducts() { return [...this.products] }
   async getProductBySlug(slug: string) { return this.products.find(p => p.slug === slug) || null }
   async getProductById(id: string) { return this.products.find(p => p.id === id) || null }
@@ -112,6 +138,16 @@ export class LocalDBAdapter implements DBClient {
   }
   async deleteProduct(id: string) { this.products = this.products.filter(p => p.id !== id); this.persist() }
 
+  // Product Variants
+  async getProductVariants(productId: string) { return this.variants.filter(v => v.productId === productId) }
+  async createProductVariant(variant: ProductVariant) { this.variants.push(variant); this.persist() }
+  async updateProductVariant(variantId: string, patch: Partial<ProductVariant>) {
+    const idx = this.variants.findIndex(v => v.id === variantId)
+    if (idx >= 0) { this.variants[idx] = { ...this.variants[idx], ...patch }; this.persist() }
+  }
+  async deleteProductVariant(variantId: string) { this.variants = this.variants.filter(v => v.id !== variantId); this.persist() }
+
+  // Users
   async getUsers() { return [...this.users] }
   async getUserById(id: string) { return this.users.find(u => u.id === id) || null }
   async getUserByEmail(email: string) { return this.users.find(u => u.email.toLowerCase() === email.toLowerCase()) || null }
@@ -121,6 +157,7 @@ export class LocalDBAdapter implements DBClient {
     if (idx >= 0) { this.users[idx] = { ...this.users[idx], ...patch }; this.persist() }
   }
 
+  // Orders
   async getOrders() { return [...this.orders] }
   async getOrdersByUserId(userId: string) { return this.orders.filter(o => o.userId === userId) }
   async getOrderById(id: string) { return this.orders.find(o => o.id === id) || null }
@@ -130,6 +167,7 @@ export class LocalDBAdapter implements DBClient {
     if (idx >= 0) { this.orders[idx] = { ...this.orders[idx], ...patch }; this.persist() }
   }
 
+  // Coupons
   async getCoupons() { return [...this.coupons] }
   async getCouponByCode(code: string) { return this.coupons.find(c => c.code.toUpperCase() === code.toUpperCase()) || null }
   async createCoupon(c: Coupon) { this.coupons.push(c); this.persist() }
@@ -142,19 +180,60 @@ export class LocalDBAdapter implements DBClient {
     this.persist()
   }
 
+  // Gift Tiers
   async getGiftTiers() { return [...this.giftTiers] }
   async updateGiftTiers(tiers: GiftTier[]) { this.giftTiers = tiers; this.persist() }
 
+  // Points
   async addPointsTransaction(tx: PointsTransaction) { this.points.push(tx); this.persist() }
 
+  // Birthday
   async getBirthdayRewards(userId: string) { return this.birthday.filter(r => r.userId === userId) }
   async createBirthdayReward(r: BirthdayReward) { this.birthday.push(r); this.persist() }
 
+  // Site Settings
   async getSiteSettings() { return { ...this.siteSettings } }
   async updateSiteSettings(patch: Partial<SiteSettings>) {
     this.siteSettings = { ...this.siteSettings, ...patch, updatedAt: new Date().toISOString() }
     this.persist()
   }
+
+  // Newsletter Subscribers
+  async getNewsletterSubscribers() { return [...this.newsletter] }
+  async createNewsletterSubscriber(subscriber: NewsletterSubscriber) { this.newsletter.push(subscriber); this.persist() }
+  async updateNewsletterSubscriber(id: string, patch: Partial<NewsletterSubscriber>) {
+    const idx = this.newsletter.findIndex(s => s.id === id)
+    if (idx >= 0) { this.newsletter[idx] = { ...this.newsletter[idx], ...patch }; this.persist() }
+  }
+  async deleteNewsletterSubscriber(id: string) { this.newsletter = this.newsletter.filter(s => s.id !== id); this.persist() }
+
+  // Inventory Logs
+  async getInventoryLogs(productId?: string) {
+    if (productId) return this.inventoryLogs.filter(l => l.productId === productId)
+    return [...this.inventoryLogs]
+  }
+  async createInventoryLog(log: InventoryLog) { this.inventoryLogs.unshift(log); this.persist() }
+
+  // Back in Stock Waitlist
+  async getBackInStockWaitlist(productId?: string) {
+    if (productId) return this.waitlist.filter(w => w.productId === productId)
+    return [...this.waitlist]
+  }
+  async addToWaitlist(entry: BackInStockWaitlist) { this.waitlist.push(entry); this.persist() }
+  async markWaitlistNotified(id: string) {
+    const idx = this.waitlist.findIndex(w => w.id === id)
+    if (idx >= 0) { this.waitlist[idx] = { ...this.waitlist[idx], notifiedAt: new Date().toISOString() }; this.persist() }
+  }
+
+  // SEO Page Settings
+  async getSEOPageSettings() { return [...this.seoPages] }
+  async upsertSEOPageSettings(settings: SEOPageSettings) {
+    const idx = this.seoPages.findIndex(s => s.path === settings.path)
+    if (idx >= 0) this.seoPages[idx] = settings
+    else this.seoPages.push(settings)
+    this.persist()
+  }
+  async deleteSEOPageSettings(path: string) { this.seoPages = this.seoPages.filter(s => s.path !== path); this.persist() }
 }
 
 // initializer to be called from app startup
