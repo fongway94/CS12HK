@@ -294,7 +294,7 @@ export function HomePage() {
             <img
               src="https://cs12skincare.com.hk/wp-content/uploads/2026/03/cs-12-253-E-720x1080.jpg"
               alt="CS12 Miracle Mask"
-              className="absolute inset-0 w-full h-full object-contain p-6 md:p-8 transition-transform duration-[1500ms] ease-out group-hover:scale-[1.03]"
+              className="absolute inset-0 w-full h-full object-cover transition-transform duration-[1500ms] ease-out group-hover:scale-[1.03]"
               loading="lazy"
             />
             <div className="absolute top-6 left-6 bg-white/90 backdrop-blur-sm px-4 py-2 border border-[#ECE6DF] text-[9.5px] tracking-[0.16em] uppercase font-bold z-10">
@@ -387,7 +387,7 @@ export function HomePage() {
             <img
               src="https://cs12skincare.com.hk/wp-content/uploads/2026/03/1O1A7491-E-scaled.jpg"
               alt="CS12 #SOCALM"
-              className="absolute inset-0 w-full h-full object-contain p-6 md:p-8 transition-transform duration-[1500ms] ease-out group-hover:scale-[1.03]"
+              className="absolute inset-0 w-full h-full object-cover transition-transform duration-[1500ms] ease-out group-hover:scale-[1.03]"
               loading="lazy"
             />
           </div>
