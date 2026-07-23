@@ -374,10 +374,7 @@ export function ProductDetailPage() {
 // Recently Viewed Section Component
 function RecentlyViewedSection() {
   const { items } = useRecentlyViewedStore()
-  const { lang, currency } = useAppStore()
-  const { addItem } = useCartStore()
-  const { formatPrice } = require("../../lib/currency")
-  
+
   // Filter out current product (would need context, simplified here)
   const recentItems = items.slice(0, 4)
   
