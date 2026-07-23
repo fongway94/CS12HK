@@ -5,7 +5,7 @@ import { useAppStore } from "../../stores/useAppStore"
 import { useAuthStore } from "../../stores/useAuthStore"
 import { getDBClient } from "../../lib/db/client"
 import { GiftTier, Coupon } from "../../lib/db/types"
-import { calcSubtotal, getGiftTier, calcCouponDiscount, calcShipping } from "../../lib/promotions/engine"
+import { calcSubtotal, getGiftTier, calcCouponDiscount, calcShipping, checkBirthdayMonth } from "../../lib/promotions/engine"
 import { formatPrice } from "../../lib/currency"
 import { showToast } from "../../components/ui/Toast"
 
@@ -28,9 +28,13 @@ export function CartPage() {
 
   const giftTier = getGiftTier(subtotal.hkd, subtotal.usd, giftTiers, currency)
 
+  const isBirthdayMonth = checkBirthdayMonth(user?.birthday)
   const couponCalc = useMemo(()=>{
-    return calcCouponDiscount(subtotal.hkd, subtotal.usd, couponObj, currency, user?.isFirstOrder ?? true)
-  },[subtotal, couponObj, currency, user])
+    return calcCouponDiscount(subtotal.hkd, subtotal.usd, couponObj, currency, {
+      isFirstOrder: user?.isFirstOrder ?? true,
+      isBirthdayMonth
+    })
+  },[subtotal, couponObj, currency, user, isBirthdayMonth])
 
   const shipping = calcShipping(subtotal.hkd - couponCalc.discountHKD, subtotal.usd - couponCalc.discountUSD, currency)
 
@@ -38,11 +42,26 @@ export function CartPage() {
   const totalUSD = subtotal.usd - couponCalc.discountUSD + shipping.shippingUSD
 
   const applyCoupon = async () => {
+    const code = couponInput.trim().toUpperCase()
+    if (!code) return
     const db = getDBClient()
-    const c = await db.getCouponByCode(couponInput)
+    const c = await db.getCouponByCode(code)
     if(!c){
+      setCouponObj(null)
+      setCoupon(null)
       setCouponMsg(lang==="zh"?"優惠碼無效":"Invalid code")
       showToast("error", lang==="zh"?"優惠碼無效":"Invalid coupon code")
+      return
+    }
+    const result = calcCouponDiscount(subtotal.hkd, subtotal.usd, c, currency, {
+      isFirstOrder: user?.isFirstOrder ?? true,
+      isBirthdayMonth
+    })
+    if (!result.valid) {
+      setCouponObj(null)
+      setCoupon(null)
+      setCouponMsg(`${lang==="zh"?"優惠碼不可用":"Coupon unavailable"}: ${result.reason}`)
+      showToast("error", `${lang==="zh"?"優惠碼不可用":"Coupon unavailable"}: ${result.reason}`)
       return
     }
     setCouponObj(c)

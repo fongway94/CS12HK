@@ -1,9 +1,9 @@
 import { useEffect, useState } from "react"
-import { useNavigate } from "react-router-dom"
+import { Link, useNavigate } from "react-router-dom"
 import { useAuthStore } from "../../stores/useAuthStore"
 import { useAppStore } from "../../stores/useAppStore"
 import { getDBClient } from "../../lib/db/client"
-import { Order, PointsTransaction } from "../../lib/db/types"
+import { Order } from "../../lib/db/types"
 import { checkBirthdayMonth } from "../../lib/promotions/engine"
 import { formatPrice } from "../../lib/currency"
 import { showToast } from "../../components/ui/Toast"
@@ -20,6 +20,9 @@ export function AccountPage() {
   const [editingAddress, setEditingAddress] = useState<{ name: string; phone: string; address: string; district: string } | null>(null)
   const [editEmail, setEditEmail] = useState("")
   const [editUsername, setEditUsername] = useState("")
+  const [currentPassword, setCurrentPassword] = useState("")
+  const [newPassword, setNewPassword] = useState("")
+  const [confirmNewPassword, setConfirmNewPassword] = useState("")
   const nav = useNavigate()
 
   useEffect(()=>{
@@ -40,14 +43,16 @@ export function AccountPage() {
   },[user])
 
   useEffect(()=>{
-    if(!localStorage.getItem("cs12_token")) nav("/login")
-  },[])
+    try {
+      if(!localStorage.getItem("cs12_token")) nav("/login")
+    } catch {
+      nav("/login")
+    }
+  },[nav])
 
-  if(!user) return <div className="py-20 text-center">載入中...</div>
+  const isBirthdayMonth = checkBirthdayMonth(user?.birthday)
 
-  const isBirthdayMonth = checkBirthdayMonth(user.birthday)
-
-  // Auto-activate birthday coupon
+  // Auto-activate birthday coupon for eligible members.
   useEffect(() => {
     if (user && isBirthdayMonth) {
       const db = getDBClient()
@@ -58,6 +63,8 @@ export function AccountPage() {
       })
     }
   }, [user, isBirthdayMonth])
+
+  if(!user) return <div className="py-20 text-center">載入中...</div>
 
   const handleSaveBirthday = async () => {
     if (!editingBirthday) return
@@ -70,9 +77,38 @@ export function AccountPage() {
 
   const handleSaveProfile = async () => {
     const db = getDBClient()
-    await db.updateUser(user.id, { email: editEmail, username: editUsername })
+    await db.updateUser(user.id, { email: editEmail.trim().toLowerCase(), username: editUsername.trim() || user.username })
     await fetchMe()
     showToast("success", lang==="zh"?"個人資料已更新":"Profile updated")
+  }
+
+  const handleToggleNewsletter = async () => {
+    const db = getDBClient()
+    await db.updateUser(user.id, { newsletter: !user.newsletter })
+    await fetchMe()
+    showToast("success", lang==="zh"?"電子報偏好已更新":"Newsletter preference updated")
+  }
+
+  const handleChangePassword = async () => {
+    if (user.passwordHash && currentPassword !== user.passwordHash) {
+      showToast("error", lang==="zh"?"目前密碼不正確":"Current password is incorrect")
+      return
+    }
+    if (newPassword.length < 6) {
+      showToast("error", lang==="zh"?"新密碼至少需要6個字符":"New password must be at least 6 characters")
+      return
+    }
+    if (newPassword !== confirmNewPassword) {
+      showToast("error", lang==="zh"?"新密碼不一致":"New passwords do not match")
+      return
+    }
+    const db = getDBClient()
+    await db.updateUser(user.id, { passwordHash: newPassword })
+    setCurrentPassword("")
+    setNewPassword("")
+    setConfirmNewPassword("")
+    await fetchMe()
+    showToast("success", lang==="zh"?"密碼已更新":"Password updated")
   }
 
   const saveAddresses = (addrs: typeof addresses) => {
@@ -89,7 +125,15 @@ export function AccountPage() {
   }
 
   const deleteAddress = (id: string) => {
-    saveAddresses(addresses.filter(a => a.id !== id))
+    const remaining = addresses.filter(a => a.id !== id)
+    if (remaining.length > 0 && !remaining.some(a => a.isDefault)) remaining[0] = { ...remaining[0], isDefault: true }
+    saveAddresses(remaining)
+    showToast("info", lang==="zh"?"地址已刪除":"Address deleted")
+  }
+
+  const setDefaultAddress = (id: string) => {
+    saveAddresses(addresses.map(a => ({ ...a, isDefault: a.id === id })))
+    showToast("success", lang==="zh"?"已設定預設地址":"Default address updated")
   }
 
   const sidebarItems: { key: AccountTab; label_zh: string; label_en: string; badge?: number | string }[] = [
@@ -163,7 +207,7 @@ export function AccountPage() {
                 <h4 className="text-[12px] tracking-[0.18em] uppercase font-semibold">最近訂單 Recent Orders</h4>
                 <button onClick={()=>setTab("orders")} className="text-[11px] underline text-[#8F8881]">查看全部</button>
               </div>
-              {orders.length===0 ? <p className="text-[12px] text-[#8F8881]">暫無訂單。去 <a href="/exclusive" className="underline">官網限定</a> 選購。</p> :
+              {orders.length===0 ? <p className="text-[12px] text-[#8F8881]">暫無訂單。去 <Link to="/exclusive" className="underline">官網限定</Link> 選購。</p> :
                 <div className="space-y-3">
                   {orders.slice(0,3).map(o=>(
                     <div key={o.id} className="border border-[#F2ECE4] p-4 flex justify-between text-[12px]">
@@ -181,7 +225,7 @@ export function AccountPage() {
         {tab==="orders" && (
           <div className="bg-white border border-[#ECE6DF] p-6">
             <h4 className="text-[12px] tracking-[0.18em] uppercase font-semibold mb-4">訂單記錄 Orders ({orders.length})</h4>
-            {orders.length===0 ? <p className="text-[12px] text-[#8F8881]">暫無訂單。去 <a href="/exclusive" className="underline">官網限定</a> 選購。</p> :
+            {orders.length===0 ? <p className="text-[12px] text-[#8F8881]">暫無訂單。去 <Link to="/exclusive" className="underline">官網限定</Link> 選購。</p> :
               <div className="space-y-4">
                 {orders.map(o=>(
                   <div key={o.id} className="border border-[#F2ECE4] p-5">
@@ -301,7 +345,10 @@ export function AccountPage() {
                         <p className="text-[#5C5651]">{a.phone}</p>
                         <p className="text-[#5C5651]">{a.address}, {a.district}</p>
                       </div>
-                      <button onClick={()=>deleteAddress(a.id)} className="text-[11px] underline text-[#8F8881] self-start">{lang==="zh"?"刪除":"Delete"}</button>
+                      <div className="flex flex-col gap-2 self-start text-right">
+                        {!a.isDefault && <button onClick={()=>setDefaultAddress(a.id)} className="text-[11px] underline text-[#8F8881]">{lang==="zh"?"設為預設":"Set default"}</button>}
+                        <button onClick={()=>deleteAddress(a.id)} className="text-[11px] underline text-[#8F8881]">{lang==="zh"?"刪除":"Delete"}</button>
+                      </div>
                     </div>
                   ))}
                 </div>
@@ -341,15 +388,15 @@ export function AccountPage() {
             <div className="bg-white border border-[#ECE6DF] p-6">
               <h4 className="text-[12px] tracking-[0.18em] uppercase font-semibold mb-4">Newsletter 電子報</h4>
               <p className="text-[12px] text-[#5C5651]">訂閱狀態：{user.newsletter ? "已訂閱 ✓" : "未訂閱"}</p>
-              <p className="text-[11px] text-[#8F8881] mt-2">如需取消訂閱，請聯繫客戶服務。</p>
+              <button onClick={handleToggleNewsletter} className="mt-3 border border-[#111] px-5 h-9 text-[11px] uppercase">{user.newsletter ? (lang==="zh"?"取消訂閱":"Unsubscribe") : (lang==="zh"?"訂閱":"Subscribe")}</button>
             </div>
             <div className="bg-white border border-[#ECE6DF] p-6">
               <h4 className="text-[12px] tracking-[0.18em] uppercase font-semibold mb-4">更改密碼 Change Password</h4>
               <div className="space-y-3">
-                <input type="password" placeholder="目前密碼 Current password" className="w-full border border-[#ECE6DF] h-10 px-3 text-[13px]"/>
-                <input type="password" placeholder="新密碼 New password" className="w-full border border-[#ECE6DF] h-10 px-3 text-[13px]"/>
-                <input type="password" placeholder="確認新密碼 Confirm new password" className="w-full border border-[#ECE6DF] h-10 px-3 text-[13px]"/>
-                <button onClick={()=>showToast("info", lang==="zh"?"密碼更改功能即將推出":"Password change coming soon")} className="bg-[#111] text-white px-6 h-10 text-[11px] tracking-[0.14em] uppercase">更改密碼</button>
+                <input type="password" value={currentPassword} onChange={e=>setCurrentPassword(e.target.value)} placeholder="目前密碼 Current password" className="w-full border border-[#ECE6DF] h-10 px-3 text-[13px]"/>
+                <input type="password" value={newPassword} onChange={e=>setNewPassword(e.target.value)} placeholder="新密碼 New password" className="w-full border border-[#ECE6DF] h-10 px-3 text-[13px]"/>
+                <input type="password" value={confirmNewPassword} onChange={e=>setConfirmNewPassword(e.target.value)} placeholder="確認新密碼 Confirm new password" className="w-full border border-[#ECE6DF] h-10 px-3 text-[13px]"/>
+                <button onClick={handleChangePassword} className="bg-[#111] text-white px-6 h-10 text-[11px] tracking-[0.14em] uppercase">更改密碼</button>
               </div>
             </div>
           </div>

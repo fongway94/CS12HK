@@ -28,9 +28,13 @@ export interface DBClient {
   getCouponByCode(code: string): Promise<Coupon | null>
   createCoupon(c: Coupon): Promise<void>
   updateCoupon(code: string, patch: Partial<Coupon>): Promise<void>
+  deleteCoupon(code: string): Promise<void>
 
   // gift tiers
   getGiftTiers(): Promise<GiftTier[]>
+  createGiftTier(tier: GiftTier): Promise<void>
+  updateGiftTier(id: string, patch: Partial<GiftTier>): Promise<void>
+  deleteGiftTier(id: string): Promise<void>
 
   // points
   addPointsTransaction(tx: PointsTransaction): Promise<void>

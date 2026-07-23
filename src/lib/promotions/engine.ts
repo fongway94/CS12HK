@@ -18,11 +18,31 @@ export function getGiftTier(subtotalHKD: number, subtotalUSD: number, tiers: Gif
   return null
 }
 
-export function calcCouponDiscount(subtotalHKD: number, subtotalUSD: number, coupon: Coupon | null, currency: Currency, isFirstOrder: boolean) {
+type CouponContext = {
+  isFirstOrder?: boolean
+  isBirthdayMonth?: boolean
+}
+
+export function calcCouponDiscount(
+  subtotalHKD: number,
+  subtotalUSD: number,
+  coupon: Coupon | null,
+  currency: Currency,
+  contextOrFirstOrder: CouponContext | boolean = {}
+) {
+  const context: CouponContext = typeof contextOrFirstOrder === "boolean"
+    ? { isFirstOrder: contextOrFirstOrder }
+    : contextOrFirstOrder
+  const isFirstOrder = context.isFirstOrder ?? true
+  const isBirthdayMonth = context.isBirthdayMonth ?? false
+
   if (!coupon || !coupon.isActive) return { discountHKD: 0, discountUSD: 0, valid: false, reason: "Invalid" }
   const now = new Date()
   if (new Date(coupon.validFrom) > now || new Date(coupon.validTo) < now) return { discountHKD: 0, discountUSD: 0, valid: false, reason: "Expired" }
+  if (coupon.maxUses !== undefined && coupon.usedCount >= coupon.maxUses) return { discountHKD: 0, discountUSD: 0, valid: false, reason: "Usage limit reached" }
   if (coupon.onlyFirstOrder && !isFirstOrder) return { discountHKD: 0, discountUSD: 0, valid: false, reason: "First order only" }
+  if (coupon.code.toUpperCase().includes("BIRTHDAY") && !isBirthdayMonth) return { discountHKD: 0, discountUSD: 0, valid: false, reason: "Birthday month only" }
+
   const minHKD = coupon.minAmountHKD ?? 0
   const minUSD = coupon.minAmountUSD ?? 0
   if (currency === "HKD" && subtotalHKD < minHKD) return { discountHKD: 0, discountUSD: 0, valid: false, reason: `Min HK$${minHKD}` }
@@ -33,10 +53,13 @@ export function calcCouponDiscount(subtotalHKD: number, subtotalUSD: number, cou
     discountHKD = subtotalHKD * coupon.value / 100
     discountUSD = subtotalUSD * coupon.value / 100
   } else {
-    // fixed amount: assume HKD unless currency USD and coupon currency specified
-    if (currency === "HKD") discountHKD = coupon.value
-    else discountUSD = coupon.value
+    // Keep both currencies populated for order records and admin reporting.
+    discountHKD = coupon.currency === "USD" ? coupon.value / 0.128 : coupon.value
+    discountUSD = coupon.currency === "USD" ? coupon.value : coupon.value * 0.128
   }
+
+  discountHKD = Math.min(subtotalHKD, Math.max(0, Number(discountHKD.toFixed(2))))
+  discountUSD = Math.min(subtotalUSD, Math.max(0, Number(discountUSD.toFixed(2))))
   return { discountHKD, discountUSD, valid: true, reason: "OK" }
 }
 
@@ -53,6 +76,7 @@ export function calcShipping(subtotalHKD: number, subtotalUSD: number, currency:
 export function checkBirthdayMonth(birthday?: string) {
   if (!birthday) return false
   const b = new Date(birthday)
+  if (Number.isNaN(b.getTime())) return false
   const now = new Date()
   return b.getMonth() === now.getMonth()
 }

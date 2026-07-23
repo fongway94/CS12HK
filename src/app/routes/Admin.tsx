@@ -1,29 +1,38 @@
-import { useEffect, useState } from "react"
+import { useEffect, useRef, useState } from "react"
 import { useAuthStore } from "../../stores/useAuthStore"
 import { getDBClient } from "../../lib/db/client"
-import { Product, User, Order, Coupon } from "../../lib/db/types"
+import { Product, User, Order, Coupon, GiftTier } from "../../lib/db/types"
 import { useNavigate } from "react-router-dom"
 import { showToast } from "../../components/ui/Toast"
-import { useAppStore } from "../../stores/useAppStore"
 
 export function AdminPage() {
-  const { user } = useAuthStore()
-  const { lang } = useAppStore()
+  const { user, hasCheckedSession, fetchMe } = useAuthStore()
   const nav = useNavigate()
   const [products, setProducts] = useState<Product[]>([])
   const [users, setUsers] = useState<User[]>([])
   const [orders, setOrders] = useState<Order[]>([])
   const [coupons, setCoupons] = useState<Coupon[]>([])
+  const [giftTiers, setGiftTiers] = useState<GiftTier[]>([])
   const [tab, setTab] = useState<"crm"|"products"|"orders"|"coupons"|"bundles">("crm")
   const [editingProduct, setEditingProduct] = useState<Partial<Product> | null>(null)
+  const [editingCoupon, setEditingCoupon] = useState<Partial<Coupon> | null>(null)
+  const [editingGiftTier, setEditingGiftTier] = useState<Partial<GiftTier> | null>(null)
   const [isAdding, setIsAdding] = useState(false)
+  const [isAddingCoupon, setIsAddingCoupon] = useState(false)
+  const [isAddingGiftTier, setIsAddingGiftTier] = useState(false)
   const [searchTerm, setSearchTerm] = useState("")
   const [orderFilter, setOrderFilter] = useState<string>("all")
+  const productEditorRef = useRef<HTMLDivElement | null>(null)
 
   useEffect(()=>{
+    fetchMe()
+  },[])
+
+  useEffect(()=>{
+    if(!hasCheckedSession) return
     if(!user || user.role!=="admin"){ nav("/login"); return }
     refresh()
-  },[user])
+  },[user, hasCheckedSession, nav])
 
   const refresh = async()=>{
     const db = getDBClient()
@@ -31,6 +40,7 @@ export function AdminPage() {
     setUsers(await db.getUsers())
     setOrders(await db.getOrders())
     setCoupons(await db.getCoupons())
+    setGiftTiers(await db.getGiftTiers())
   }
 
   const totalRevenue = orders.reduce((a,b)=>a+b.totalHKD,0)
@@ -43,6 +53,56 @@ export function AdminPage() {
     ? products.filter(p => (p.name_zh+p.name_en+p.sku+p.id).toLowerCase().includes(searchTerm.toLowerCase()))
     : products
 
+  const cloneProductForEdit = (p: Product): Partial<Product> => ({
+    ...p,
+    images: [...p.images],
+    category: [...p.category],
+    skinType: [...p.skinType],
+    tags: [...p.tags],
+    bundleItems: p.bundleItems ? p.bundleItems.map(i => ({ ...i })) : undefined
+  })
+
+  const openProductEditor = (p: Partial<Product>, adding: boolean) => {
+    setEditingProduct(p)
+    setIsAdding(adding)
+    window.setTimeout(() => productEditorRef.current?.scrollIntoView({ behavior: "smooth", block: "start" }), 0)
+  }
+
+  const parseBundleItems = (value: string) => value
+    .split(",")
+    .map(part => part.trim())
+    .filter(Boolean)
+    .map(part => {
+      const [productId, qtyRaw] = part.split(":").map(s => s.trim())
+      return { productId, qty: Math.max(1, Number(qtyRaw) || 1) }
+    })
+    .filter(item => item.productId)
+
+  const serializeBundleItems = (items?: { productId: string; qty: number }[]) => (items || []).map(i => `${i.productId}:${i.qty}`).join(",")
+
+  const parseGiftList = (value: string): GiftTier["gifts"] => value
+    .split("\n")
+    .map(line => line.trim())
+    .filter(Boolean)
+    .map(line => {
+      const [zh = "", en = zh, qtyRaw = "1"] = line.split("|").map(s => s.trim())
+      return { name_zh: zh, name_en: en || zh, qty: Math.max(1, Number(qtyRaw) || 1) }
+    })
+
+  const serializeGiftList = (gifts?: GiftTier["gifts"]) => (gifts || []).map(g => `${g.name_zh}|${g.name_en}|${g.qty}`).join("\n")
+
+  const cloneGiftTierForEdit = (tier: GiftTier): Partial<GiftTier> => ({ ...tier, gifts: tier.gifts.map(g => ({ ...g })) })
+
+  const makeUniqueSlug = (base: string, excludeId?: string) => {
+    const fallback = "product-" + Date.now()
+    const source = base.trim() || fallback
+    const initial = source.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)/g, "") || fallback
+    let slug = initial
+    let i = 2
+    while (products.some(p => p.slug === slug && p.id !== excludeId)) slug = `${initial}-${i++}`
+    return slug
+  }
+
   // Product CRUD
   const handleSaveProduct = async () => {
     if (!editingProduct) return
@@ -54,7 +114,7 @@ export function AdminPage() {
       }
       const newProduct: Product = {
         id: "p_" + Date.now(),
-        slug: (editingProduct.name_en || editingProduct.name_zh || "").toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)/g, "") || "product-" + Date.now(),
+        slug: makeUniqueSlug(editingProduct.slug || editingProduct.name_en || editingProduct.sku || editingProduct.name_zh || ""),
         name_zh: editingProduct.name_zh || "",
         name_en: editingProduct.name_en || "",
         description_zh: editingProduct.description_zh || "",
@@ -82,7 +142,13 @@ export function AdminPage() {
       await db.createProduct(newProduct)
       showToast("success", `產品已新增: ${newProduct.name_zh}`)
     } else {
-      await db.updateProduct(editingProduct.id!, editingProduct)
+      const patch = {
+        ...editingProduct,
+        slug: makeUniqueSlug(editingProduct.slug || editingProduct.name_en || editingProduct.sku || editingProduct.name_zh || "", editingProduct.id),
+        price_usd: editingProduct.price_usd || Math.round((editingProduct.price_hkd || 0) * 0.128 * 100) / 100,
+        original_price_usd: editingProduct.original_price_usd || (editingProduct.original_price_hkd ? Math.round(editingProduct.original_price_hkd * 0.128 * 100) / 100 : undefined),
+      }
+      await db.updateProduct(editingProduct.id!, patch)
       showToast("success", `產品已更新: ${editingProduct.name_zh}`)
     }
     setEditingProduct(null)
@@ -106,7 +172,37 @@ export function AdminPage() {
     refresh()
   }
 
-  // Coupon toggle active
+  // Coupon CRUD
+  const handleSaveCoupon = async () => {
+    if (!editingCoupon?.code) {
+      showToast("error", "請填寫優惠碼")
+      return
+    }
+    const db = getDBClient()
+    const coupon: Coupon = {
+      code: editingCoupon.code.toUpperCase().trim(),
+      type: editingCoupon.type || "percent",
+      value: Number(editingCoupon.value) || 0,
+      currency: editingCoupon.currency,
+      minAmountHKD: editingCoupon.minAmountHKD || undefined,
+      minAmountUSD: editingCoupon.minAmountUSD || undefined,
+      maxUses: editingCoupon.maxUses || undefined,
+      usedCount: editingCoupon.usedCount || 0,
+      validFrom: editingCoupon.validFrom || new Date().toISOString().slice(0,10),
+      validTo: editingCoupon.validTo || "2026-12-31",
+      onlyFirstOrder: !!editingCoupon.onlyFirstOrder,
+      description_zh: editingCoupon.description_zh || "",
+      description_en: editingCoupon.description_en || "",
+      isActive: editingCoupon.isActive ?? true
+    }
+    if (isAddingCoupon) await db.createCoupon(coupon)
+    else await db.updateCoupon(coupon.code, coupon)
+    showToast("success", `優惠碼已${isAddingCoupon ? "新增" : "更新"}: ${coupon.code}`)
+    setEditingCoupon(null)
+    setIsAddingCoupon(false)
+    refresh()
+  }
+
   const handleToggleCoupon = async (code: string, isActive: boolean) => {
     const db = getDBClient()
     await db.updateCoupon(code, { isActive })
@@ -114,12 +210,57 @@ export function AdminPage() {
     refresh()
   }
 
+  const handleDeleteCoupon = async (code: string) => {
+    if (!confirm(`確定刪除優惠碼 ${code}？`)) return
+    const db = getDBClient()
+    await db.deleteCoupon(code)
+    showToast("success", `已刪除優惠碼: ${code}`)
+    refresh()
+  }
+
+  const handleSaveGiftTier = async () => {
+    if (!editingGiftTier?.id) {
+      showToast("error", "請填寫 Gift Tier ID")
+      return
+    }
+    const db = getDBClient()
+    const tier: GiftTier = {
+      id: editingGiftTier.id,
+      thresholdHKD: Number(editingGiftTier.thresholdHKD) || 0,
+      thresholdUSD: Number(editingGiftTier.thresholdUSD) || Math.round((Number(editingGiftTier.thresholdHKD) || 0) * 0.128),
+      label_zh: editingGiftTier.label_zh || "",
+      label_en: editingGiftTier.label_en || "",
+      giftValueHKD: Number(editingGiftTier.giftValueHKD) || 0,
+      gifts: editingGiftTier.gifts || []
+    }
+    if (isAddingGiftTier) await db.createGiftTier(tier)
+    else await db.updateGiftTier(tier.id, tier)
+    showToast("success", `贈品門檻已${isAddingGiftTier ? "新增" : "更新"}: ${tier.label_zh}`)
+    setEditingGiftTier(null)
+    setIsAddingGiftTier(false)
+    refresh()
+  }
+
+  const handleDeleteGiftTier = async (id: string) => {
+    if (!confirm(`確定刪除贈品門檻 ${id}？`)) return
+    const db = getDBClient()
+    await db.deleteGiftTier(id)
+    showToast("success", `已刪除贈品門檻: ${id}`)
+    refresh()
+  }
+
   // User role update
   const handleToggleUserRole = async (userId: string, newRole: "customer" | "admin") => {
+    if (userId === user?.id && newRole !== "admin" && !confirm("你正在移除自己的管理員權限，確定嗎？")) return
     const db = getDBClient()
     await db.updateUser(userId, { role: newRole })
     showToast("success", `用戶角色已更新為 ${newRole}`)
     refresh()
+    if (userId === user?.id) fetchMe()
+  }
+
+  if (!hasCheckedSession || !user || user.role !== "admin") {
+    return <main className="w-[min(calc(100%-48px),1440px)] mx-auto py-20 text-center text-[13px] text-[#8F8881]">Loading admin panel...</main>
   }
 
   return (
@@ -220,19 +361,21 @@ export function AdminPage() {
             <h3 className="text-[12px] uppercase font-semibold">Products & Inventory ({products.length})</h3>
             <div className="flex gap-2">
               <input value={searchTerm} onChange={e=>setSearchTerm(e.target.value)} placeholder="Search SKU, name..." className="border border-[#ECE6DF] h-8 px-3 text-[11px] w-48"/>
-              <button onClick={()=>{setEditingProduct({}); setIsAdding(true)}} className="bg-[#111] text-white px-4 h-8 text-[11px] uppercase">+ Add Product</button>
+              <button onClick={()=>openProductEditor({}, true)} className="bg-[#111] text-white px-4 h-8 text-[11px] uppercase">+ Add Product</button>
             </div>
           </div>
 
           {/* Product Edit/Add Form */}
           {editingProduct && (
-            <div className="p-6 bg-[#FBF6F0] border-b border-[#ECE6DF]">
+            <div ref={productEditorRef} className="p-6 bg-[#FBF6F0] border-b border-[#ECE6DF]">
               <h4 className="text-[12px] uppercase font-semibold mb-4">{isAdding ? "+ Add New Product" : `Edit: ${editingProduct.name_zh}`}</h4>
               <div className="grid md:grid-cols-3 gap-4 text-[12px]">
                 <div><label className="text-[10px] uppercase text-[#8F8881]">名稱 (中) *</label><input value={editingProduct.name_zh||""} onChange={e=>setEditingProduct({...editingProduct, name_zh: e.target.value})} className="w-full border border-[#ECE6DF] h-9 px-2 mt-1"/></div>
                 <div><label className="text-[10px] uppercase text-[#8F8881]">Name (EN)</label><input value={editingProduct.name_en||""} onChange={e=>setEditingProduct({...editingProduct, name_en: e.target.value})} className="w-full border border-[#ECE6DF] h-9 px-2 mt-1"/></div>
                 <div><label className="text-[10px] uppercase text-[#8F8881]">SKU *</label><input value={editingProduct.sku||""} onChange={e=>setEditingProduct({...editingProduct, sku: e.target.value})} className="w-full border border-[#ECE6DF] h-9 px-2 mt-1"/></div>
+                <div><label className="text-[10px] uppercase text-[#8F8881]">Slug</label><input value={editingProduct.slug||""} onChange={e=>setEditingProduct({...editingProduct, slug: e.target.value})} placeholder="auto-generated" className="w-full border border-[#ECE6DF] h-9 px-2 mt-1"/></div>
                 <div><label className="text-[10px] uppercase text-[#8F8881]">Price HKD *</label><input type="number" value={editingProduct.price_hkd||""} onChange={e=>setEditingProduct({...editingProduct, price_hkd: Number(e.target.value)})} className="w-full border border-[#ECE6DF] h-9 px-2 mt-1"/></div>
+                <div><label className="text-[10px] uppercase text-[#8F8881]">Price USD</label><input type="number" step="0.01" value={editingProduct.price_usd||""} onChange={e=>setEditingProduct({...editingProduct, price_usd: Number(e.target.value)||undefined})} placeholder="auto" className="w-full border border-[#ECE6DF] h-9 px-2 mt-1"/></div>
                 <div><label className="text-[10px] uppercase text-[#8F8881]">Original Price HKD</label><input type="number" value={editingProduct.original_price_hkd||""} onChange={e=>setEditingProduct({...editingProduct, original_price_hkd: Number(e.target.value)||undefined})} className="w-full border border-[#ECE6DF] h-9 px-2 mt-1"/></div>
                 <div><label className="text-[10px] uppercase text-[#8F8881]">Stock</label><input type="number" value={editingProduct.stock||0} onChange={e=>setEditingProduct({...editingProduct, stock: Number(e.target.value)})} className="w-full border border-[#ECE6DF] h-9 px-2 mt-1"/></div>
                 <div><label className="text-[10px] uppercase text-[#8F8881]">Series</label>
@@ -243,6 +386,7 @@ export function AdminPage() {
                 <div><label className="text-[10px] uppercase text-[#8F8881]">Points</label><input type="number" value={editingProduct.points||0} onChange={e=>setEditingProduct({...editingProduct, points: Number(e.target.value)})} className="w-full border border-[#ECE6DF] h-9 px-2 mt-1"/></div>
                 <div><label className="text-[10px] uppercase text-[#8F8881]">Weight (kg)</label><input type="number" step="0.01" value={editingProduct.weight_kg||0} onChange={e=>setEditingProduct({...editingProduct, weight_kg: Number(e.target.value)})} className="w-full border border-[#ECE6DF] h-9 px-2 mt-1"/></div>
                 <div className="md:col-span-2"><label className="text-[10px] uppercase text-[#8F8881]">描述 (中)</label><textarea value={editingProduct.description_zh||""} onChange={e=>setEditingProduct({...editingProduct, description_zh: e.target.value})} className="w-full border border-[#ECE6DF] h-16 px-2 mt-1 text-[11px]"/></div>
+                <div className="md:col-span-2"><label className="text-[10px] uppercase text-[#8F8881]">Description (EN)</label><textarea value={editingProduct.description_en||""} onChange={e=>setEditingProduct({...editingProduct, description_en: e.target.value})} className="w-full border border-[#ECE6DF] h-16 px-2 mt-1 text-[11px]"/></div>
                 <div><label className="text-[10px] uppercase text-[#8F8881]">Images (comma URLs)</label><input value={(editingProduct.images||[]).join(",")} onChange={e=>setEditingProduct({...editingProduct, images: e.target.value.split(",").map(s=>s.trim()).filter(Boolean)})} className="w-full border border-[#ECE6DF] h-9 px-2 mt-1 text-[10px]"/></div>
                 <div className="flex items-end gap-4">
                   <label className="flex items-center gap-2 text-[11px]">
@@ -253,6 +397,7 @@ export function AdminPage() {
                     <div><label className="text-[10px] uppercase text-[#8F8881]">Bundle Label</label><input value={editingProduct.bundleGiftLabel||""} onChange={e=>setEditingProduct({...editingProduct, bundleGiftLabel: e.target.value})} className="border border-[#ECE6DF] h-9 px-2 ml-2 text-[11px] w-28"/></div>
                   )}
                 </div>
+                {editingProduct.isBundle && <div className="md:col-span-2"><label className="text-[10px] uppercase text-[#8F8881]">Bundle Items (productId:qty, comma)</label><input value={serializeBundleItems(editingProduct.bundleItems)} onChange={e=>setEditingProduct({...editingProduct, bundleItems: parseBundleItems(e.target.value)})} placeholder="p_001_miracle_mask:1,p_002_calming_ampoule:1" className="w-full border border-[#ECE6DF] h-9 px-2 mt-1 text-[10px]"/></div>}
                 <div><label className="text-[10px] uppercase text-[#8F8881]">Category (comma)</label><input value={(editingProduct.category||[]).join(",")} onChange={e=>setEditingProduct({...editingProduct, category: e.target.value.split(",").map(s=>s.trim()).filter(Boolean)})} className="w-full border border-[#ECE6DF] h-9 px-2 mt-1 text-[10px]"/></div>
                 <div><label className="text-[10px] uppercase text-[#8F8881]">Skin Type (comma)</label><input value={(editingProduct.skinType||[]).join(",")} onChange={e=>setEditingProduct({...editingProduct, skinType: e.target.value.split(",").map(s=>s.trim()).filter(Boolean)})} className="w-full border border-[#ECE6DF] h-9 px-2 mt-1 text-[10px]"/></div>
                 <div><label className="text-[10px] uppercase text-[#8F8881]">Tags (comma)</label><input value={(editingProduct.tags||[]).join(",")} onChange={e=>setEditingProduct({...editingProduct, tags: e.target.value.split(",").map(s=>s.trim()).filter(Boolean)})} className="w-full border border-[#ECE6DF] h-9 px-2 mt-1 text-[10px]"/></div>
@@ -279,7 +424,7 @@ export function AdminPage() {
                 <td className="p-3">{p.isBundle?<span className="bg-[#111] text-white px-1 text-[10px]">✔</span>:"-"}</td>
                 <td className="p-3">
                   <div className="flex gap-2">
-                    <button onClick={()=>{setEditingProduct(p); setIsAdding(false)}} className="underline text-[#8F8881] hover:text-[#111]">Edit</button>
+                    <button onClick={()=>openProductEditor(cloneProductForEdit(p), false)} className="underline text-[#8F8881] hover:text-[#111]">Edit</button>
                     <button onClick={()=>handleDeleteProduct(p.id, p.name_zh)} className="underline text-red-400 hover:text-red-600">Delete</button>
                   </div>
                 </td>
@@ -346,38 +491,98 @@ export function AdminPage() {
       {/* Coupons Tab */}
       {tab==="coupons" && (
         <div className="space-y-4">
-          <div className="bg-white border border-[#ECE6DF] p-6">
-            <h3 className="text-[12px] uppercase font-semibold mb-4">Promotion Coupons</h3>
-            <table className="w-full text-[12px]">
-              <thead><tr className="text-[10px] uppercase text-[#8F8881]"><th className="text-left p-2">Code</th><th className="text-left p-2">Type</th><th className="text-left p-2">Value</th><th className="text-left p-2">Min HKD</th><th className="text-left p-2">First Only</th><th className="text-left p-2">Active</th><th className="text-left p-2">Used</th><th className="text-left p-2">Actions</th></tr></thead>
-              <tbody>{coupons.map(c=>(
-                <tr key={c.code} className="border-t border-[#F2ECE4]">
-                  <td className="p-2 font-mono font-semibold">{c.code}</td>
-                  <td className="p-2">{c.type}</td>
-                  <td className="p-2">{c.value}{c.type==="percent"?"%":""}</td>
-                  <td className="p-2">{c.minAmountHKD||"-"}</td>
-                  <td className="p-2">{c.onlyFirstOrder?"✔":"-"}</td>
-                  <td className="p-2">
-                    <button onClick={()=>handleToggleCoupon(c.code, !c.isActive)} className={`px-2 py-[1px] text-[10px] ${c.isActive?"bg-green-100 text-green-700":"bg-gray-100 text-gray-500"}`}>
-                      {c.isActive?"Active":"Inactive"}
-                    </button>
-                  </td>
-                  <td className="p-2">{c.usedCount}</td>
-                  <td className="p-2 text-[10px] text-[#8F8881]">
-                    {c.validFrom} → {c.validTo}
-                  </td>
-                </tr>
-              ))}</tbody>
-            </table>
+          <div className="grid lg:grid-cols-[1fr_380px] gap-4">
+            <div className="bg-white border border-[#ECE6DF] p-6 overflow-auto">
+              <div className="flex items-center justify-between mb-4">
+                <h3 className="text-[12px] uppercase font-semibold">Promotion Coupons ({coupons.length})</h3>
+                <button
+                  onClick={()=>{
+                    setEditingCoupon({ type: "percent", value: 10, isActive: true, usedCount: 0, validFrom: new Date().toISOString().slice(0,10), validTo: "2026-12-31" })
+                    setIsAddingCoupon(true)
+                  }}
+                  className="bg-[#111] text-white px-4 h-8 text-[11px] uppercase"
+                >+ Add Coupon</button>
+              </div>
+              {editingCoupon && (
+                <div className="mb-5 bg-[#FBF6F0] border border-[#ECE6DF] p-4">
+                  <h4 className="text-[11px] uppercase font-semibold mb-3">{isAddingCoupon ? "Create Coupon" : `Edit Coupon: ${editingCoupon.code}`}</h4>
+                  <div className="grid md:grid-cols-4 gap-3 text-[11px]">
+                    <div><label className="text-[10px] uppercase text-[#8F8881]">Code *</label><input value={editingCoupon.code||""} disabled={!isAddingCoupon} onChange={e=>setEditingCoupon({...editingCoupon, code: e.target.value.toUpperCase()})} className="w-full border border-[#ECE6DF] h-9 px-2 mt-1 uppercase disabled:bg-[#F2ECE4]"/></div>
+                    <div><label className="text-[10px] uppercase text-[#8F8881]">Type</label><select value={editingCoupon.type||"percent"} onChange={e=>setEditingCoupon({...editingCoupon, type: e.target.value as any})} className="w-full border border-[#ECE6DF] h-9 px-2 mt-1"><option value="percent">percent</option><option value="fixed">fixed</option></select></div>
+                    <div><label className="text-[10px] uppercase text-[#8F8881]">Value</label><input type="number" value={editingCoupon.value||0} onChange={e=>setEditingCoupon({...editingCoupon, value: Number(e.target.value)})} className="w-full border border-[#ECE6DF] h-9 px-2 mt-1"/></div>
+                    <div><label className="text-[10px] uppercase text-[#8F8881]">Currency</label><select value={editingCoupon.currency||"HKD"} onChange={e=>setEditingCoupon({...editingCoupon, currency: e.target.value as any})} className="w-full border border-[#ECE6DF] h-9 px-2 mt-1"><option value="HKD">HKD</option><option value="USD">USD</option></select></div>
+                    <div><label className="text-[10px] uppercase text-[#8F8881]">Min HKD</label><input type="number" value={editingCoupon.minAmountHKD||""} onChange={e=>setEditingCoupon({...editingCoupon, minAmountHKD: Number(e.target.value)||undefined})} className="w-full border border-[#ECE6DF] h-9 px-2 mt-1"/></div>
+                    <div><label className="text-[10px] uppercase text-[#8F8881]">Min USD</label><input type="number" value={editingCoupon.minAmountUSD||""} onChange={e=>setEditingCoupon({...editingCoupon, minAmountUSD: Number(e.target.value)||undefined})} className="w-full border border-[#ECE6DF] h-9 px-2 mt-1"/></div>
+                    <div><label className="text-[10px] uppercase text-[#8F8881]">Max Uses</label><input type="number" value={editingCoupon.maxUses||""} onChange={e=>setEditingCoupon({...editingCoupon, maxUses: Number(e.target.value)||undefined})} className="w-full border border-[#ECE6DF] h-9 px-2 mt-1"/></div>
+                    <div><label className="text-[10px] uppercase text-[#8F8881]">Used</label><input type="number" value={editingCoupon.usedCount||0} onChange={e=>setEditingCoupon({...editingCoupon, usedCount: Number(e.target.value)})} className="w-full border border-[#ECE6DF] h-9 px-2 mt-1"/></div>
+                    <div><label className="text-[10px] uppercase text-[#8F8881]">Valid From</label><input type="date" value={editingCoupon.validFrom||""} onChange={e=>setEditingCoupon({...editingCoupon, validFrom: e.target.value})} className="w-full border border-[#ECE6DF] h-9 px-2 mt-1"/></div>
+                    <div><label className="text-[10px] uppercase text-[#8F8881]">Valid To</label><input type="date" value={editingCoupon.validTo||""} onChange={e=>setEditingCoupon({...editingCoupon, validTo: e.target.value})} className="w-full border border-[#ECE6DF] h-9 px-2 mt-1"/></div>
+                    <label className="flex items-end gap-2 pb-2"><input type="checkbox" checked={!!editingCoupon.onlyFirstOrder} onChange={e=>setEditingCoupon({...editingCoupon, onlyFirstOrder: e.target.checked})}/> First order only</label>
+                    <label className="flex items-end gap-2 pb-2"><input type="checkbox" checked={editingCoupon.isActive ?? true} onChange={e=>setEditingCoupon({...editingCoupon, isActive: e.target.checked})}/> Active</label>
+                    <div className="md:col-span-2"><label className="text-[10px] uppercase text-[#8F8881]">Description ZH</label><input value={editingCoupon.description_zh||""} onChange={e=>setEditingCoupon({...editingCoupon, description_zh: e.target.value})} className="w-full border border-[#ECE6DF] h-9 px-2 mt-1"/></div>
+                    <div className="md:col-span-2"><label className="text-[10px] uppercase text-[#8F8881]">Description EN</label><input value={editingCoupon.description_en||""} onChange={e=>setEditingCoupon({...editingCoupon, description_en: e.target.value})} className="w-full border border-[#ECE6DF] h-9 px-2 mt-1"/></div>
+                  </div>
+                  <div className="flex gap-2 mt-4">
+                    <button onClick={handleSaveCoupon} className="bg-[#111] text-white px-5 h-9 text-[11px] uppercase">{isAddingCoupon?"Create":"Save"}</button>
+                    <button onClick={()=>{setEditingCoupon(null); setIsAddingCoupon(false)}} className="border border-[#ECE6DF] px-5 h-9 text-[11px] uppercase">Cancel</button>
+                  </div>
+                </div>
+              )}
+              <table className="w-full text-[12px]">
+                <thead><tr className="text-[10px] uppercase text-[#8F8881]"><th className="text-left p-2">Code</th><th className="text-left p-2">Type</th><th className="text-left p-2">Value</th><th className="text-left p-2">Min HKD</th><th className="text-left p-2">First Only</th><th className="text-left p-2">Active</th><th className="text-left p-2">Used</th><th className="text-left p-2">Validity</th><th className="text-left p-2">Actions</th></tr></thead>
+                <tbody>{coupons.map(c=>(
+                  <tr key={c.code} className="border-t border-[#F2ECE4]">
+                    <td className="p-2 font-mono font-semibold">{c.code}</td>
+                    <td className="p-2">{c.type}</td>
+                    <td className="p-2">{c.value}{c.type==="percent"?"%":` ${c.currency||"HKD"}`}</td>
+                    <td className="p-2">{c.minAmountHKD||"-"}</td>
+                    <td className="p-2">{c.onlyFirstOrder?"✔":"-"}</td>
+                    <td className="p-2"><button onClick={()=>handleToggleCoupon(c.code, !c.isActive)} className={`px-2 py-[1px] text-[10px] ${c.isActive?"bg-green-100 text-green-700":"bg-gray-100 text-gray-500"}`}>{c.isActive?"Active":"Inactive"}</button></td>
+                    <td className="p-2">{c.usedCount}{c.maxUses?`/${c.maxUses}`:""}</td>
+                    <td className="p-2 text-[10px] text-[#8F8881]">{c.validFrom} → {c.validTo}</td>
+                    <td className="p-2"><div className="flex gap-2"><button onClick={()=>{setEditingCoupon({...c}); setIsAddingCoupon(false)}} className="underline text-[#8F8881]">Edit</button><button onClick={()=>handleDeleteCoupon(c.code)} className="underline text-red-400">Delete</button></div></td>
+                  </tr>
+                ))}</tbody>
+              </table>
+            </div>
+
+            <div className="bg-white border border-[#ECE6DF] p-6 h-fit">
+              <div className="flex items-center justify-between mb-4">
+                <h3 className="text-[12px] uppercase font-semibold">Gift Tiers ({giftTiers.length})</h3>
+                <button onClick={()=>{setEditingGiftTier({ id: "gift_tier_" + Date.now(), thresholdHKD: 2000, thresholdUSD: 255, giftValueHKD: 0, gifts: [] }); setIsAddingGiftTier(true)}} className="bg-[#111] text-white px-3 h-8 text-[10px] uppercase">+ Add</button>
+              </div>
+              {editingGiftTier && (
+                <div className="bg-[#FBF6F0] border border-[#ECE6DF] p-4 mb-4 text-[11px]">
+                  <h4 className="uppercase font-semibold mb-3">{isAddingGiftTier ? "Create Gift Tier" : `Edit: ${editingGiftTier.id}`}</h4>
+                  <div className="space-y-3">
+                    <input value={editingGiftTier.id||""} disabled={!isAddingGiftTier} onChange={e=>setEditingGiftTier({...editingGiftTier, id: e.target.value})} placeholder="ID" className="w-full border border-[#ECE6DF] h-9 px-2 disabled:bg-[#F2ECE4]"/>
+                    <div className="grid grid-cols-2 gap-2"><input type="number" value={editingGiftTier.thresholdHKD||0} onChange={e=>setEditingGiftTier({...editingGiftTier, thresholdHKD: Number(e.target.value)})} placeholder="Threshold HKD" className="border border-[#ECE6DF] h-9 px-2"/><input type="number" value={editingGiftTier.thresholdUSD||0} onChange={e=>setEditingGiftTier({...editingGiftTier, thresholdUSD: Number(e.target.value)})} placeholder="Threshold USD" className="border border-[#ECE6DF] h-9 px-2"/></div>
+                    <input value={editingGiftTier.label_zh||""} onChange={e=>setEditingGiftTier({...editingGiftTier, label_zh: e.target.value})} placeholder="中文標籤" className="w-full border border-[#ECE6DF] h-9 px-2"/>
+                    <input value={editingGiftTier.label_en||""} onChange={e=>setEditingGiftTier({...editingGiftTier, label_en: e.target.value})} placeholder="English label" className="w-full border border-[#ECE6DF] h-9 px-2"/>
+                    <input type="number" value={editingGiftTier.giftValueHKD||0} onChange={e=>setEditingGiftTier({...editingGiftTier, giftValueHKD: Number(e.target.value)})} placeholder="Gift value HKD" className="w-full border border-[#ECE6DF] h-9 px-2"/>
+                    <textarea value={serializeGiftList(editingGiftTier.gifts)} onChange={e=>setEditingGiftTier({...editingGiftTier, gifts: parseGiftList(e.target.value)})} rows={5} placeholder="每行：中文名稱|English name|qty" className="w-full border border-[#ECE6DF] px-2 py-2 text-[10px]"/>
+                  </div>
+                  <div className="flex gap-2 mt-3"><button onClick={handleSaveGiftTier} className="bg-[#111] text-white px-4 h-8 text-[10px] uppercase">Save</button><button onClick={()=>{setEditingGiftTier(null); setIsAddingGiftTier(false)}} className="border border-[#ECE6DF] px-4 h-8 text-[10px] uppercase">Cancel</button></div>
+                </div>
+              )}
+              <div className="space-y-3">
+                {giftTiers.map(t=>(
+                  <div key={t.id} className="border border-[#F2ECE4] p-3 text-[11px]">
+                    <div className="flex justify-between gap-3"><p className="font-semibold">{t.label_zh}</p><p>HK${t.thresholdHKD}</p></div>
+                    <p className="text-[#8F8881]">{t.gifts.reduce((a,b)=>a+b.qty,0)} gifts • value HK${t.giftValueHKD}</p>
+                    <div className="mt-2 flex gap-2"><button onClick={()=>{setEditingGiftTier(cloneGiftTierForEdit(t)); setIsAddingGiftTier(false)}} className="underline text-[#8F8881]">Edit</button><button onClick={()=>handleDeleteGiftTier(t.id)} className="underline text-red-400">Delete</button></div>
+                  </div>
+                ))}
+              </div>
+            </div>
           </div>
           <div className="bg-[#FBF6F0] border border-[#ECE6DF] p-6 text-[12px] leading-relaxed">
             <h4 className="font-semibold mb-2">Promotion Engine Status</h4>
             <ul className="list-disc pl-5 space-y-1 text-[#5C5651]">
-              <li>NEWCS12: 15% off first order over HK$1500</li>
-              <li>BIRTHDAY10: 10% off for birthday month (auto-activated)</li>
-              <li>Gift tiers: HK$2000 → 6 gifts (value 975), HK$3000 → 10 gifts (value 1741)</li>
-              <li>Free shipping: over HK$800 / USD$100</li>
-              <li>Points: 1 HKD = 1 point, 100 pts = HK$1, Member→VIP(5000)→Prestige(10000)</li>
+              <li>Coupons support percentage/fixed discount, first-order rule, min spend, max usage and date range.</li>
+              <li>BIRTHDAY10 is restricted to the customer birthday month in cart/checkout.</li>
+              <li>Gift tiers are editable and automatically selected by highest eligible threshold.</li>
+              <li>Free shipping: over HK$800 / USD$100. Points: 1 HKD = 1 point, 100 pts = HK$1.</li>
             </ul>
           </div>
         </div>
@@ -393,7 +598,7 @@ export function AdminPage() {
                   <h4 className="font-serif text-[18px]">{b.name_zh}</h4>
                   <p className="text-[12px] text-[#5C5651]">{b.name_en}</p>
                 </div>
-                <button onClick={()=>{setEditingProduct(b); setIsAdding(false); setTab("products")}} className="underline text-[11px] text-[#8F8881]">Edit</button>
+                <button onClick={()=>{setTab("products"); openProductEditor(cloneProductForEdit(b), false)}} className="underline text-[11px] text-[#8F8881]">Edit</button>
               </div>
               <p className="text-[11px] text-[#8F8881] mt-2">{b.bundleGiftLabel} • HK${b.price_hkd} (原 HK${b.original_price_hkd}) • Stock: {b.stock}</p>
               <p className="text-[12px] mt-2">{b.description_zh}</p>
@@ -408,7 +613,7 @@ export function AdminPage() {
               )}
             </div>
           ))}
-          <button onClick={()=>{setEditingProduct({ isBundle: true, bundleGiftLabel: "買2送3" }); setIsAdding(true); setTab("products")}} className="border-2 border-dashed border-[#ECE6DF] p-5 text-center text-[12px] text-[#8F8881] hover:border-[#111] hover:text-[#111] transition cursor-pointer">
+          <button onClick={()=>{setTab("products"); openProductEditor({ isBundle: true, bundleGiftLabel: "買2送3", category: ["套裝"], skinType: ["敏感肌"], tags: ["官網限定"] }, true)}} className="border-2 border-dashed border-[#ECE6DF] p-5 text-center text-[12px] text-[#8F8881] hover:border-[#111] hover:text-[#111] transition cursor-pointer">
             + Create New Bundle
           </button>
         </div>

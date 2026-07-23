@@ -13,7 +13,7 @@ import { showToast } from "../../components/ui/Toast"
 export function CheckoutPage() {
   const { items, couponCode, clear } = useCartStore()
   const { currency, lang } = useAppStore()
-  const { user } = useAuthStore()
+  const { user, fetchMe } = useAuthStore()
   const nav = useNavigate()
   const [giftTiers, setGiftTiers] = useState<GiftTier[]>([])
   const [couponObj, setCouponObj] = useState<Coupon|null>(null)
@@ -24,8 +24,15 @@ export function CheckoutPage() {
 
   useEffect(()=>{
     getDBClient().getGiftTiers().then(setGiftTiers)
-    if(couponCode) getDBClient().getCouponByCode(couponCode).then(c=> c && setCouponObj(c))
-    // Pre-fill address from saved
+  },[])
+
+  useEffect(()=>{
+    if(couponCode) getDBClient().getCouponByCode(couponCode).then(c=> setCouponObj(c || null))
+    else setCouponObj(null)
+  },[couponCode])
+
+  useEffect(()=>{
+    // Pre-fill address from saved once the session has loaded
     if(user) {
       try {
         const raw = localStorage.getItem(`cs12_addresses_${user.id}`)
@@ -36,19 +43,30 @@ export function CheckoutPage() {
         }
       } catch {}
     }
-  },[])
+  },[user])
 
   const isBirthday = user ? checkBirthdayMonth(user.birthday) : false
   const birthdayMultiplier = isBirthday ? 2 : 1
 
   const subtotal = useMemo(()=> calcSubtotal(items.map(i=>({ priceHKD: i.product.price_hkd, priceUSD: i.product.price_usd, qty: i.qty }))),[items])
   const giftTier = getGiftTier(subtotal.hkd, subtotal.usd, giftTiers, currency)
-  const couponCalc = useMemo(()=> calcCouponDiscount(subtotal.hkd, subtotal.usd, couponObj, currency, user?.isFirstOrder ?? true),[subtotal, couponObj, currency, user])
-  const shipping = calcShipping(subtotal.hkd - couponCalc.discountHKD, subtotal.usd - couponCalc.discountUSD, currency)
-  const pointsDiscountHKD = usePoints / 100
-  const totalHKD = Math.max(0, subtotal.hkd - couponCalc.discountHKD - pointsDiscountHKD + shipping.shippingHKD)
-  const totalUSD = Math.max(0, subtotal.usd - couponCalc.discountUSD - (pointsDiscountHKD*0.128) + shipping.shippingUSD)
-  const pointsEarned = Math.floor(calcPointsEarned(totalHKD) * birthdayMultiplier)
+  const couponCalc = useMemo(()=> calcCouponDiscount(subtotal.hkd, subtotal.usd, couponObj, currency, {
+    isFirstOrder: user?.isFirstOrder ?? true,
+    isBirthdayMonth: isBirthday
+  }),[subtotal, couponObj, currency, user, isBirthday])
+  const couponDiscountHKD = couponCalc.valid ? couponCalc.discountHKD : 0
+  const couponDiscountUSD = couponCalc.valid ? couponCalc.discountUSD : 0
+  const shipping = calcShipping(subtotal.hkd - couponDiscountHKD, subtotal.usd - couponDiscountUSD, currency)
+  const maxRedeemablePoints = user ? Math.min(user.points, Math.floor(Math.max(0, subtotal.hkd - couponDiscountHKD + shipping.shippingHKD) * 100)) : 0
+  const safeUsePoints = Math.min(usePoints, maxRedeemablePoints)
+  const pointsDiscountHKD = safeUsePoints / 100
+  const totalHKD = Math.max(0, subtotal.hkd - couponDiscountHKD - pointsDiscountHKD + shipping.shippingHKD)
+  const totalUSD = Math.max(0, subtotal.usd - couponDiscountUSD - (pointsDiscountHKD*0.128) + shipping.shippingUSD)
+  const pointsEarned = Math.floor(calcPointsEarned(Math.max(0, subtotal.hkd - couponDiscountHKD - pointsDiscountHKD)) * birthdayMultiplier)
+
+  useEffect(()=>{
+    if (usePoints > maxRedeemablePoints) setUsePoints(maxRedeemablePoints)
+  },[usePoints, maxRedeemablePoints])
 
   const validate = (): string[] => {
     const errs: string[] = []
@@ -66,6 +84,15 @@ export function CheckoutPage() {
     if (validationErrors.length > 0) {
       setErrors(validationErrors)
       showToast("error", validationErrors[0])
+      return
+    }
+    if (couponObj && !couponCalc.valid) {
+      showToast("error", `${lang==="zh"?"優惠碼不可用":"Coupon unavailable"}: ${couponCalc.reason}`)
+      return
+    }
+    if (usePoints > maxRedeemablePoints) {
+      showToast("error", lang==="zh"?"積分抵扣超出可用上限":"Points redemption exceeds allowed maximum")
+      setUsePoints(maxRedeemablePoints)
       return
     }
     setErrors([])
@@ -89,19 +116,19 @@ export function CheckoutPage() {
         items: items.map(i=>({ productId: i.product.id, qty: i.qty, priceHKDAtPurchase: i.product.price_hkd, priceUSDAtPurchase: i.product.price_usd })),
         subtotalHKD: subtotal.hkd,
         subtotalUSD: subtotal.usd,
-        discountHKD: couponCalc.discountHKD + pointsDiscountHKD,
-        discountUSD: couponCalc.discountUSD + pointsDiscountHKD*0.128,
+        discountHKD: couponDiscountHKD + pointsDiscountHKD,
+        discountUSD: couponDiscountUSD + pointsDiscountHKD*0.128,
         shippingHKD: shipping.shippingHKD,
         shippingUSD: shipping.shippingUSD,
         totalHKD,
         totalUSD,
         currency,
-        couponCode: couponObj?.code,
+        couponCode: couponCalc.valid ? couponObj?.code : undefined,
         giftTier: giftTier ? (giftTier.thresholdHKD>=3000 ? "tier2_3000":"tier1_2000") : null,
         gifts: giftTier ? giftTier.gifts.map(g=>`${g.name_zh} x${g.qty}`) : [],
         status: "paid",
         pointsEarned,
-        pointsUsed: usePoints,
+        pointsUsed: safeUsePoints,
         shippingAddress: address,
         createdAt: new Date().toISOString()
       }
@@ -116,14 +143,13 @@ export function CheckoutPage() {
         }
       }
 
-      // Birthday bonus points
+      // Birthday bonus points: one 200-point award per birthday year.
       let bonusPoints = 0
       if (isBirthday) {
-        bonusPoints = 200
-        // Create birthday reward record if not exists
         const existing = await db.getBirthdayRewards(user.id)
         const thisYear = new Date().getFullYear()
-        if (!existing.find(r => r.year === thisYear)) {
+        if (!existing.find(r => r.year === thisYear && r.rewarded)) {
+          bonusPoints = 200
           await db.createBirthdayReward({
             userId: user.id,
             year: thisYear,
@@ -146,9 +172,19 @@ export function CheckoutPage() {
           createdAt: new Date().toISOString()
         }
       ]
-      if (bonusPoints > 0) {
+      if (safeUsePoints > 0) {
         pointsHistoryEntries.push({
           id: "tx_" + (Date.now() + 1),
+          userId: user.id,
+          amount: -safeUsePoints,
+          reason: `Redeemed on ${order.id}`,
+          orderId: order.id,
+          createdAt: new Date().toISOString()
+        })
+      }
+      if (bonusPoints > 0) {
+        pointsHistoryEntries.push({
+          id: "tx_" + (Date.now() + 2),
           userId: user.id,
           amount: bonusPoints,
           reason: "Birthday Bonus 🎂",
@@ -156,20 +192,22 @@ export function CheckoutPage() {
           createdAt: new Date().toISOString()
         })
       }
+      await Promise.all(pointsHistoryEntries.map(tx => db.addPointsTransaction(tx)))
 
       await db.updateUser(user.id, {
         totalSpentHKD: user.totalSpentHKD + totalHKD,
         totalOrders: user.totalOrders + 1,
-        points: user.points - usePoints + pointsEarned + bonusPoints,
+        points: user.points - safeUsePoints + pointsEarned + bonusPoints,
         tier: getTier(user.totalSpentHKD + totalHKD),
         isFirstOrder: false,
         pointsHistory: [...(user.pointsHistory||[]), ...pointsHistoryEntries]
       })
 
-      if(couponObj){
+      if(couponObj && couponCalc.valid){
         await db.updateCoupon(couponObj.code, { usedCount: couponObj.usedCount + 1 })
       }
 
+      await fetchMe()
       clear()
       const bonusMsg = bonusPoints > 0 ? (lang==="zh"?` 🎂 生日獎勵 +${bonusPoints}積分！`:` 🎂 Birthday bonus +${bonusPoints} pts!`) : ""
       showToast("success", lang==="zh"?`下單成功！訂單 ${order.id}。獲得 ${pointsEarned} 積分。${bonusMsg}`:`Order ${order.id} placed! Earned ${pointsEarned} points.${bonusMsg}`)
@@ -230,11 +268,11 @@ export function CheckoutPage() {
           </div>
           {user && user.points > 0 && (
             <div className="pt-4 border-t border-[#F2ECE4]">
-              <h3 className="text-[11px] uppercase tracking-[0.14em] font-semibold mb-2">積分抵扣 Points ({user.points} 可用)</h3>
+              <h3 className="text-[11px] uppercase tracking-[0.14em] font-semibold mb-2">積分抵扣 Points ({user.points} 可用，最多 {maxRedeemablePoints})</h3>
               <div className="flex gap-2 items-center">
-                <input type="number" min={0} max={user.points} value={usePoints} onChange={e=>setUsePoints(Math.min(user.points, Math.max(0, parseInt(e.target.value)||0)))} className="border border-[#ECE6DF] h-9 px-2 w-32"/>
-                <span className="text-[11px] text-[#8F8881]">= HK${(usePoints/100).toFixed(0)} 抵扣</span>
-                <button onClick={()=>setUsePoints(user.points)} className="text-[10px] underline text-[#8F8881]">全部使用</button>
+                <input type="number" min={0} max={maxRedeemablePoints} value={usePoints} onChange={e=>setUsePoints(Math.min(maxRedeemablePoints, Math.max(0, parseInt(e.target.value)||0)))} className="border border-[#ECE6DF] h-9 px-2 w-32"/>
+                <span className="text-[11px] text-[#8F8881]">= HK${(safeUsePoints/100).toFixed(0)} 抵扣</span>
+                <button onClick={()=>setUsePoints(maxRedeemablePoints)} className="text-[10px] underline text-[#8F8881]">全部使用</button>
               </div>
             </div>
           )}
@@ -266,8 +304,8 @@ export function CheckoutPage() {
           )}
           <div className="pt-3 space-y-2">
             <div className="flex justify-between"><span>{lang==="zh"?"小計":"Subtotal"}</span><span>{formatPrice(subtotal.hkd, subtotal.usd, currency)}</span></div>
-            {couponCalc.valid && <div className="flex justify-between text-green-700"><span>{lang==="zh"?"折扣":"Discount"} {couponObj?.code}</span><span>-{formatPrice(couponCalc.discountHKD, couponCalc.discountUSD,currency)}</span></div>}
-            {usePoints>0 && <div className="flex justify-between text-green-700"><span>{lang==="zh"?"積分抵扣":"Points"} {usePoints}</span><span>-HK${pointsDiscountHKD}</span></div>}
+            {couponCalc.valid && <div className="flex justify-between text-green-700"><span>{lang==="zh"?"折扣":"Discount"} {couponObj?.code}</span><span>-{formatPrice(couponDiscountHKD, couponDiscountUSD,currency)}</span></div>}
+            {safeUsePoints>0 && <div className="flex justify-between text-green-700"><span>{lang==="zh"?"積分抵扣":"Points"} {safeUsePoints}</span><span>-HK${pointsDiscountHKD}</span></div>}
             <div className="flex justify-between"><span>{lang==="zh"?"運費":"Shipping"}</span><span>{shipping.free?(lang==="zh"?"免費":"Free"):formatPrice(shipping.shippingHKD, shipping.shippingUSD,currency)}</span></div>
             {giftTier && <div className="bg-[#111] text-white p-3 text-[11px]">🎁 {lang==="zh"?giftTier.label_zh:giftTier.label_en} {lang==="zh"?"已符合，獲贈":"Unlocked - get"} {giftTier.gifts.reduce((a,b)=>a+b.qty,0)}{lang==="zh"?"件":""}</div>}
             <div className="flex justify-between font-semibold text-[18px] pt-3 border-t border-[#ECE6DF]"><span>Total</span><span>{formatPrice(totalHKD, totalUSD,currency)}</span></div>

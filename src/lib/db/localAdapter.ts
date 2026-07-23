@@ -127,13 +127,29 @@ export class LocalDBAdapter implements DBClient {
 
   async getCoupons() { return [...this.coupons] }
   async getCouponByCode(code: string) { return this.coupons.find(c => c.code.toUpperCase() === code.toUpperCase()) || null }
-  async createCoupon(c: Coupon) { this.coupons.push(c); this.persist() }
-  async updateCoupon(code: string, patch: Partial<Coupon>) {
-    const idx = this.coupons.findIndex(c => c.code === code)
-    if (idx >= 0) { this.coupons[idx] = { ...this.coupons[idx], ...patch }; this.persist() }
+  async createCoupon(c: Coupon) {
+    const normalized = { ...c, code: c.code.toUpperCase() }
+    this.coupons = this.coupons.filter(existing => existing.code.toUpperCase() !== normalized.code)
+    this.coupons.push(normalized)
+    this.persist()
   }
+  async updateCoupon(code: string, patch: Partial<Coupon>) {
+    const idx = this.coupons.findIndex(c => c.code.toUpperCase() === code.toUpperCase())
+    if (idx >= 0) { this.coupons[idx] = { ...this.coupons[idx], ...patch, code: (patch.code || this.coupons[idx].code).toUpperCase() }; this.persist() }
+  }
+  async deleteCoupon(code: string) { this.coupons = this.coupons.filter(c => c.code.toUpperCase() !== code.toUpperCase()); this.persist() }
 
   async getGiftTiers() { return [...this.giftTiers] }
+  async createGiftTier(tier: GiftTier) {
+    this.giftTiers = this.giftTiers.filter(t => t.id !== tier.id)
+    this.giftTiers.push(tier)
+    this.persist()
+  }
+  async updateGiftTier(id: string, patch: Partial<GiftTier>) {
+    const idx = this.giftTiers.findIndex(t => t.id === id)
+    if (idx >= 0) { this.giftTiers[idx] = { ...this.giftTiers[idx], ...patch }; this.persist() }
+  }
+  async deleteGiftTier(id: string) { this.giftTiers = this.giftTiers.filter(t => t.id !== id); this.persist() }
 
   async addPointsTransaction(tx: PointsTransaction) { this.points.push(tx); this.persist() }
 

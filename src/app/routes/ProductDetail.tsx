@@ -5,6 +5,7 @@ import { Product } from "../../lib/db/types"
 import { useAppStore } from "../../stores/useAppStore"
 import { formatPrice } from "../../lib/currency"
 import { useCartStore } from "../../stores/useCartStore"
+import { useAuthStore } from "../../stores/useAuthStore"
 import { ProductCard } from "../../components/product/ProductCard"
 import { showToast } from "../../components/ui/Toast"
 
@@ -19,7 +20,8 @@ export function ProductDetailPage() {
   const [reviewRating, setReviewRating] = useState(5)
   const [reviewComment, setReviewComment] = useState("")
   const { currency, lang } = useAppStore()
-  const { addItem } = useCartStore()
+  const { addItem, items } = useCartStore()
+  const { user, fetchMe } = useAuthStore()
 
   useEffect(()=>{
     if(!slug) return
@@ -38,7 +40,7 @@ export function ProductDetailPage() {
     })
   },[slug])
 
-  const submitReview = () => {
+  const submitReview = async () => {
     if (!reviewName.trim() || !reviewComment.trim()) {
       showToast("error", lang==="zh"?"請填寫姓名和評價":"Please fill in name and review")
       return
@@ -54,19 +56,37 @@ export function ProductDetailPage() {
     setReviews(updated)
     if (product) {
       localStorage.setItem(`cs12_reviews_${product.id}`, JSON.stringify(updated))
-      // Update review count
-      getDBClient().updateProduct(product.id, { reviewsCount: (product.reviewsCount || 0) + 1 })
+      const reviewsCount = (product.reviewsCount || 0) + 1
+      const rating = Number((((product.rating || 5) * (product.reviewsCount || 0) + reviewRating) / reviewsCount).toFixed(1))
+      await getDBClient().updateProduct(product.id, { reviewsCount, rating })
+      setProduct({ ...product, reviewsCount, rating })
+    }
+    if (user) {
+      const tx = {
+        id: "tx_review_" + Date.now(),
+        userId: user.id,
+        amount: 50,
+        reason: `Product review: ${product?.name_zh || product?.sku}`,
+        createdAt: new Date().toISOString()
+      }
+      const db = getDBClient()
+      await db.addPointsTransaction(tx)
+      await db.updateUser(user.id, { points: user.points + 50, pointsHistory: [...(user.pointsHistory||[]), tx] })
+      await fetchMe()
     }
     setReviewName("")
     setReviewRating(5)
     setReviewComment("")
-    showToast("success", lang==="zh"?"感謝您的評價！獲得 50 積分獎勵":"Thank you for your review! Earned 50 bonus points")
+    showToast("success", user ? (lang==="zh"?"感謝您的評價！已獲得 50 積分獎勵":"Thank you for your review! Earned 50 bonus points") : (lang==="zh"?"感謝您的評價！登入會員後可累積積分":"Thank you for your review! Login to earn points"))
   }
 
   if(!product) return <div className="py-20 text-center">Loading...</div>
 
   const name = lang==="zh"?product.name_zh:product.name_en
   const desc = lang==="zh"?product.description_zh:product.description_en
+  const inCartQty = items.find(i => i.product.id === product.id)?.qty ?? 0
+  const remainingStock = Math.max(0, product.stock - inCartQty)
+  const isOutOfStock = product.stock <= 0 || remainingStock <= 0
 
   return (
     <main className="w-[min(calc(100%-48px),1440px)] mx-auto py-8">
@@ -98,11 +118,23 @@ export function ProductDetailPage() {
             <div className="flex items-center gap-2 mt-2">
               <button onClick={()=>setQty(Math.max(1,qty-1))} className="w-9 h-9 border border-[#ECE6DF]">-</button>
               <span className="w-12 text-center">{qty}</span>
-              <button onClick={()=>setQty(Math.min(product.stock, qty+1))} className="w-9 h-9 border border-[#ECE6DF]">+</button>
+              <button onClick={()=>setQty(Math.min(remainingStock || 1, qty+1))} disabled={isOutOfStock} className="w-9 h-9 border border-[#ECE6DF] disabled:opacity-40">+</button>
             </div>
           </div>
 
-          <button onClick={()=>{addItem(product, qty); showToast("cart", lang==="zh"?`已加入購物車：${name}`:`Added to cart: ${name}`)}} className="w-full h-[52px] bg-[#111] text-white text-[12px] tracking-[0.18em] uppercase hover:bg-black transition">{lang==="zh"?"加入購物車":"Add to Cart"} • {formatPrice(product.price_hkd*qty, product.price_usd*qty, currency)}</button>
+          <button
+            onClick={()=>{
+              if (isOutOfStock) {
+                showToast("error", lang==="zh"?"此產品已售罄或已達購物車庫存上限":"This product is sold out or already at the cart stock limit")
+                return
+              }
+              const qtyToAdd = Math.min(qty, remainingStock)
+              addItem(product, qtyToAdd)
+              showToast("cart", lang==="zh"?`已加入購物車：${name}`:`Added to cart: ${name}`)
+            }}
+            disabled={isOutOfStock}
+            className="w-full h-[52px] bg-[#111] text-white text-[12px] tracking-[0.18em] uppercase hover:bg-black transition disabled:opacity-50 disabled:cursor-not-allowed"
+          >{isOutOfStock ? (lang==="zh"?"售罄 / 已達上限":"Sold out / Max in cart") : `${lang==="zh"?"加入購物車":"Add to Cart"} • ${formatPrice(product.price_hkd*qty, product.price_usd*qty, currency)}`}</button>
 
           <div className="mt-4 grid grid-cols-2 gap-2 text-[11px]">
             <div className="border border-[#ECE6DF] p-3 bg-[#FBF6F0]">🚚 {lang==="zh"?"滿 $800 免運費":"Free shipping over $800"}</div>

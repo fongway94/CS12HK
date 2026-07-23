@@ -16,19 +16,36 @@ interface CartState {
   setCoupon: (code: string | null) => void
 }
 
+function isBrowser() {
+  try {
+    return typeof window !== "undefined" && typeof window.localStorage !== "undefined"
+  } catch {
+    return false
+  }
+}
+
+function normalizeItems(items: CartItem[]) {
+  return items
+    .map(item => ({ ...item, qty: Math.min(Math.max(0, item.qty), Math.max(0, item.product.stock)) }))
+    .filter(item => item.qty > 0)
+}
+
 function loadCart(): CartItem[] {
+  if (!isBrowser()) return []
   try {
     const raw = localStorage.getItem("cs12_cart")
-    if (raw) return JSON.parse(raw)
+    if (raw) return normalizeItems(JSON.parse(raw))
   } catch {}
   return []
 }
 
 function saveCart(items: CartItem[]) {
-  try { localStorage.setItem("cs12_cart", JSON.stringify(items)) } catch {}
+  if (!isBrowser()) return
+  try { localStorage.setItem("cs12_cart", JSON.stringify(normalizeItems(items))) } catch {}
 }
 
 function loadCoupon() {
+  if (!isBrowser()) return null
   try { return localStorage.getItem("cs12_coupon") } catch { return null }
 }
 
@@ -37,12 +54,17 @@ export const useCartStore = create<CartState>((set, get) => ({
   couponCode: loadCoupon(),
 
   addItem: (product, qty = 1) => {
+    if (product.stock <= 0 || qty <= 0) return
     const items = [...get().items]
     const existing = items.find(i => i.product.id === product.id)
-    if (existing) existing.qty += qty
-    else items.push({ product, qty })
-    saveCart(items)
-    set({ items })
+    if (existing) {
+      existing.product = product
+      existing.qty = Math.min(product.stock, existing.qty + qty)
+    }
+    else items.push({ product, qty: Math.min(product.stock, qty) })
+    const normalized = normalizeItems(items)
+    saveCart(normalized)
+    set({ items: normalized })
   },
   removeItem: (productId) => {
     const items = get().items.filter(i => i.product.id !== productId)
@@ -51,12 +73,14 @@ export const useCartStore = create<CartState>((set, get) => ({
   },
   updateQty: (productId, qty) => {
     if (qty <= 0) { get().removeItem(productId); return }
-    const items = get().items.map(i => i.product.id === productId ? { ...i, qty } : i)
-    saveCart(items)
-    set({ items })
+    const items = get().items.map(i => i.product.id === productId ? { ...i, qty: Math.min(qty, Math.max(0, i.product.stock)) } : i)
+    const normalized = normalizeItems(items)
+    saveCart(normalized)
+    set({ items: normalized })
   },
-  clear: () => { saveCart([]); set({ items: [] }); localStorage.removeItem("cs12_coupon") },
+  clear: () => { saveCart([]); set({ items: [], couponCode: null }); if (isBrowser()) localStorage.removeItem("cs12_coupon") },
   setCoupon: (code) => {
+    if (!isBrowser()) { set({ couponCode: code }); return }
     if (code) localStorage.setItem("cs12_coupon", code)
     else localStorage.removeItem("cs12_coupon")
     set({ couponCode: code })
