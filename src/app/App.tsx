@@ -1,5 +1,5 @@
 import { HashRouter, Routes, Route } from "react-router-dom"
-import { useEffect } from "react"
+import { Component, type ErrorInfo, type ReactNode, useEffect } from "react"
 import { Header } from "../components/layout/Header"
 import { Footer } from "../components/layout/Footer"
 import { HomePage } from "./routes/Home"
@@ -16,12 +16,67 @@ import { setDBClient } from "../lib/db/client"
 import { useAuthStore } from "../stores/useAuthStore"
 import { useAppStore } from "../stores/useAppStore"
 
+let dbInitialized = false
+
+function ensureDBSync() {
+  if (dbInitialized) return
+  if (typeof window !== "undefined") {
+    const db = initLocalDB()
+    setDBClient(db as any)
+    dbInitialized = true
+  }
+}
+
+ensureDBSync()
+
+interface ErrorBoundaryState {
+  error: Error | null
+}
+
+class ErrorBoundary extends Component<{ children: ReactNode }, ErrorBoundaryState> {
+  state: ErrorBoundaryState = { error: null }
+
+  static getDerivedStateFromError(error: Error): ErrorBoundaryState {
+    return { error }
+  }
+
+  componentDidCatch(error: Error, errorInfo: ErrorInfo) {
+    console.error("Unhandled app error", error, errorInfo)
+  }
+
+  render() {
+    if (this.state.error) {
+      return (
+        <div className="min-h-screen bg-[#FDFBF8] text-[#111] flex items-center justify-center px-6">
+          <div className="max-w-xl rounded-2xl border border-[#D8C6A6] bg-white/80 p-8 text-center shadow-sm">
+            <p className="font-serif text-3xl mb-4">Something went wrong</p>
+            <p className="text-sm text-neutral-700 mb-6">
+              The page could not finish loading. Please refresh, or try again in a few moments.
+            </p>
+            <pre className="whitespace-pre-wrap rounded bg-neutral-100 p-4 text-left text-xs text-neutral-700 overflow-auto">
+              {this.state.error.message}
+            </pre>
+            <button
+              type="button"
+              onClick={() => window.location.reload()}
+              className="mt-6 rounded-full bg-black px-6 py-3 text-sm font-semibold text-white"
+            >
+              Reload page
+            </button>
+          </div>
+        </div>
+      )
+    }
+
+    return this.props.children
+  }
+}
+
 function AppShell() {
   const fetchMe = useAuthStore(s=>s.fetchMe)
   const lang = useAppStore(s=>s.lang)
   useEffect(()=>{
-    const db = initLocalDB()
-    setDBClient(db as any)
+    ensureDBSync()
     fetchMe()
     document.body.dataset.lang = lang
   },[])
@@ -53,10 +108,12 @@ function AppShell() {
 
 export default function App() {
   return (
-    // HashRouter = works on GitHub Pages + Cloudflare Pages without server config
-    // No 404 on refresh unlike BrowserRouter
-    <HashRouter>
-      <AppShell />
-    </HashRouter>
+    <ErrorBoundary>
+      {/* HashRouter = works on GitHub Pages + Cloudflare Pages without server config */}
+      {/* No 404 on refresh unlike BrowserRouter */}
+      <HashRouter>
+        <AppShell />
+      </HashRouter>
+    </ErrorBoundary>
   )
 }

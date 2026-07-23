@@ -47,6 +47,6 @@ export function setDBClient(c: DBClient) {
 }
 
 export function getDBClient(): DBClient {
-  if (!_client) throw new Error("DBClient not initialized. Call initDB() first.")
+  if (!_client) throw new Error("DBClient not initialized")
   return _client
 }

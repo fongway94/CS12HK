@@ -8,9 +8,35 @@ interface AppState {
   setLang: (l: "zh" | "en") => void
 }
 
+function isBrowser() {
+  try {
+    return typeof window !== "undefined" && typeof window.localStorage !== "undefined"
+  } catch {
+    return false
+  }
+}
+
+function loadStoredValue<T extends string>(key: string, fallback: T): T {
+  if (!isBrowser()) return fallback
+  try {
+    return (localStorage.getItem(key) as T | null) || fallback
+  } catch {
+    return fallback
+  }
+}
+
+function saveStoredValue(key: string, value: string) {
+  if (!isBrowser()) return
+  try { localStorage.setItem(key, value) } catch {}
+}
+
+function setBodyLang(lang: "zh" | "en") {
+  if (typeof document !== "undefined") document.body.dataset.lang = lang
+}
+
 export const useAppStore = create<AppState>((set) => ({
-  currency: (localStorage.getItem("cs12_currency") as Currency) || "HKD",
-  lang: (localStorage.getItem("cs12-language") as any) || "zh",
-  setCurrency: (c) => { localStorage.setItem("cs12_currency", c); set({ currency: c }) },
-  setLang: (l) => { localStorage.setItem("cs12-language", l); set({ lang: l }); document.body.dataset.lang = l }
+  currency: loadStoredValue<Currency>("cs12_currency", "HKD"),
+  lang: loadStoredValue<"zh" | "en">("cs12-language", "zh"),
+  setCurrency: (c) => { saveStoredValue("cs12_currency", c); set({ currency: c }) },
+  setLang: (l) => { saveStoredValue("cs12-language", l); set({ lang: l }); setBodyLang(l) }
 }))
