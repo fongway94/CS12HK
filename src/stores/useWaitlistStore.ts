@@ -1,4 +1,6 @@
 import { create } from "zustand"
+import { getDBClient } from "../lib/db/client"
+import type { BackInStockWaitlist } from "../lib/db/types"
 
 interface WaitlistState {
   subscribedProducts: string[] // product IDs user has subscribed to
@@ -33,26 +35,42 @@ function saveStored(items: string[]) {
 export const useWaitlistStore = create<WaitlistState>((set, get) => ({
   subscribedProducts: loadStored(),
   subscribe: async (productId: string, email: string) => {
-    // Call API to add to waitlist
     try {
-      const response = await fetch("/api/waitlist", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ productId, email })
-      })
-      const data = await response.json()
-      if (data.success) {
-        const current = get().subscribedProducts
-        if (!current.includes(productId)) {
-          const updated = [...current, productId]
-          set({ subscribedProducts: updated })
-          saveStored(updated)
+      const normalizedEmail = email.trim().toLowerCase()
+      if (!normalizedEmail) return { success: false, message: "Email is required" }
+
+      // The current app uses DBClient/localAdapter. The old implementation
+      // called an unimplemented /api/waitlist route and therefore never saved.
+      const db = getDBClient()
+      const entries = await db.getBackInStockWaitlist(productId)
+      const existing = entries.find(entry =>
+        entry.email.toLowerCase() === normalizedEmail && !entry.notifiedAt
+      )
+
+      if (!existing) {
+        const entry: BackInStockWaitlist = {
+          id: typeof crypto !== "undefined" && typeof crypto.randomUUID === "function"
+            ? `waitlist_${crypto.randomUUID()}`
+            : `waitlist_${Date.now()}_${Math.random().toString(36).slice(2)}`,
+          productId,
+          email: normalizedEmail,
+          createdAt: new Date().toISOString()
         }
-        return { success: true, message: data.message || "Subscribed successfully" }
+        await db.addToWaitlist(entry)
       }
-      return { success: false, message: data.message || "Failed to subscribe" }
+
+      const current = get().subscribedProducts
+      if (!current.includes(productId)) {
+        const updated = [...current, productId]
+        set({ subscribedProducts: updated })
+        saveStored(updated)
+      }
+      return {
+        success: true,
+        message: existing ? "You are already subscribed to this alert" : "Subscribed successfully"
+      }
     } catch {
-      return { success: false, message: "Network error" }
+      return { success: false, message: "Could not save your alert. Please try again." }
     }
   },
   unsubscribe: (productId) => {

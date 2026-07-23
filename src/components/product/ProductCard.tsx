@@ -37,7 +37,7 @@ export function ProductCard({ product }: { product: Product }) {
   }
 
   return (
-    <div className="group bg-white border border-[#F2ECE4] hover:border-[#111] transition-colors">
+    <div data-reveal className="product-card group bg-white border border-[#F2ECE4] hover:border-[#111]">
       <Link to={`/product/${product.slug}`} className="block aspect-square overflow-hidden bg-[#FBF6F0] relative">
         <img src={product.images[0]} alt={name} className="w-full h-full object-cover group-hover:scale-[1.03] transition-transform duration-700" loading="lazy" />
         {isOutOfStock && (
@@ -54,7 +54,7 @@ export function ProductCard({ product }: { product: Product }) {
           className="absolute top-3 right-3 w-8 h-8 bg-white/80 backdrop-blur-sm border border-[#ECE6DF]/50 rounded-full flex items-center justify-center hover:bg-white transition-all z-10"
           aria-label="Toggle wishlist"
         >
-          <Heart size={14} className={wishlisted ? "fill-red-500 text-red-500" : "text-[#8F8881]"} />
+          <Heart size={14} className={wishlisted ? "heart-active fill-red-500 text-red-500" : "text-[#8F8881]"} />
         </button>
       </Link>
       <div className="p-5">

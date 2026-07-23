@@ -19,6 +19,7 @@ import { useAuthStore } from "../stores/useAuthStore"
 import { useAppStore } from "../stores/useAppStore"
 import { useThemeStore } from "../stores/useThemeStore"
 import { ToastContainer } from "../components/ui/Toast"
+import { MotionEffects } from "../components/ui/MotionEffects"
 
 let dbInitialized = false
 
@@ -88,6 +89,7 @@ function AppShell() {
   const fetchMe = useAuthStore(s=>s.fetchMe)
   const lang = useAppStore(s=>s.lang)
   const loadSettings = useThemeStore(s=>s.loadSettings)
+  const location = useLocation()
   useEffect(()=>{
     ensureDBSync()
     fetchMe()
@@ -98,9 +100,10 @@ function AppShell() {
   return (
     <div className="min-h-screen flex flex-col">
       <ScrollToTop />
+      <MotionEffects />
       <Header />
-      <div className="flex-1">
-        <Routes>
+      <div key={location.pathname} className="flex-1 page-enter">
+        <Routes location={location}>
           <Route path="/" element={<HomePage />} />
           <Route path="/shop" element={<ShopPage />} />
           <Route path="/product/:slug" element={<ProductDetailPage />} />

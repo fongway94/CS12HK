@@ -174,18 +174,28 @@ export class D1Adapter implements DBClient {
 
   // Newsletter Subscribers
   async getNewsletterSubscribers(): Promise<NewsletterSubscriber[]> {
-    const { results } = await this.db.prepare("SELECT * FROM newsletter_subscribers ORDER BY subscribed_at DESC").bind().all<NewsletterSubscriber>()
-    return results
+    const { results } = await this.db.prepare("SELECT * FROM newsletter_subscribers ORDER BY subscribed_at DESC").bind().all<any>()
+    return results.map(row => ({
+      id: row.id,
+      email: row.email,
+      source: row.source,
+      subscribedAt: row.subscribed_at,
+      confirmedAt: row.confirmed_at || undefined,
+      unsubscribedAt: row.unsubscribed_at || undefined,
+      isActive: Boolean(row.is_active),
+      tags: (() => { try { return JSON.parse(row.tags || "[]") } catch { return [] } })()
+    }))
   }
   async createNewsletterSubscriber(subscriber: NewsletterSubscriber): Promise<void> {
-    await this.db.prepare("INSERT INTO newsletter_subscribers (id, email, source, subscribed_at, confirmed_at, unsubscribed_at, is_active, tags) VALUES (?, ?, ?, ?, ?, ?, ?, ?)")
+    await this.db.prepare("INSERT INTO newsletter_subscribers (id, email, source, subscribed_at, confirmed_at, unsubscribed_at, is_active, tags) VALUES (?, ?, ?, ?, ?, ?, ?, ?) ON CONFLICT(email) DO NOTHING")
       .bind(subscriber.id, subscriber.email, subscriber.source, subscriber.subscribedAt, subscriber.confirmedAt || null, subscriber.unsubscribedAt || null, subscriber.isActive ? 1 : 0, JSON.stringify(subscriber.tags || [])).run()
   }
   async updateNewsletterSubscriber(id: string, patch: Partial<NewsletterSubscriber>): Promise<void> {
-    const cur = await this.db.prepare("SELECT * FROM newsletter_subscribers WHERE id = ?").bind(id).first<NewsletterSubscriber>()
+    const cur = (await this.getNewsletterSubscribers()).find(subscriber => subscriber.id === id)
     if (!cur) return
     const merged = { ...cur, ...patch }
-    await this.db.prepare("UPDATE newsletter_subscribers SET data = ? WHERE id = ?").bind(JSON.stringify(merged), id).run()
+    await this.db.prepare("UPDATE newsletter_subscribers SET email = ?, source = ?, subscribed_at = ?, confirmed_at = ?, unsubscribed_at = ?, is_active = ?, tags = ? WHERE id = ?")
+      .bind(merged.email, merged.source, merged.subscribedAt, merged.confirmedAt || null, merged.unsubscribedAt || null, merged.isActive ? 1 : 0, JSON.stringify(merged.tags || []), id).run()
   }
   async deleteNewsletterSubscriber(id: string): Promise<void> {
     await this.db.prepare("DELETE FROM newsletter_subscribers WHERE id = ?").bind(id).run()

@@ -3,27 +3,30 @@ import { useAppStore } from "../../stores/useAppStore"
 import { useThemeStore } from "../../stores/useThemeStore"
 import { showToast } from "../ui/Toast"
 import { useState } from "react"
+import { subscribeToNewsletter } from "../../lib/newsletter/subscribe"
 
 export function Footer() {
   const { lang } = useAppStore()
   const { settings } = useThemeStore()
   const [newsletterEmail, setNewsletterEmail] = useState("")
 
-  const handleNewsletter = (e: React.FormEvent) => {
+  const handleNewsletter = async (e: React.FormEvent) => {
     e.preventDefault()
     if (!newsletterEmail.trim()) return
-    // Save to localStorage
+
     try {
-      const existing = JSON.parse(localStorage.getItem("cs12_newsletter") || "[]")
-      if (!existing.includes(newsletterEmail.toLowerCase())) {
-        existing.push(newsletterEmail.toLowerCase())
-        localStorage.setItem("cs12_newsletter", JSON.stringify(existing))
-      }
+      const email = newsletterEmail.trim()
+      const result = await subscribeToNewsletter(email, "footer")
+      showToast(
+        "success",
+        result === "already-subscribed"
+          ? (lang === "zh" ? "此電郵已訂閱電子報" : "This email is already subscribed.")
+          : (lang === "zh" ? `已訂閱！感謝 ${email} 的訂閱` : `Subscribed! Thank you ${email}`)
+      )
+      setNewsletterEmail("")
     } catch {
-      localStorage.setItem("cs12_newsletter", JSON.stringify([newsletterEmail.toLowerCase()]))
+      showToast("error", lang === "zh" ? "暫時未能完成訂閱，請稍後再試" : "Could not subscribe. Please try again.")
     }
-    showToast("success", lang==="zh"?`已訂閱！感謝 ${newsletterEmail} 的訂閱`:`Subscribed! Thank you ${newsletterEmail}`)
-    setNewsletterEmail("")
   }
 
   return (

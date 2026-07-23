@@ -1,6 +1,7 @@
 import { create } from "zustand"
 import { User } from "../lib/db/types"
 import { getDBClient } from "../lib/db/client"
+import { subscribeToNewsletter } from "../lib/newsletter/subscribe"
 
 interface AuthState {
   user: User | null
@@ -66,6 +67,9 @@ export const useAuthStore = create<AuthState>((set) => ({
         isFirstOrder: true
       }
       await db.createUser(newUser)
+      if (newsletter) {
+        await subscribeToNewsletter(email, "registration", ["registered-customer"])
+      }
       localStorage.setItem("cs12_token", newUser.id)
       set({ user: newUser })
       return { success: true }

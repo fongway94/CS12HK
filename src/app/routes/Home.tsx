@@ -6,6 +6,7 @@ import { ProductCard } from "../../components/product/ProductCard"
 import { useAppStore } from "../../stores/useAppStore"
 import { Gift, Truck, BadgePercent, ChevronRight, X, Heart, Star, Check, Sparkles, BookOpen } from "lucide-react"
 import { showToast } from "../../components/ui/Toast"
+import { subscribeToNewsletter } from "../../lib/newsletter/subscribe"
 
 interface Testimonial {
   name: string
@@ -65,23 +66,23 @@ export function HomePage() {
     setShowPromoPopup(false)
   }
 
-  const handleNewsletterSubmit = (e: React.FormEvent) => {
+  const handleNewsletterSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     if (!newsletterEmail.trim()) return
 
     try {
-      const existing = JSON.parse(localStorage.getItem("cs12_newsletter") || "[]")
-      if (!existing.includes(newsletterEmail.toLowerCase())) {
-        existing.push(newsletterEmail.toLowerCase())
-        localStorage.setItem("cs12_newsletter", JSON.stringify(existing))
-      }
+      const result = await subscribeToNewsletter(newsletterEmail, "homepage")
+      setNewsletterSuccess(true)
+      showToast(
+        "success",
+        result === "already-subscribed"
+          ? (lang === "zh" ? "此電郵已訂閱電子報" : "This email is already subscribed.")
+          : (lang === "zh" ? "感謝訂閱！我們會為您發送最新優惠" : "Thank you for subscribing! We will send you exclusive offers.")
+      )
+      setNewsletterEmail("")
     } catch {
-      localStorage.setItem("cs12_newsletter", JSON.stringify([newsletterEmail.toLowerCase()]))
+      showToast("error", lang === "zh" ? "暫時未能完成訂閱，請稍後再試" : "Could not subscribe. Please try again.")
     }
-
-    setNewsletterSuccess(true)
-    showToast("success", lang === "zh" ? "感謝訂閱！我們會為您發送最新優惠" : "Thank you for subscribing! We will send you exclusive offers.")
-    setNewsletterEmail("")
   }
 
   // Filter products cleanly

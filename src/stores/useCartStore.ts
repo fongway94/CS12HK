@@ -58,7 +58,11 @@ export const useCartStore = create<CartState>((set, get) => ({
     saveCart(items)
     set({ items })
   },
-  clear: () => { saveCart([]); set({ items: [] }); localStorage.removeItem("cs12_coupon") },
+  clear: () => {
+    saveCart([])
+    localStorage.removeItem("cs12_coupon")
+    set({ items: [], couponCode: null })
+  },
   setCoupon: (code) => {
     if (code) localStorage.setItem("cs12_coupon", code)
     else localStorage.removeItem("cs12_coupon")
