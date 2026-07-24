@@ -15,6 +15,8 @@ export function LoginPage() {
   const { login, isLoading } = useAuthStore()
   const { lang } = useAppStore()
   const nav = useNavigate()
+  const searchParams = new URLSearchParams(window.location.search)
+  const next = searchParams.get("next")
 
   const submit = async (e:any)=>{
     e.preventDefault()
@@ -22,7 +24,12 @@ export function LoginPage() {
     const res = await login(email,password)
     if(res.success) {
       showToast("success", lang==="zh"?"登入成功！":"Login successful!")
-      nav("/account")
+      // Redirect back to checkout if user came from there
+      if (next === "checkout") {
+        nav("/checkout")
+      } else {
+        nav("/account")
+      }
     }
     else setError(res.error||"Failed")
   }
@@ -72,7 +79,8 @@ export function LoginPage() {
         <div className="bg-[#FBF6F0] border border-[#ECE6DF] p-3 text-[10px] text-[#8F8881]">
           <p className="font-semibold text-[11px] text-[#3A3734] mb-1">Demo Accounts:</p>
           <p>Admin: admin@cs12skincare.com.hk / admin123</p>
-          <p className="mt-1"><Link to="/register" className="underline text-[#825F59]">Register</Link> a new customer account to test shopping flow</p>
+          <p className="mt-1">Customer: test@cs12skincare.com.hk / test123</p>
+          <p className="mt-1">Or <Link to="/register" className="underline text-[#825F59]">register</Link> a new account</p>
         </div>
       </form>
     </main>

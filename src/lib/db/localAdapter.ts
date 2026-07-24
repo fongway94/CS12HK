@@ -102,6 +102,24 @@ export class LocalDBAdapter implements DBClient {
           totalOrders: 0,
           tier: "Prestige",
           isFirstOrder: false
+        },
+        {
+          id: "customer_demo_001",
+          email: "test@cs12skincare.com.hk",
+          username: "testuser",
+          passwordHash: "test123",
+          role: "customer",
+          birthday: "1995-06-15",
+          newsletter: true,
+          points: 500,
+          pointsHistory: [
+            { id: "tx_seed_001", userId: "customer_demo_001", amount: 500, reason: "Welcome bonus (seed)", createdAt: new Date().toISOString() }
+          ],
+          createdAt: new Date().toISOString(),
+          totalSpentHKD: 1280,
+          totalOrders: 2,
+          tier: "Member",
+          isFirstOrder: true
         }
       ]
       this.orders = []
@@ -139,6 +157,48 @@ export class LocalDBAdapter implements DBClient {
       for (const p of seedProducts) {
         if (!existingIds.has(p.id)) {
           this.products.push(p)
+        }
+      }
+      // Ensure seed users exist (e.g. demo customer added after first visit).
+      const existingUserIds = new Set(this.users.map(u => u.id))
+      const seedUsers: User[] = [
+        {
+          id: "admin_001",
+          email: "admin@cs12skincare.com.hk",
+          username: "admin",
+          passwordHash: "admin123",
+          role: "admin",
+          newsletter: true,
+          points: 0,
+          pointsHistory: [],
+          createdAt: new Date().toISOString(),
+          totalSpentHKD: 0,
+          totalOrders: 0,
+          tier: "Prestige",
+          isFirstOrder: false
+        },
+        {
+          id: "customer_demo_001",
+          email: "test@cs12skincare.com.hk",
+          username: "testuser",
+          passwordHash: "test123",
+          role: "customer",
+          birthday: "1995-06-15",
+          newsletter: true,
+          points: 500,
+          pointsHistory: [
+            { id: "tx_seed_001", userId: "customer_demo_001", amount: 500, reason: "Welcome bonus (seed)", createdAt: new Date().toISOString() }
+          ],
+          createdAt: new Date().toISOString(),
+          totalSpentHKD: 1280,
+          totalOrders: 2,
+          tier: "Member",
+          isFirstOrder: true
+        }
+      ]
+      for (const u of seedUsers) {
+        if (!existingUserIds.has(u.id) && !this.users.find(x => x.email.toLowerCase() === u.email.toLowerCase())) {
+          this.users.push(u)
         }
       }
     }

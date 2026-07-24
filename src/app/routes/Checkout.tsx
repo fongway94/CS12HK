@@ -25,6 +25,7 @@ export function CheckoutPage() {
   useEffect(()=>{
     getDBClient().getGiftTiers().then(setGiftTiers)
     if(couponCode) getDBClient().getCouponByCode(couponCode).then(c=> c && setCouponObj(c))
+    // Try to restore saved address: user's saved address, or guest draft from before login redirect
     if(user) {
       try {
         const raw = localStorage.getItem(`cs12_addresses_${user.id}`)
@@ -35,6 +36,15 @@ export function CheckoutPage() {
         }
       } catch {}
     }
+    // Restore draft address saved when a guest was redirected to login
+    try {
+      const draft = localStorage.getItem("cs12_checkout_address_draft")
+      if (draft) {
+        const parsed = JSON.parse(draft)
+        setAddress(parsed)
+        localStorage.removeItem("cs12_checkout_address_draft")
+      }
+    } catch {}
   },[])
 
   const isBirthday = user ? checkBirthdayMonth(user.birthday) : false
@@ -82,7 +92,12 @@ export function CheckoutPage() {
   }
 
   const placeOrder = async () => {
-    if(!user){ nav("/login"); return }
+    if(!user){
+      // Save draft address so it's restored after login
+      try { localStorage.setItem("cs12_checkout_address_draft", JSON.stringify(address)) } catch {}
+      nav("/login?next=checkout")
+      return
+    }
     if(items.length===0) return
     const validationErrors = validate()
     if (validationErrors.length > 0) { setErrors(validationErrors); showToast("error", validationErrors[0]); return }
@@ -163,7 +178,19 @@ export function CheckoutPage() {
     : ["Hong Kong Island","Kowloon","New Territories","Outlying Islands"]
 
   return (
-    <main className="w-[min(calc(100%-24px),1440px)] mx-auto py-6 md:py-8 grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-10">
+    <main className="w-[min(calc(100%-24px),1440px)] mx-auto py-6 md:py-8">
+      {!user && (
+        <div className="mb-6 bg-[#FFF7ED] border border-[#FED7AA] p-4 flex items-center justify-between gap-4">
+          <div className="text-[13px]">
+            <strong>{lang==="zh"?"請先登入以完成訂單":"Please login to complete your order"}</strong>
+            <p className="text-[11px] text-[#8F8881] mt-1">{lang==="zh"?"填寫的配送資訊會在登入後自動保留":"Your shipping info will be saved and restored after login"}</p>
+          </div>
+          <Link to="/login?next=checkout" className="shrink-0 bg-[var(--brand-accent)] text-white px-6 h-[40px] flex items-center text-[11px] tracking-[0.18em] uppercase hover:opacity-90 transition">
+            {lang==="zh"?"登入 / 註冊":"Login / Register"}
+          </Link>
+        </div>
+      )}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-10">
       <section className="bg-white border border-[#ECE6DF] p-6">
         <h2 className="font-serif text-[24px] mb-6">{lang==="zh"?"配送資訊":"Shipping Information"}</h2>
         {errors.length > 0 && (
@@ -273,6 +300,7 @@ export function CheckoutPage() {
         </button>
         <p className="text-[10px] text-[#BBB5AD] mt-3 text-center">{lang==="zh"?"訂單完成後積分自動入帳":"Points are credited automatically after order completion"}</p>
       </section>
+      </div>
     </main>
   )
 }
