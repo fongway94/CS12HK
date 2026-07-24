@@ -38,7 +38,7 @@ export function dismissToast(id: string) {
 
 const iconMap = {
   success: <CheckCircle size={16} className="text-green-600" />,
-  cart: <ShoppingCart size={16} className="text-[#9E7428]" />,
+  cart: <ShoppingCart size={16} className="text-[var(--brand-accent)]" />,
   error: <AlertCircle size={16} className="text-red-600" />,
   info: <Info size={16} className="text-blue-600" />,
 }
@@ -63,7 +63,7 @@ export function ToastContainer() {
         >
           <span className="mt-[2px] shrink-0">{iconMap[t.type]}</span>
           <p className="flex-1 text-[13px] text-[#3A3734] leading-snug">{t.message}</p>
-          <button onClick={() => dismissToast(t.id)} className="shrink-0 text-[#BBB5AD] hover:text-[#9E7428] transition mt-[1px]">
+          <button onClick={() => dismissToast(t.id)} className="shrink-0 text-[#BBB5AD] hover:text-[var(--brand-accent)] transition mt-[1px]">
             <X size={14} />
           </button>
         </div>

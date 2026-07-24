@@ -68,7 +68,7 @@ export function Footer() {
         <div>
           <h5 className="text-[10px] tracking-[0.2em] uppercase font-semibold text-[#8F8881] mb-4">Newsletter</h5>
           <p className="text-[#5C5651] text-[12px] mb-3">{lang==="zh"?"訂閱獲取最新優惠及抗敏護膚技巧":"Get offers & repair tips."}</p>
-          <form onSubmit={handleNewsletter} className="flex border border-[#9E7428]">
+          <form onSubmit={handleNewsletter} className="flex border border-[var(--brand-accent)]">
             <input
               type="email"
               value={newsletterEmail}
@@ -77,7 +77,7 @@ export function Footer() {
               className="flex-1 px-3 py-2 text-[12px] outline-none"
               required
             />
-            <button type="submit" className="bg-[#9E7428] text-white px-4 text-[10px] tracking-[0.18em] uppercase">→</button>
+            <button type="submit" className="bg-[var(--brand-accent)] text-white px-4 text-[10px] tracking-[0.18em] uppercase">→</button>
           </form>
           <div className="mt-6 flex gap-3 text-[11px]">
             <a href={settings.instagramUrl} target="_blank" rel="noopener" className="border border-[#ECE6DF] px-3 py-1 hover:bg-[#FBF6F0] transition">Instagram</a>

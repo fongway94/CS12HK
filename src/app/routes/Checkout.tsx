@@ -154,7 +154,7 @@ export function CheckoutPage() {
   if(items.length===0) return (
     <main className="w-[min(calc(100%-24px),1440px)] mx-auto py-20 text-center">
       <h1 className="font-serif text-[32px] mb-4">{lang==="zh"?"購物車為空":"Cart is empty"}</h1>
-      <Link to="/exclusive" className="inline-flex bg-[#9E7428] text-white px-8 h-[44px] items-center text-[11px] tracking-[0.18em] uppercase">{lang==="zh"?"回到商店":"Go Shopping"}</Link>
+      <Link to="/exclusive" className="inline-flex bg-[var(--brand-accent)] text-white px-8 h-[44px] items-center text-[11px] tracking-[0.18em] uppercase">{lang==="zh"?"回到商店":"Go Shopping"}</Link>
     </main>
   )
 
@@ -197,8 +197,8 @@ export function CheckoutPage() {
                 ? ["信用卡","FPS 轉數快","PayMe","Apple Pay"]
                 : ["Credit Card","FPS","PayMe","Apple Pay"]
               ).map(m => (
-                <label key={m} className="flex items-center gap-2 border border-[#ECE6DF] p-3 text-[11px] cursor-pointer hover:border-[#9E7428] transition">
-                  <input type="radio" name="payment" defaultChecked={m===(lang==="zh"?"信用卡":"Credit Card")} className="accent-[#9E7428]"/>
+                <label key={m} className="flex items-center gap-2 border border-[#ECE6DF] p-3 text-[11px] cursor-pointer hover:border-[var(--brand-accent)] transition">
+                  <input type="radio" name="payment" defaultChecked={m===(lang==="zh"?"信用卡":"Credit Card")} className="accent-[var(--brand-accent)]"/>
                   <span>{m}</span>
                 </label>
               ))}
@@ -256,7 +256,7 @@ export function CheckoutPage() {
             {couponCalc.valid && <div className="flex justify-between text-green-700"><span>{lang==="zh"?"折扣":"Discount"} {couponObj?.code}</span><span>-{formatPrice(couponCalc.discountHKD, couponCalc.discountUSD,currency)}</span></div>}
             {usePoints>0 && <div className="flex justify-between text-green-700"><span>{lang==="zh"?"積分抵扣":"Points Redeemed"} {usePoints}</span><span>-HK${pointsDiscountHKD}</span></div>}
             <div className="flex justify-between"><span>{lang==="zh"?"運費":"Shipping"}</span><span>{shipping.free?(lang==="zh"?"免費":"Free"):formatPrice(shipping.shippingHKD, shipping.shippingUSD,currency)}</span></div>
-            {giftTier && <div className="bg-[#9E7428] text-white p-3 text-[11px]">🎁 {lang==="zh"?giftTier.label_zh:giftTier.label_en} {lang==="zh"?"已符合，獲贈":"Unlocked — get"} {giftTier.gifts.reduce((a,b)=>a+b.qty,0)} {lang==="zh"?"件":"items"}</div>}
+            {giftTier && <div className="bg-[var(--brand-accent)] text-white p-3 text-[11px]">🎁 {lang==="zh"?giftTier.label_zh:giftTier.label_en} {lang==="zh"?"已符合，獲贈":"Unlocked — get"} {giftTier.gifts.reduce((a,b)=>a+b.qty,0)} {lang==="zh"?"件":"items"}</div>}
             <div className="flex justify-between font-semibold text-[18px] pt-3 border-t border-[#ECE6DF]"><span>{lang==="zh"?"合計":"Total"}</span><span>{formatPrice(totalHKD, totalUSD,currency)}</span></div>
             <div className="text-[11px] text-[#8F8881] space-y-1">
               <p>{lang==="zh"?"本次獲得":"Earn"} {pointsEarned} {lang==="zh"?"積分":"points"} {isBirthday && (lang==="zh"?"(x2 生日雙倍)":"(x2 birthday double)")}</p>
@@ -267,7 +267,7 @@ export function CheckoutPage() {
         <button
           onClick={placeOrder}
           disabled={isPlacing}
-          className="mt-6 w-full bg-[#9E7428] text-white h-[52px] text-[12px] tracking-[0.18em] uppercase disabled:opacity-50 disabled:cursor-not-allowed"
+          className="mt-6 w-full bg-[var(--brand-accent)] text-white h-[52px] text-[12px] tracking-[0.18em] uppercase disabled:opacity-50 disabled:cursor-not-allowed"
         >
           {isPlacing ? (lang==="zh"?"處理中...":"Processing...") : (lang==="zh"?"確認下單":"Place Order")}
         </button>

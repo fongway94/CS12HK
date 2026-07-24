@@ -160,7 +160,7 @@ export function ProductDetailPage() {
                     <button
                       key={v.id}
                       onClick={() => { setSelectedVariant(v); setQty(1) }}
-                      className={`px-3 py-2 text-[11px] border rounded transition ${selectedVariant?.id === v.id ? "bg-[#9E7428] text-white border-[#9E7428]" : "bg-white border-[#ECE6DF] hover:border-[#9E7428]"} ${v.stock <= 0 ? "opacity-50 cursor-not-allowed" : ""}`}
+                      className={`px-3 py-2 text-[11px] border rounded transition ${selectedVariant?.id === v.id ? "bg-[var(--brand-accent)] text-white border-[var(--brand-accent)]" : "bg-white border-[#ECE6DF] hover:border-[var(--brand-accent)]"} ${v.stock <= 0 ? "opacity-50 cursor-not-allowed" : ""}`}
                       disabled={v.stock <= 0}
                     >
                       {vName} {attrs && <span className="text-[#8F8881] ml-1">({attrs})</span>}
@@ -179,7 +179,7 @@ export function ProductDetailPage() {
                 ? (lang==="zh"?"售罄":"Sold Out") 
                 : `${displayStock} ${lang==="zh"?"件庫存":"in stock"}`}
             </span>
-            <span className="text-[11px] bg-[#9E7428] text-white px-2 py-[1px]">{product.points} {lang==="zh"?"積分":"points"}</span>
+            <span className="text-[11px] bg-[var(--brand-accent)] text-white px-2 py-[1px]">{product.points} {lang==="zh"?"積分":"points"}</span>
           </div>
           <div className="flex items-baseline gap-3 mb-6">
             {displayOriginalHKD && <span className="line-through text-[#BBB5AD]">{formatPrice(displayOriginalHKD, displayOriginalUSD||0, currency)}</span>}
@@ -200,13 +200,13 @@ export function ProductDetailPage() {
           {/* Wishlist Button */}
           <button
             onClick={() => { if(product) { toggleWishlist(product.id); showToast("info", isWishlistedProduct ? (lang==="zh"?"已從願望清單移除":"Removed from wishlist") : (lang==="zh"?"已加入願望清單":"Added to wishlist")) }}}
-            className={`w-full h-[52px] bg-white border border-[#9E7428] text-[#9E7428] text-[12px] tracking-[0.18em] uppercase hover:bg-[#9E7428] hover:text-white transition mb-2 flex items-center justify-center gap-2`}
+            className={`w-full h-[52px] bg-white border border-[var(--brand-accent)] text-[var(--brand-accent)] text-[12px] tracking-[0.18em] uppercase hover:bg-[var(--brand-accent)] hover:text-white transition mb-2 flex items-center justify-center gap-2`}
           >
-            <Eye size={18} className={isWishlistedProduct ? "text-[#9E7428]" : "text-[#8F8881]"} />
+            <Eye size={18} className={isWishlistedProduct ? "text-[var(--brand-accent)]" : "text-[#8F8881]"} />
             {isWishlistedProduct ? (lang==="zh"?"已加入願望清單":"In Wishlist") : (lang==="zh"?"加入願望清單":"Add to Wishlist")}
           </button>
 
-          <button onClick={handleAddToCart} className={`w-full h-[52px] text-[12px] tracking-[0.18em] uppercase transition ${isOutOfStock ? "bg-[#ECE6DF] text-[#8F8881] cursor-not-allowed" : "bg-[#9E7428] text-white hover:bg-[#8F6824]"}`}>
+          <button onClick={handleAddToCart} className={`w-full h-[52px] text-[12px] tracking-[0.18em] uppercase transition ${isOutOfStock ? "bg-[#ECE6DF] text-[#8F8881] cursor-not-allowed" : "bg-[var(--brand-accent)] text-white hover:bg-[color-mix(in_srgb,var(--brand-accent)_85%,black)]"}`}>
             {isOutOfStock 
               ? (lang==="zh"?"售罄 - 登記補貨通知":"Sold Out - Notify Me") 
               : `${lang==="zh"?"加入購物車":"Add to Cart"} • ${formatPrice(displayPriceHKD*qty, displayPriceUSD*qty, currency)}`}
@@ -219,9 +219,9 @@ export function ProductDetailPage() {
 
           <div className="mt-10 border-t border-[#ECE6DF]">
             <div className="flex gap-6 text-[11px] tracking-[0.14em] uppercase mt-4">
-              <button onClick={()=>setTab("desc")} className={`pb-2 border-b ${tab==="desc"?"border-[#9E7428]":"border-transparent text-[#8F8881]"}`}>{lang==="zh"?"描述":"Description"}</button>
-              <button onClick={()=>setTab("info")} className={`pb-2 border-b ${tab==="info"?"border-[#9E7428]":"border-transparent text-[#8F8881]"}`}>{lang==="zh"?"額外資訊":"Additional Info"}</button>
-              <button onClick={()=>setTab("reviews")} className={`pb-2 border-b ${tab==="reviews"?"border-[#9E7428]":"border-transparent text-[#8F8881]"}`}>{lang==="zh"?"評價":"Reviews"} ({reviews.length})</button>
+              <button onClick={()=>setTab("desc")} className={`pb-2 border-b ${tab==="desc"?"border-[var(--brand-accent)]":"border-transparent text-[#8F8881]"}`}>{lang==="zh"?"描述":"Description"}</button>
+              <button onClick={()=>setTab("info")} className={`pb-2 border-b ${tab==="info"?"border-[var(--brand-accent)]":"border-transparent text-[#8F8881]"}`}>{lang==="zh"?"額外資訊":"Additional Info"}</button>
+              <button onClick={()=>setTab("reviews")} className={`pb-2 border-b ${tab==="reviews"?"border-[var(--brand-accent)]":"border-transparent text-[#8F8881]"}`}>{lang==="zh"?"評價":"Reviews"} ({reviews.length})</button>
             </div>
             <div className="py-6 text-[13px] leading-relaxed text-[#3A3734]">
               {tab==="desc" && (
@@ -296,7 +296,7 @@ export function ProductDetailPage() {
                         <label className="text-[11px] text-[#8F8881]">{lang==="zh"?"評分":"Rating"}</label>
                         <div className="flex gap-1 mt-1">
                           {[1,2,3,4,5].map(s => (
-                            <button key={s} onClick={()=>setReviewRating(s)} className={`text-[18px] ${s <= reviewRating ? "text-[#9E7428]" : "text-[#ECE6DF]"}`}>★</button>
+                            <button key={s} onClick={()=>setReviewRating(s)} className={`text-[18px] ${s <= reviewRating ? "text-[var(--brand-accent)]" : "text-[#ECE6DF]"}`}>★</button>
                           ))}
                         </div>
                       </div>
@@ -304,7 +304,7 @@ export function ProductDetailPage() {
                         <label className="text-[11px] text-[#8F8881]">{lang==="zh"?"您的評價":"Your Review"}</label>
                         <textarea value={reviewComment} onChange={e=>setReviewComment(e.target.value)} rows={3} className="w-full border border-[#ECE6DF] px-3 py-2 text-[12px] mt-1"/>
                       </div>
-                      <button onClick={submitReview} className="bg-[#9E7428] text-white px-6 h-9 text-[11px] tracking-[0.14em] uppercase">{lang==="zh"?"提交評價":"Submit Review"}</button>
+                      <button onClick={submitReview} className="bg-[var(--brand-accent)] text-white px-6 h-9 text-[11px] tracking-[0.14em] uppercase">{lang==="zh"?"提交評價":"Submit Review"}</button>
                     </div>
                   </div>
                 </div>
@@ -331,7 +331,7 @@ export function ProductDetailPage() {
 
       {/* Waitlist Modal */}
       {showWaitlistModal && (
-        <div className="fixed inset-0 z-50 bg-[#9E7428]/70 backdrop-blur-sm flex items-center justify-center p-4 animate-fadeIn" onClick={() => setShowWaitlistModal(false)}>
+        <div className="fixed inset-0 z-50 bg-[color-mix(in_srgb,var(--brand-accent)_70%,transparent)] backdrop-blur-sm flex items-center justify-center p-4 animate-fadeIn" onClick={() => setShowWaitlistModal(false)}>
           <div className="bg-white border border-[#ECE6DF] max-w-md w-full p-6 rounded-[6px] shadow-2xl animate-scaleUp" onClick={e => e.stopPropagation()}>
             <div className="flex items-center gap-3 mb-4">
               <Bell size={24} className="text-[#825F59]" />
@@ -355,7 +355,7 @@ export function ProductDetailPage() {
                 />
               </div>
               <div className="flex gap-2">
-                <button onClick={handleWaitlistSubmit} disabled={waitlistSubmitting || !waitlistEmail.trim()} className="flex-1 bg-[#9E7428] text-white h-10 text-[11px] tracking-[0.14em] uppercase disabled:opacity-50">
+                <button onClick={handleWaitlistSubmit} disabled={waitlistSubmitting || !waitlistEmail.trim()} className="flex-1 bg-[var(--brand-accent)] text-white h-10 text-[11px] tracking-[0.14em] uppercase disabled:opacity-50">
                   {waitlistSubmitting ? (lang==="zh"?"處理中...":"Subscribing...") : (lang==="zh"?"訂閱通知":"Subscribe to Alert")}
                 </button>
                 <button onClick={() => { setShowWaitlistModal(false); setWaitlistEmail("") }} className="px-6 h-10 border border-[#ECE6DF] text-[11px] uppercase">

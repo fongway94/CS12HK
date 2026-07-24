@@ -60,17 +60,17 @@ export function ShopPage() {
           <div>
             <h4 className="text-[10px] tracking-[0.18em] uppercase font-semibold mb-3">{lang==="zh"?"系列":"Series"}</h4>
             <ul className="space-y-2 text-[13px]">
-              <li><button onClick={()=>{params.delete("series"); setParams(params)}} className={!series?"font-semibold text-[#9E7428]":"text-[#5C5651]"}>{lang==="zh"?"全部":"All"}</button></li>
-              <li><button onClick={()=>{params.set("series","CalmEX"); setParams(params)}} className={series==="CalmEX"?"font-semibold text-[#9E7428]":"text-[#5C5651]"}>#CalmEX</button></li>
-              <li><button onClick={()=>{params.set("series","SoCalm"); setParams(params)}} className={series==="SoCalm"?"font-semibold text-[#9E7428]":"text-[#5C5651]"}>#SoCalm</button></li>
-              <li><button onClick={()=>{params.set("series","CellRevEX"); setParams(params)}} className={series==="CellRevEX"?"font-semibold text-[#9E7428]":"text-[#5C5651]"}>#CellRevEX</button></li>
+              <li><button onClick={()=>{params.delete("series"); setParams(params)}} className={!series?"font-semibold text-[var(--brand-accent)]":"text-[#5C5651]"}>{lang==="zh"?"全部":"All"}</button></li>
+              <li><button onClick={()=>{params.set("series","CalmEX"); setParams(params)}} className={series==="CalmEX"?"font-semibold text-[var(--brand-accent)]":"text-[#5C5651]"}>#CalmEX</button></li>
+              <li><button onClick={()=>{params.set("series","SoCalm"); setParams(params)}} className={series==="SoCalm"?"font-semibold text-[var(--brand-accent)]":"text-[#5C5651]"}>#SoCalm</button></li>
+              <li><button onClick={()=>{params.set("series","CellRevEX"); setParams(params)}} className={series==="CellRevEX"?"font-semibold text-[var(--brand-accent)]":"text-[#5C5651]"}>#CellRevEX</button></li>
             </ul>
           </div>
           <div>
             <h4 className="text-[10px] tracking-[0.18em] uppercase font-semibold mb-3">{lang==="zh"?"面部護理":"Facial Care"}</h4>
             <ul className="space-y-2 text-[12px] text-[#5C5651]">
               {categoryFilters.map(c=>
-                <li key={c}><button onClick={()=>{params.set("cat",c); setParams(params)}} className={`${cat===c?"text-[#9E7428] font-semibold":""}`}>{displayProductLabel(c, lang)}</button></li>
+                <li key={c}><button onClick={()=>{params.set("cat",c); setParams(params)}} className={`${cat===c?"text-[var(--brand-accent)] font-semibold":""}`}>{displayProductLabel(c, lang)}</button></li>
               )}
             </ul>
           </div>
@@ -78,7 +78,7 @@ export function ShopPage() {
             <h4 className="text-[10px] tracking-[0.18em] uppercase font-semibold mb-3">{lang==="zh"?"肌膚類別":"Skin Type"}</h4>
             <ul className="space-y-2 text-[12px] text-[#5C5651]">
               {skinFilters.map(skinFilter=>
-                <li key={skinFilter}><button onClick={()=>{params.set("skin",skinFilter); setParams(params)}} className={`${skin===skinFilter?"text-[#9E7428] font-semibold":""}`}>{displayProductLabel(skinFilter, lang)}</button></li>
+                <li key={skinFilter}><button onClick={()=>{params.set("skin",skinFilter); setParams(params)}} className={`${skin===skinFilter?"text-[var(--brand-accent)] font-semibold":""}`}>{displayProductLabel(skinFilter, lang)}</button></li>
               )}
             </ul>
           </div>

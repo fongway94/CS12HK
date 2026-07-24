@@ -21,7 +21,7 @@ export function MiniCart({ isOpen, onClose }: MiniCartProps) {
   return (
     <>
       {/* Backdrop */}
-      <div className="fixed inset-0 bg-[#9E7428]/20 z-[100]" onClick={onClose} />
+      <div className="fixed inset-0 bg-[color-mix(in_srgb,var(--brand-accent)_20%,transparent)] z-[100]" onClick={onClose} />
       
       {/* Mini cart panel */}
       <div className="fixed top-0 right-0 w-[380px] max-w-[calc(100vw-24px)] h-full bg-white z-[101] shadow-2xl flex flex-col slide-down">
@@ -31,7 +31,7 @@ export function MiniCart({ isOpen, onClose }: MiniCartProps) {
             <ShoppingBag size={16} />
             {lang==="zh"?"購物車":"Cart"} ({count})
           </h3>
-          <button onClick={onClose} className="text-[#8F8881] hover:text-[#9E7428] transition"><X size={18}/></button>
+          <button onClick={onClose} className="text-[#8F8881] hover:text-[var(--brand-accent)] transition"><X size={18}/></button>
         </div>
 
         {/* Items */}
@@ -40,7 +40,7 @@ export function MiniCart({ isOpen, onClose }: MiniCartProps) {
             <div className="p-8 text-center">
               <ShoppingBag size={40} className="mx-auto text-[#ECE6DF] mb-4"/>
               <p className="text-[13px] text-[#8F8881]">{lang==="zh"?"購物車是空的":"Your cart is empty"}</p>
-              <Link to="/shop" onClick={onClose} className="mt-4 inline-flex bg-[#9E7428] text-white px-6 h-9 items-center text-[10px] tracking-[0.18em] uppercase">
+              <Link to="/shop" onClick={onClose} className="mt-4 inline-flex bg-[var(--brand-accent)] text-white px-6 h-9 items-center text-[10px] tracking-[0.18em] uppercase">
                 {lang==="zh"?"去選購":"Go Shopping"}
               </Link>
             </div>
@@ -85,10 +85,10 @@ export function MiniCart({ isOpen, onClose }: MiniCartProps) {
                 : (lang==="zh"?`再買 HK$${800-subtotalHKD} 即免運費`:`Add HK$${800-subtotalHKD} for free shipping`)
               }
             </p>
-            <Link to="/cart" onClick={onClose} className="block w-full bg-[#9E7428] text-white h-[42px] flex items-center justify-center text-[11px] tracking-[0.18em] uppercase">
+            <Link to="/cart" onClick={onClose} className="block w-full bg-[var(--brand-accent)] text-white h-[42px] flex items-center justify-center text-[11px] tracking-[0.18em] uppercase">
               {lang==="zh"?"查看購物車":"View Cart"}
             </Link>
-            <Link to="/checkout" onClick={onClose} className="block w-full border border-[#9E7428] text-[#9E7428] h-[38px] flex items-center justify-center text-[11px] tracking-[0.18em] uppercase hover:bg-[#9E7428] hover:text-white transition">
+            <Link to="/checkout" onClick={onClose} className="block w-full border border-[var(--brand-accent)] text-[var(--brand-accent)] h-[38px] flex items-center justify-center text-[11px] tracking-[0.18em] uppercase hover:bg-[var(--brand-accent)] hover:text-white transition">
               {lang==="zh"?"結帳":"Checkout"}
             </Link>
           </div>

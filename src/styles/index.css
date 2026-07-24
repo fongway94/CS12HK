@@ -11,6 +11,11 @@
   --primary: #9E7428;
   --secondary: #825F59;
   --accent: #D8C6A6;
+  /* CS12 brand gold — drives the black/dark UI accents (buttons, links, badges,
+   * highlighted headings, etc.) across the whole site. Editable from Admin →
+   * Settings → Color Tuner ("Brand Accent Color") so it can be changed without
+   * touching code. Defaults to the CS12 logo gold. */
+  --brand-accent: #9E7428;
   /* Font family stacks. Active stack is chosen per language via [data-lang] on <body>. */
   --font-en-serif: "Cormorant Garamond", Georgia, "Times New Roman", serif;
   --font-en-sans:  "Instrument Sans", "Helvetica Neue", Arial, sans-serif;
