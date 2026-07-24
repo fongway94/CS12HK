@@ -9,6 +9,13 @@ import { calcSubtotal, getGiftTier, calcCouponDiscount, calcShipping, checkBirth
 import { calcPointsEarned, getTier } from "../../lib/points/engine"
 import { formatPrice } from "../../lib/currency"
 import { showToast } from "../../components/ui/Toast"
+import {
+  SavedAddress,
+  loadAddresses,
+  getSelectedAddress,
+  setSelectedAddressId,
+  addAddressToBook,
+} from "../../lib/addresses"
 
 export function CheckoutPage() {
   const { items, couponCode, clear } = useCartStore()
@@ -33,6 +40,9 @@ export function CheckoutPage() {
   const [usePoints, setUsePoints] = useState(0)
   const [isPlacing, setIsPlacing] = useState(false)
   const [errors, setErrors] = useState<string[]>([])
+  const [hasSavedAddress, setHasSavedAddress] = useState(false)
+  const [savedAddresses, setSavedAddresses] = useState<SavedAddress[]>([])
+  const [selectedSavedId, setSelectedSavedId] = useState<string | null>(null)
 
   // Ship to different address
   const [shipToDifferent, setShipToDifferent] = useState(false)
@@ -58,68 +68,102 @@ export function CheckoutPage() {
   const [loginLoading, setLoginLoading] = useState(false)
   const [newPassword, setNewPassword] = useState("")
 
+  // Save-address dialog (shown after order when address is new)
+  const [showSaveDialog, setShowSaveDialog] = useState(false)
+  const [pendingOrderId, setPendingOrderId] = useState<string | null>(null)
+  const [pendingPointsEarned, setPendingPointsEarned] = useState(0)
+  const [pendingIsBirthday, setPendingIsBirthday] = useState(false)
+  const [pendingUserId, setPendingUserId] = useState<string | null>(null)
+  const [pendingWasFirstAddress, setPendingWasFirstAddress] = useState(true)
+  const [saveAddressName, setSaveAddressName] = useState("")
+  const [saveDialogError, setSaveDialogError] = useState("")
+  const [pendingAddressSnapshot, setPendingAddressSnapshot] = useState<{
+    firstName: string
+    lastName: string
+    company: string
+    phone: string
+    address: string
+    address2: string
+    district: string
+    region: string
+  } | null>(null)
+
+  const applySavedAddress = (def: SavedAddress, email: string) => {
+    setAddress(prev => ({
+      ...prev,
+      email,
+      firstName: def.firstName || "",
+      lastName: def.lastName || "",
+      company: def.company || "",
+      name: def.name || "",
+      phone: def.phone || "",
+      address: def.address || "",
+      address2: def.address2 || "",
+      district: def.district || prev.district,
+      region: "HKD"
+    }))
+    setSelectedSavedId(def.id)
+  }
+
+  const hydrateFromUser = (u: NonNullable<typeof user>, preferDraft = false) => {
+    // Restore draft from previous session first (e.g. interrupted checkout)
+    if (preferDraft) {
+      try {
+        const draft = localStorage.getItem("cs12_checkout_address_draft")
+        if (draft) {
+          const parsed = JSON.parse(draft)
+          setAddress({ ...parsed, email: u.email })
+          localStorage.removeItem("cs12_checkout_address_draft")
+          return
+        }
+      } catch {}
+    }
+
+    const addrs = loadAddresses(u.id)
+    setSavedAddresses(addrs)
+    setHasSavedAddress(addrs.length > 0)
+
+    if (addrs.length > 0) {
+      const selected = getSelectedAddress(u.id)
+      if (selected) {
+        applySavedAddress(selected, u.email)
+        return
+      }
+    }
+
+    // No saved address — auto-populate first/last name from profile
+    setAddress(prev => ({
+      ...prev,
+      email: u.email,
+      firstName: u.firstName || prev.firstName || "",
+      lastName: u.lastName || prev.lastName || "",
+    }))
+    setSelectedSavedId(null)
+  }
+
   useEffect(()=>{
     getDBClient().getGiftTiers().then(setGiftTiers)
     if(couponCode) getDBClient().getCouponByCode(couponCode).then(c=> c && setCouponObj(c))
     if(user) {
-      setAddress(prev => ({ ...prev, email: user.email }))
+      hydrateFromUser(user, true)
+    } else {
+      // Guest: try draft only
       try {
-        const raw = localStorage.getItem(`cs12_addresses_${user.id}`)
-        if(raw) {
-          const addrs = JSON.parse(raw)
-          const def = addrs.find((a: any) => a.isDefault) || addrs[0]
-          if(def) setAddress(prev => ({
-            ...prev,
-            email: user.email,
-            firstName: def.firstName || "",
-            lastName: def.lastName || "",
-            company: def.company || "",
-            name: def.name || "",
-            phone: def.phone || "",
-            address: def.address || "",
-            address2: def.address2 || "",
-            district: def.district || prev.district,
-            region: "HKD"
-          }))
+        const draft = localStorage.getItem("cs12_checkout_address_draft")
+        if (draft) {
+          const parsed = JSON.parse(draft)
+          setAddress(parsed)
+          localStorage.removeItem("cs12_checkout_address_draft")
         }
       } catch {}
     }
-    // Restore draft from previous session
-    try {
-      const draft = localStorage.getItem("cs12_checkout_address_draft")
-      if (draft) {
-        const parsed = JSON.parse(draft)
-        setAddress(parsed)
-        localStorage.removeItem("cs12_checkout_address_draft")
-      }
-    } catch {}
   },[])
 
   // Keep email, newsletter and address synced with user state
   useEffect(() => {
     if (user) {
-      setAddress(prev => ({ ...prev, email: user.email }))
       setNewsletter(user.newsletter)
-      try {
-        const raw = localStorage.getItem(`cs12_addresses_${user.id}`)
-        if(raw) {
-          const addrs = JSON.parse(raw)
-          const def = addrs.find((a: any) => a.isDefault) || addrs[0]
-          if(def) setAddress(prev => ({
-            ...prev,
-            email: user.email,
-            firstName: def.firstName || prev.firstName,
-            lastName: def.lastName || prev.lastName,
-            company: def.company || prev.company,
-            name: def.name || prev.name,
-            phone: def.phone || prev.phone,
-            address: def.address || prev.address,
-            address2: def.address2 || prev.address2,
-            district: def.district || prev.district,
-            region: "HKD"
-          }))
-        }
-      } catch {}
+      hydrateFromUser(user, false)
     }
   }, [user])
 
@@ -182,6 +226,66 @@ export function CheckoutPage() {
       if (!shippingAddr.address.trim()) errs.push(zh?"請填寫送貨地址":"Please enter shipping address")
     }
     return errs
+  }
+
+  /** Detect if the form address already exists in the address book. */
+  const isAddressAlreadySaved = (userId: string, snap: {
+    phone: string; address: string; district: string
+  }): boolean => {
+    const addrs = loadAddresses(userId)
+    return addrs.some(
+      a => a.phone === snap.phone && a.address === snap.address && a.district === snap.district
+    )
+  }
+
+  const finishAndNavigate = (orderId: string, earned: number, birthday: boolean) => {
+    const bonusMsg = birthday ? (zh?` 🎂 生日獎勵 +${200}積分！`:` 🎂 Birthday bonus +${200} pts!`) : ""
+    showToast("success", zh?`下單成功！訂單 ${orderId}。獲得 ${earned} 積分。${bonusMsg}`:`Order ${orderId} placed! Earned ${earned} points.${bonusMsg}`)
+    nav("/account")
+  }
+
+  const handleSaveAddressConfirm = () => {
+    setSaveDialogError("")
+    if (!saveAddressName.trim()) {
+      setSaveDialogError(zh?"請填寫地址名稱":"Please enter an address name")
+      return
+    }
+    if (!pendingUserId || !pendingAddressSnapshot) {
+      setShowSaveDialog(false)
+      if (pendingOrderId) finishAndNavigate(pendingOrderId, pendingPointsEarned, pendingIsBirthday)
+      return
+    }
+    const existing = loadAddresses(pendingUserId)
+    if (existing.some(a => a.addressName.trim().toLowerCase() === saveAddressName.trim().toLowerCase())) {
+      setSaveDialogError(zh?"地址名稱已存在，請使用其他名稱":"Address name already exists, please use another name")
+      return
+    }
+    const { address: saved, wasFirst } = addAddressToBook(pendingUserId, {
+      addressName: saveAddressName.trim(),
+      firstName: pendingAddressSnapshot.firstName,
+      lastName: pendingAddressSnapshot.lastName,
+      company: pendingAddressSnapshot.company,
+      name: `${pendingAddressSnapshot.firstName} ${pendingAddressSnapshot.lastName}`.trim(),
+      phone: pendingAddressSnapshot.phone,
+      address: pendingAddressSnapshot.address,
+      address2: pendingAddressSnapshot.address2,
+      district: pendingAddressSnapshot.district,
+      region: pendingAddressSnapshot.region,
+    })
+    setSelectedAddressId(pendingUserId, saved.id)
+    showToast(
+      "success",
+      wasFirst
+        ? (zh?"地址已儲存並設為預設":"Address saved and set as default")
+        : (zh?"地址已儲存至帳戶":"Address saved to your account")
+    )
+    setShowSaveDialog(false)
+    if (pendingOrderId) finishAndNavigate(pendingOrderId, pendingPointsEarned, pendingIsBirthday)
+  }
+
+  const handleSaveAddressSkip = () => {
+    setShowSaveDialog(false)
+    if (pendingOrderId) finishAndNavigate(pendingOrderId, pendingPointsEarned, pendingIsBirthday)
   }
 
   const placeOrder = async () => {
@@ -330,40 +434,7 @@ export function CheckoutPage() {
           isFirstOrder: false,
           pointsHistory: [...(orderUser.pointsHistory||[]), ...pointsHistoryEntries]
         })
-        // Save billing address to address book
-        try {
-          const key = `cs12_addresses_${orderUser.id}`
-          const existingRaw = localStorage.getItem(key)
-          let addrs = []
-          if (existingRaw) {
-            addrs = JSON.parse(existingRaw)
-          }
-          const newAddr = {
-            id: "addr_" + Date.now(),
-            firstName: address.firstName,
-            lastName: address.lastName,
-            company: address.company,
-            name: `${address.firstName} ${address.lastName}`.trim(),
-            phone: address.phone,
-            address: address.address,
-            address2: address.address2,
-            district: address.district,
-            region: address.region,
-            isDefault: addrs.length === 0
-          }
-          
-          const duplicate = addrs.find((a: any) => 
-            a.phone === newAddr.phone && 
-            a.address === newAddr.address && 
-            a.district === newAddr.district
-          )
-          
-          if (!duplicate) {
-            addrs.push(newAddr)
-            localStorage.setItem(key, JSON.stringify(addrs))
-          }
-        } catch(e) {}
-        
+
         // Refresh user in auth store
         useAuthStore.getState().fetchMe()
       }
@@ -371,9 +442,37 @@ export function CheckoutPage() {
       if (couponObj) await db.updateCoupon(couponObj.code, { usedCount: couponObj.usedCount + 1 })
       clear()
 
-      const bonusMsg = isBirthday ? (zh?` 🎂 生日獎勵 +${200}積分！`:` 🎂 Birthday bonus +${200} pts!`) : ""
-      showToast("success", zh?`下單成功！訂單 ${order.id}。獲得 ${pointsEarned} 積分。${bonusMsg}`:`Order ${order.id} placed! Earned ${pointsEarned} points.${bonusMsg}`)
-      nav("/account")
+      // Prompt to save address if this is a new address (not already in book)
+      const addrSnap = {
+        firstName: address.firstName.trim(),
+        lastName: address.lastName.trim(),
+        company: address.company.trim(),
+        phone: address.phone.trim(),
+        address: address.address.trim(),
+        address2: address.address2.trim(),
+        district: address.district,
+        region: address.region,
+      }
+      const alreadySaved = orderUser
+        ? isAddressAlreadySaved(orderUser.id, addrSnap)
+        : false
+      const existingCount = orderUser ? loadAddresses(orderUser.id).length : 0
+
+      if (orderUser && !alreadySaved) {
+        setPendingOrderId(order.id)
+        setPendingPointsEarned(pointsEarned)
+        setPendingIsBirthday(isBirthday)
+        setPendingUserId(orderUser.id)
+        setPendingWasFirstAddress(existingCount === 0)
+        setPendingAddressSnapshot(addrSnap)
+        setSaveAddressName(existingCount === 0 ? (zh?"家":"Home") : "")
+        setSaveDialogError("")
+        setShowSaveDialog(true)
+        setIsPlacing(false)
+        return
+      }
+
+      finishAndNavigate(order.id, pointsEarned, isBirthday)
     } catch (e: any) {
       showToast("error", lang==="zh"?"下單失敗，請重試":"Order failed, please try again")
     } finally {
@@ -381,7 +480,7 @@ export function CheckoutPage() {
     }
   }
 
-  if(items.length===0) return (
+  if(items.length===0 && !showSaveDialog) return (
     <main className="w-[min(calc(100%-24px),1440px)] mx-auto py-20 text-center">
       <h1 className="font-serif text-[32px] mb-4">{lang==="zh"?"購物車為空":"Cart is empty"}</h1>
       <Link to="/exclusive" className="inline-flex bg-[var(--brand-accent)] text-white px-8 h-[44px] items-center text-[11px] tracking-[0.18em] uppercase">{lang==="zh"?"回到商店":"Go Shopping"}</Link>
@@ -391,6 +490,13 @@ export function CheckoutPage() {
   const districts = lang==="zh"
     ? ["香港島","九龍","新界","離島"]
     : ["Hong Kong Island","Kowloon","New Territories","Outlying Islands"]
+
+  const handleSelectSavedAddress = (id: string) => {
+    const found = savedAddresses.find(a => a.id === id)
+    if (!found || !user) return
+    applySavedAddress(found, user.email)
+    setSelectedAddressId(user.id, found.id)
+  }
 
   return (
     <main className="w-[min(calc(100%-24px),1200px)] mx-auto py-6 md:py-8">
@@ -439,6 +545,44 @@ export function CheckoutPage() {
         <section>
           <h2 className="font-serif text-[22px] mb-5 pb-3 border-b border-[#ECE6DF]">{zh?"帳單及配送資訊":"Billing & Shipping Details"}</h2>
           <div className="space-y-4 text-[13px]">
+            {/* No saved address reminder */}
+            {user && !hasSavedAddress && (
+              <div className="bg-[#FFF7ED] border border-[#FED7AA] px-4 py-3 text-[12px] text-[#825F59]">
+                <p className="font-medium">
+                  {zh?"尚未找到已儲存的地址":"No saved address found"}
+                </p>
+                <p className="mt-1 text-[#8F8881]">
+                  {zh
+                    ? "您的名字已從個人資料帶入。完成後可儲存地址，或前往 "
+                    : "Your name has been filled from your profile. You can save an address after checkout, or set one in "}
+                  <Link to="/account" className="underline text-[var(--brand-accent)]">
+                    {zh?"帳戶設定 → 地址管理":"Account Settings → Addresses"}
+                  </Link>
+                  {zh?" 預先設定。":" ahead of time."}
+                </p>
+              </div>
+            )}
+
+            {/* Saved address picker (multiple addresses) */}
+            {user && savedAddresses.length > 1 && (
+              <div>
+                <label className="text-[11px] uppercase tracking-[0.12em] text-[#8F8881]">
+                  {zh?"選擇已儲存地址":"Saved Address"}
+                </label>
+                <select
+                  value={selectedSavedId || ""}
+                  onChange={e => handleSelectSavedAddress(e.target.value)}
+                  className="w-full border border-[#ECE6DF] h-11 px-3 mt-1"
+                >
+                  {savedAddresses.map(a => (
+                    <option key={a.id} value={a.id}>
+                      {a.addressName}{a.isDefault ? (zh?"（預設）":" (Default)") : ""} — {a.name}, {a.district}
+                    </option>
+                  ))}
+                </select>
+              </div>
+            )}
+
             {/* Email */}
             <div>
               <label className="text-[11px] uppercase tracking-[0.12em] text-[#8F8881]">{zh?"電郵地址":"Email Address"} *</label>
@@ -707,6 +851,69 @@ export function CheckoutPage() {
           </div>
         </section>
       </div>
+
+      {/* Save address dialog */}
+      {showSaveDialog && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4">
+          <div className="bg-white w-full max-w-md border border-[#ECE6DF] shadow-xl p-6">
+            <h3 className="font-serif text-[22px] mb-2">
+              {zh?"儲存此地址？":"Save this address?"}
+            </h3>
+            <p className="text-[13px] text-[#5C5651] mb-4">
+              {pendingWasFirstAddress
+                ? (zh
+                    ? "尚未有已儲存地址。儲存後將設為預設地址，方便下次結帳使用。"
+                    : "You have no saved addresses yet. Saving will make this your default address for faster checkout.")
+                : (zh
+                    ? "要將此新地址儲存到您的地址簿嗎？"
+                    : "Would you like to save this new address to your address book?")}
+            </p>
+
+            {pendingAddressSnapshot && (
+              <div className="bg-[#FBF6F0] border border-[#ECE6DF] p-3 text-[12px] text-[#5C5651] mb-4">
+                <p className="font-medium">{pendingAddressSnapshot.firstName} {pendingAddressSnapshot.lastName}</p>
+                <p>{pendingAddressSnapshot.phone}</p>
+                <p>{pendingAddressSnapshot.address}</p>
+                {pendingAddressSnapshot.address2 && <p>{pendingAddressSnapshot.address2}</p>}
+                <p>{pendingAddressSnapshot.district}</p>
+              </div>
+            )}
+
+            <div className="mb-3">
+              <label className="text-[11px] uppercase tracking-[0.12em] text-[#8F8881]">
+                {zh?"地址名稱":"Address Name"} *
+              </label>
+              <input
+                value={saveAddressName}
+                onChange={e => setSaveAddressName(e.target.value)}
+                placeholder={zh?"例如：家、公司、父母家":"e.g. Home, Office, Parents"}
+                className="w-full border border-[#ECE6DF] h-11 px-3 mt-1 text-[13px]"
+                autoFocus
+              />
+              <p className="text-[10px] text-[#BBB5AD] mt-1">
+                {zh?"此名稱用於在購物車／結帳時辨識及切換地址":"Used to identify and switch this address in cart / checkout"}
+              </p>
+            </div>
+
+            {saveDialogError && <p className="text-red-600 text-[12px] mb-3">⚠ {saveDialogError}</p>}
+
+            <div className="flex gap-3 mt-2">
+              <button
+                onClick={handleSaveAddressConfirm}
+                className="flex-1 bg-[var(--brand-accent)] text-white h-11 text-[11px] tracking-[0.14em] uppercase"
+              >
+                {zh?"是，儲存":"Yes, Save"}
+              </button>
+              <button
+                onClick={handleSaveAddressSkip}
+                className="flex-1 border border-[#ECE6DF] h-11 text-[11px] tracking-[0.14em] uppercase text-[#5C5651]"
+              >
+                {zh?"不用了":"No, Thanks"}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </main>
   )
 }

@@ -7,8 +7,24 @@ import { Order } from "../../lib/db/types"
 import { checkBirthdayMonth } from "../../lib/promotions/engine"
 import { formatPrice } from "../../lib/currency"
 import { showToast } from "../../components/ui/Toast"
+import {
+  SavedAddress,
+  loadAddresses,
+  saveAddresses as persistAddresses,
+} from "../../lib/addresses"
 
 type AccountTab = "overview" | "orders" | "points" | "birthday" | "addresses" | "settings"
+
+type EditingAddressForm = {
+  addressName: string
+  firstName: string
+  lastName: string
+  company: string
+  phone: string
+  address: string
+  address2: string
+  district: string
+}
 
 export function AccountPage() {
   const { user, logout, fetchMe } = useAuthStore()
@@ -16,8 +32,9 @@ export function AccountPage() {
   const [orders, setOrders] = useState<Order[]>([])
   const [tab, setTab] = useState<AccountTab>("overview")
   const [editingBirthday, setEditingBirthday] = useState("")
-  const [addresses, setAddresses] = useState<{ id: string; firstName?: string; lastName?: string; company?: string; name: string; phone: string; address: string; address2?: string; district: string; isDefault: boolean }[]>([])
-  const [editingAddress, setEditingAddress] = useState<{ firstName: string; lastName: string; company: string; phone: string; address: string; address2: string; district: string } | null>(null)
+  const [addresses, setAddresses] = useState<SavedAddress[]>([])
+  const [editingAddress, setEditingAddress] = useState<EditingAddressForm | null>(null)
+  const [addressFormError, setAddressFormError] = useState("")
   const [editEmail, setEditEmail] = useState("")
   const [editUsername, setEditUsername] = useState("")
   const [editFirstName, setEditFirstName] = useState("")
@@ -33,7 +50,7 @@ export function AccountPage() {
       setEditUsername(user.username)
       setEditFirstName(user.firstName || "")
       setEditLastName(user.lastName || "")
-      try { const raw = localStorage.getItem(`cs12_addresses_${user.id}`); if(raw) setAddresses(JSON.parse(raw)) } catch {}
+      setAddresses(loadAddresses(user.id))
     }
   },[user])
 
@@ -66,20 +83,60 @@ export function AccountPage() {
     showToast("success", lang==="zh"?"個人資料已更新":"Profile updated")
   }
 
-  const saveAddresses = (addrs: typeof addresses) => { setAddresses(addrs); localStorage.setItem(`cs12_addresses_${user.id}`, JSON.stringify(addrs)) }
+  const saveAddresses = (addrs: SavedAddress[]) => {
+    setAddresses(addrs)
+    persistAddresses(user.id, addrs)
+  }
+
   const addAddress = () => {
     if (!editingAddress) return
-    const newAddr = { 
-      id: "addr_" + Date.now(), 
-      ...editingAddress, 
+    setAddressFormError("")
+    if (!editingAddress.addressName.trim()) {
+      setAddressFormError(lang==="zh"?"請填寫地址名稱":"Please enter an address name")
+      return
+    }
+    if (!editingAddress.firstName.trim() || !editingAddress.lastName.trim()) {
+      setAddressFormError(lang==="zh"?"請填寫名字及姓氏":"Please enter first and last name")
+      return
+    }
+    if (!editingAddress.phone.trim() || !editingAddress.address.trim()) {
+      setAddressFormError(lang==="zh"?"請填寫電話及地址":"Please enter phone and address")
+      return
+    }
+    // Prevent duplicate address names
+    if (addresses.some(a => a.addressName.trim().toLowerCase() === editingAddress.addressName.trim().toLowerCase())) {
+      setAddressFormError(lang==="zh"?"地址名稱已存在，請使用其他名稱":"Address name already exists, please use another name")
+      return
+    }
+    const newAddr: SavedAddress = {
+      id: "addr_" + Date.now(),
+      addressName: editingAddress.addressName.trim(),
+      firstName: editingAddress.firstName.trim(),
+      lastName: editingAddress.lastName.trim(),
+      company: editingAddress.company.trim(),
       name: `${editingAddress.firstName} ${editingAddress.lastName}`.trim(),
-      isDefault: addresses.length === 0 
+      phone: editingAddress.phone.trim(),
+      address: editingAddress.address.trim(),
+      address2: editingAddress.address2.trim(),
+      district: editingAddress.district,
+      region: "HKD",
+      isDefault: addresses.length === 0,
     }
     saveAddresses([...addresses, newAddr])
     setEditingAddress(null)
+    setAddressFormError("")
     showToast("success", lang==="zh"?"地址已新增":"Address added")
   }
-  const deleteAddress = (id: string) => { saveAddresses(addresses.filter(a => a.id !== id)) }
+
+  const deleteAddress = (id: string) => {
+    const remaining = addresses.filter(a => a.id !== id)
+    // If we deleted the default and others remain, promote the first one
+    if (remaining.length > 0 && !remaining.some(a => a.isDefault)) {
+      remaining[0].isDefault = true
+    }
+    saveAddresses(remaining)
+  }
+
   const setDefaultAddress = (id: string) => {
     saveAddresses(addresses.map(a => ({ ...a, isDefault: a.id === id })))
     showToast("success", lang==="zh"?"已設為預設地址":"Set as default address")
@@ -284,11 +341,15 @@ export function AccountPage() {
             <div className="bg-white border border-[#ECE6DF] p-6">
               <h4 className="text-[12px] tracking-[0.18em] uppercase font-semibold mb-4">{lang==="zh"?"地址管理":"Addresses"} ({addresses.length})</h4>
               {addresses.length === 0
-                ? <p className="text-[12px] text-[#8F8881]">{lang==="zh"?"尚未新增地址。您在結帳後，系統會自動儲存您的地址。":"No addresses saved yet. Your address will be saved automatically after checkout."}</p>
+                ? <p className="text-[12px] text-[#8F8881]">{lang==="zh"?"尚未新增地址。您可在此新增，或於結帳時選擇儲存。":"No addresses saved yet. You can add one here, or choose to save during checkout."}</p>
                 : <div className="space-y-3">{addresses.map(a => (
                     <div key={a.id} className={`border p-4 flex justify-between ${a.isDefault ? "border-[var(--brand-accent)] bg-[#FBF6F0]" : "border-[#F2ECE4]"}`}>
                       <div className="text-[12px]">
-                        <p className="font-semibold">{a.name || `${a.firstName || ''} ${a.lastName || ''}`.trim()} {a.isDefault && <span className="text-[10px] bg-[var(--brand-accent)] text-white px-1 ml-1">{lang==="zh"?"預設":"Default"}</span>}</p>
+                        <p className="font-semibold">
+                          <span className="text-[var(--brand-accent)]">{a.addressName}</span>
+                          {a.isDefault && <span className="text-[10px] bg-[var(--brand-accent)] text-white px-1 ml-1">{lang==="zh"?"預設":"Default"}</span>}
+                        </p>
+                        <p className="mt-1">{a.name || `${a.firstName || ''} ${a.lastName || ''}`.trim()}</p>
                         {a.company && <p className="text-[#5C5651]">{a.company}</p>}
                         <p className="text-[#5C5651]">{a.phone}</p>
                         <p className="text-[#5C5651]">{a.address}</p>
@@ -305,24 +366,53 @@ export function AccountPage() {
                   ))}</div>}
             </div>
             {!editingAddress ? (
-              <button onClick={()=>setEditingAddress({ firstName: "", lastName: "", company: "", phone: "", address: "", address2: "", district: lang==="zh"?"香港島":"Hong Kong Island" })} className="bg-[var(--brand-accent)] text-white px-6 h-10 text-[11px] tracking-[0.14em] uppercase">+ {lang==="zh"?"新增地址":"Add Address"}</button>
+              <button
+                onClick={()=>setEditingAddress({
+                  addressName: "",
+                  firstName: user.firstName || "",
+                  lastName: user.lastName || "",
+                  company: "",
+                  phone: "",
+                  address: "",
+                  address2: "",
+                  district: lang==="zh"?"香港島":"Hong Kong Island",
+                })}
+                className="bg-[var(--brand-accent)] text-white px-6 h-10 text-[11px] tracking-[0.14em] uppercase"
+              >
+                + {lang==="zh"?"新增地址":"Add Address"}
+              </button>
             ) : (
               <div className="bg-white border border-[#ECE6DF] p-6 space-y-3">
                 <h4 className="text-[12px] tracking-[0.18em] uppercase font-semibold">{lang==="zh"?"新增地址":"Add Address"}</h4>
+                <div>
+                  <label className="text-[11px] uppercase tracking-[0.12em] text-[#8F8881]">
+                    {lang==="zh"?"地址名稱":"Address Name"} *
+                  </label>
+                  <input
+                    placeholder={lang==="zh"?"例如：家、公司、父母家":"e.g. Home, Office, Parents"}
+                    value={editingAddress.addressName}
+                    onChange={e=>setEditingAddress({...editingAddress, addressName: e.target.value})}
+                    className="w-full border border-[#ECE6DF] h-10 px-3 text-[13px] mt-1"
+                  />
+                  <p className="text-[10px] text-[#BBB5AD] mt-1">
+                    {lang==="zh"?"此名稱用於在購物車／結帳時辨識及切換地址":"This name is used to identify and switch addresses in cart / checkout"}
+                  </p>
+                </div>
                 <div className="grid grid-cols-2 gap-3">
-                  <input placeholder={lang==="zh"?"名字":"First name"} value={editingAddress.firstName} onChange={e=>setEditingAddress({...editingAddress, firstName: e.target.value})} className="w-full border border-[#ECE6DF] h-10 px-3 text-[13px]"/>
-                  <input placeholder={lang==="zh"?"姓氏":"Last name"} value={editingAddress.lastName} onChange={e=>setEditingAddress({...editingAddress, lastName: e.target.value})} className="w-full border border-[#ECE6DF] h-10 px-3 text-[13px]"/>
+                  <input placeholder={lang==="zh"?"名字 *":"First name *"} value={editingAddress.firstName} onChange={e=>setEditingAddress({...editingAddress, firstName: e.target.value})} className="w-full border border-[#ECE6DF] h-10 px-3 text-[13px]"/>
+                  <input placeholder={lang==="zh"?"姓氏 *":"Last name *"} value={editingAddress.lastName} onChange={e=>setEditingAddress({...editingAddress, lastName: e.target.value})} className="w-full border border-[#ECE6DF] h-10 px-3 text-[13px]"/>
                 </div>
                 <input placeholder={lang==="zh"?"公司名稱 (選填)":"Company (optional)"} value={editingAddress.company} onChange={e=>setEditingAddress({...editingAddress, company: e.target.value})} className="w-full border border-[#ECE6DF] h-10 px-3 text-[13px]"/>
-                <input placeholder={lang==="zh"?"電話":"Phone"} value={editingAddress.phone} onChange={e=>setEditingAddress({...editingAddress, phone: e.target.value})} className="w-full border border-[#ECE6DF] h-10 px-3 text-[13px]"/>
-                <input placeholder={lang==="zh"?"地址":"Address"} value={editingAddress.address} onChange={e=>setEditingAddress({...editingAddress, address: e.target.value})} className="w-full border border-[#ECE6DF] h-10 px-3 text-[13px]"/>
+                <input placeholder={lang==="zh"?"電話 *":"Phone *"} value={editingAddress.phone} onChange={e=>setEditingAddress({...editingAddress, phone: e.target.value})} className="w-full border border-[#ECE6DF] h-10 px-3 text-[13px]"/>
+                <input placeholder={lang==="zh"?"地址 *":"Address *"} value={editingAddress.address} onChange={e=>setEditingAddress({...editingAddress, address: e.target.value})} className="w-full border border-[#ECE6DF] h-10 px-3 text-[13px]"/>
                 <input placeholder={lang==="zh"?"樓層、室數等 (選填)":"Apartment, suite, etc. (optional)"} value={editingAddress.address2} onChange={e=>setEditingAddress({...editingAddress, address2: e.target.value})} className="w-full border border-[#ECE6DF] h-10 px-3 text-[13px]"/>
                 <select value={editingAddress.district} onChange={e=>setEditingAddress({...editingAddress, district: e.target.value})} className="w-full border border-[#ECE6DF] h-10 px-3 text-[13px]">
                   {(lang==="zh"?["香港島","九龍","新界","離島"]:["Hong Kong Island","Kowloon","New Territories","Outlying Islands"]).map(d=><option key={d}>{d}</option>)}
                 </select>
+                {addressFormError && <p className="text-red-600 text-[12px]">⚠ {addressFormError}</p>}
                 <div className="flex gap-2">
                   <button onClick={addAddress} className="bg-[var(--brand-accent)] text-white px-6 h-10 text-[11px] uppercase">{lang==="zh"?"儲存":"Save"}</button>
-                  <button onClick={()=>setEditingAddress(null)} className="border border-[#ECE6DF] px-6 h-10 text-[11px] uppercase">{lang==="zh"?"取消":"Cancel"}</button>
+                  <button onClick={()=>{setEditingAddress(null); setAddressFormError("")}} className="border border-[#ECE6DF] px-6 h-10 text-[11px] uppercase">{lang==="zh"?"取消":"Cancel"}</button>
                 </div>
               </div>
             )}
