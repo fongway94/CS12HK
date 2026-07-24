@@ -34,13 +34,12 @@ export function CheckoutPage() {
   const [isPlacing, setIsPlacing] = useState(false)
   const [errors, setErrors] = useState<string[]>([])
 
-  // Guest checkout state
+  // Returning customer login state
   const [showLogin, setShowLogin] = useState(false)
   const [loginEmail, setLoginEmail] = useState("")
   const [loginPassword, setLoginPassword] = useState("")
   const [loginError, setLoginError] = useState("")
   const [loginLoading, setLoginLoading] = useState(false)
-  const [createAccount, setCreateAccount] = useState(true)
   const [newPassword, setNewPassword] = useState("")
 
   useEffect(()=>{
@@ -123,7 +122,7 @@ export function CheckoutPage() {
     if (!address.lastName.trim()) errs.push(zh?"請填寫姓氏":"Please enter last name")
     if (!address.phone.trim()) errs.push(zh?"請填寫電話號碼":"Please enter phone number")
     if (!address.address.trim()) errs.push(zh?"請填寫地址":"Please enter address")
-    if (!user && createAccount && newPassword.length < 6) errs.push(zh?"密碼至少需要6個字符":"Password must be at least 6 characters")
+    if (!user && newPassword.length < 6) errs.push(zh?"帳戶密碼至少需要6個字符":"Account password must be at least 6 characters")
     return errs
   }
 
@@ -148,50 +147,44 @@ export function CheckoutPage() {
       }
 
       let orderUser = user
-      let isGuest = false
 
-      // If not logged in, handle account creation or guest checkout
+      // If not logged in, always create an account (matching old WooCommerce behaviour)
       if (!user) {
         const existingUser = await db.getUserByEmail(address.email.trim())
         if (existingUser) {
           // Email already registered — ask them to login
-          setErrors([lang==="zh"?"此電郵已註冊，請登入後繼續":"This email is already registered. Please login to continue."])
-          showToast("error", lang==="zh"?"此電郵已註冊，請登入":"This email is already registered. Please login")
+          setErrors([zh?"此電郵已註冊，請登入後繼續":"This email is already registered. Please login to continue."])
+          showToast("error", zh?"此電郵已註冊，請登入":"This email is already registered. Please login")
           setShowLogin(true)
           setLoginEmail(address.email.trim())
           setIsPlacing(false)
           return
         }
 
-        if (createAccount) {
-          // Create account inline during checkout
-          const newUser: User = {
-            id: "u_" + Date.now(),
-            email: address.email.trim(),
-            username: address.email.trim().split("@")[0],
-            passwordHash: newPassword,
-            role: "customer",
-            newsletter: true,
-            points: 0,
-            pointsHistory: [],
-            createdAt: new Date().toISOString(),
-            totalSpentHKD: 0,
-            totalOrders: 0,
-            tier: "Member",
-            isFirstOrder: true
-          }
-          await db.createUser(newUser)
-          localStorage.setItem("cs12_token", newUser.id)
-          orderUser = newUser
-        } else {
-          // Guest checkout
-          isGuest = true
+        // Create account inline during checkout
+        const newUser: User = {
+          id: "u_" + Date.now(),
+          email: address.email.trim(),
+          username: address.email.trim().split("@")[0],
+          passwordHash: newPassword,
+          role: "customer",
+          newsletter: true,
+          points: 0,
+          pointsHistory: [],
+          createdAt: new Date().toISOString(),
+          totalSpentHKD: 0,
+          totalOrders: 0,
+          tier: "Member",
+          isFirstOrder: true
         }
+        await db.createUser(newUser)
+        localStorage.setItem("cs12_token", newUser.id)
+        orderUser = newUser
       }
 
       const order: Order = {
         id: "ORD-" + Date.now(),
-        userId: isGuest ? "guest" : orderUser!.id,
+        userId: orderUser!.id,
         items: items.map(i=>({
           productId: i.product.id,
           qty: i.qty,
@@ -208,8 +201,8 @@ export function CheckoutPage() {
         giftTier: giftTier ? (giftTier.thresholdHKD>=3000 ? "tier2_3000":"tier1_2000") : null,
         gifts: giftTier ? giftTier.gifts.map(g=>`${g.name_zh} x${g.qty}`) : [],
         status: "paid",
-        pointsEarned: isGuest ? 0 : pointsEarned,
-        pointsUsed: isGuest ? 0 : usePoints,
+        pointsEarned,
+        pointsUsed: usePoints,
         shippingAddress: {
           email: address.email.trim(),
           firstName: address.firstName,
@@ -232,8 +225,8 @@ export function CheckoutPage() {
         if (currentProduct) await db.updateProduct(item.product.id, { stock: Math.max(0, getItemStock(item) - item.qty) })
       }
 
-      // Update user stats (only if registered user)
-      if (!isGuest && orderUser) {
+      // Update user stats
+      if (orderUser) {
         let bonusPoints = 0
         if (isBirthday) {
           bonusPoints = 200
@@ -260,11 +253,9 @@ export function CheckoutPage() {
       if (couponObj) await db.updateCoupon(couponObj.code, { usedCount: couponObj.usedCount + 1 })
       clear()
 
-      const bonusMsg = isBirthday && !isGuest ? (lang==="zh"?` 🎂 生日獎勵 +${200}積分！`:` 🎂 Birthday bonus +${200} pts!`) : ""
-      const guestMsg = isGuest ? (lang==="zh"?"（訪客結帳 — 註冊帳戶可賺取積分）":"(Guest checkout — register to earn points)") : ""
-      const ptsMsg = !isGuest ? (lang==="zh"?`獲得 ${pointsEarned} 積分。`:`Earned ${pointsEarned} points.`) : ""
-      showToast("success", lang==="zh"?`下單成功！訂單 ${order.id}。${ptsMsg}${bonusMsg}${guestMsg}`:`Order ${order.id} placed! ${ptsMsg}${bonusMsg}${guestMsg}`)
-      nav(isGuest ? "/" : "/account")
+      const bonusMsg = isBirthday ? (zh?` 🎂 生日獎勵 +${200}積分！`:` 🎂 Birthday bonus +${200} pts!`) : ""
+      showToast("success", zh?`下單成功！訂單 ${order.id}。獲得 ${pointsEarned} 積分。${bonusMsg}`:`Order ${order.id} placed! Earned ${pointsEarned} points.${bonusMsg}`)
+      nav("/account")
     } catch (e: any) {
       showToast("error", lang==="zh"?"下單失敗，請重試":"Order failed, please try again")
     } finally {
@@ -409,25 +400,13 @@ export function CheckoutPage() {
             {/* Account creation section (only for non-logged-in users) */}
             {!user && (
               <div className="pt-4 border-t border-[#F2ECE4]">
-                <h3 className="font-serif text-[18px] mb-4">{zh?"帳戶資訊":"Account Information"}</h3>
-                <label className="flex items-center gap-2 cursor-pointer mb-3">
-                  <input type="checkbox" checked={createAccount} onChange={e=>setCreateAccount(e.target.checked)} className="accent-[var(--brand-accent)] w-4 h-4"/>
-                  <span className="text-[13px]">{zh?"建立帳戶以賺取積分及追蹤訂單":"Create an account to earn points and track orders"}</span>
-                </label>
-                {createAccount && (
-                  <div className="ml-6 space-y-3">
-                    <div>
-                      <label className="text-[11px] uppercase tracking-[0.12em] text-[#8F8881]">{zh?"帳戶密碼":"Account Password"} *</label>
-                      <input type="password" value={newPassword} onChange={e=>setNewPassword(e.target.value)} placeholder={zh?"至少6個字符":"At least 6 characters"} className="w-full border border-[#ECE6DF] h-11 px-3 mt-1"/>
-                      <p className="text-[10px] text-[#BBB5AD] mt-1">{zh?"您的帳戶將自動建立，此訂單會直接連結到您的帳戶":"Your account will be created automatically and this order will be linked to it"}</p>
-                    </div>
-                  </div>
-                )}
-                {!createAccount && (
-                  <p className="ml-6 text-[11px] text-[#8F8881] bg-[#FBF6F0] p-3 border border-[#ECE6DF]">
-                    {zh?"您將以訪客身份結帳。訪客結帳不會累積積分。":"You are checking out as a guest. Guest orders do not earn points."}
-                  </p>
-                )}
+                <h3 className="font-serif text-[18px] mb-2">{zh?"帳戶資訊":"Account Information"}</h3>
+                <p className="text-[12px] text-[#8F8881] mb-4">{zh?"建立帳戶以追蹤訂單及賺取積分。您的帳戶將自動建立。":"An account will be created automatically so you can track orders and earn points."}</p>
+                <div>
+                  <label className="text-[11px] uppercase tracking-[0.12em] text-[#8F8881]">{zh?"帳戶密碼":"Account Password"} *</label>
+                  <input type="password" value={newPassword} onChange={e=>setNewPassword(e.target.value)} placeholder={zh?"至少6個字符":"At least 6 characters"} className="w-full border border-[#ECE6DF] h-11 px-3 mt-1"/>
+                  <p className="text-[10px] text-[#BBB5AD] mt-1">{zh?"您的帳戶將自動建立，此訂單會直接連結到您的帳戶":"Your account will be created automatically and this order will be linked to it"}</p>
+                </div>
               </div>
             )}
           </div>
@@ -476,8 +455,7 @@ export function CheckoutPage() {
                 <div className="flex justify-between"><span>{zh?"運費":"Shipping"}</span><span>{shipping.free?(zh?"免費":"Free"):formatPrice(shipping.shippingHKD, shipping.shippingUSD,currency)}</span></div>
                 {giftTier && <div className="bg-[var(--brand-accent)] text-white p-3 text-[11px]">🎁 {zh?giftTier.label_zh:giftTier.label_en} {zh?"已符合，獲贈":"Unlocked — get"} {giftTier.gifts.reduce((a,b)=>a+b.qty,0)} {zh?"件":"items"}</div>}
                 <div className="flex justify-between font-semibold text-[18px] pt-3 border-t border-[#ECE6DF]"><span>{zh?"合計":"Total"}</span><span>{formatPrice(totalHKD, totalUSD,currency)}</span></div>
-                {!user && !createAccount && <p className="text-[10px] text-[#8F8881]">{zh?"訪客結帳 — 不賺取積分":"Guest checkout — no points earned"}</p>}
-                {!user && createAccount && <p className="text-[10px] text-green-700">{zh?"建立帳戶可賺取":"Create an account to earn"} {pointsEarned} {zh?"積分":"points"}</p>}
+                {!user && <p className="text-[10px] text-green-700">{zh?"建立帳戶可賺取":"Create an account to earn"} {pointsEarned} {zh?"積分":"points"}</p>}
                 {user && <p className="text-[10px] text-[#8F8881]">{zh?"本次獲得":"Earn"} {pointsEarned} {zh?"積分":"points"} {isBirthday && (zh?"(x2 生日雙倍)":"(x2 birthday double)")}</p>}
                 {couponObj && <p className="text-[10px] text-[#8F8881]">{zh?"優惠碼":"Coupon"} {couponObj.code} {couponCalc.valid ? "✓" : `(${couponCalc.reason})`}</p>}
               </div>
