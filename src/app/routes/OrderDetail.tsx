@@ -133,6 +133,14 @@ export function OrderDetailPage() {
               </div>
             )}
 
+            {/* Order Notes */}
+            {order.notes && (
+              <div className="mt-6 pt-6 border-t border-[#F2ECE4]">
+                <h3 className="text-[11px] uppercase tracking-[0.14em] font-semibold text-[#8F8881] mb-3">{lang==="zh"?"訂單備註":"Order Notes"}</h3>
+                <div className="bg-[#FBF6F0] border border-[#ECE6DF] p-4 text-[12px] text-[#3A3734] leading-relaxed">{order.notes}</div>
+              </div>
+            )}
+
             {/* Payment Info */}
             <div className="mt-6 pt-6 border-t border-[#F2ECE4]">
               <h3 className="text-[11px] uppercase tracking-[0.14em] font-semibold text-[#8F8881] mb-3">{lang==="zh"?"付款資訊":"Payment Information"}</h3>
@@ -157,11 +165,34 @@ export function OrderDetailPage() {
               </div>
 
               <div className="mt-6 pt-6 border-t border-[#ECE6DF] space-y-4">
-                <h4 className="text-[11px] uppercase tracking-[0.14em] font-semibold text-[#8F8881]">{lang==="zh"?"配送地址":"Shipping Address"}</h4>
+                {/* Show billing address if it differs from shipping */}
+                {order.billingAddress && (order.billingAddress.name !== order.shippingAddress.name || order.billingAddress.address !== order.shippingAddress.address || order.billingAddress.phone !== order.shippingAddress.phone) && (
+                  <>
+                    <h4 className="text-[11px] uppercase tracking-[0.14em] font-semibold text-[#8F8881]">{lang==="zh"?"帳單地址":"Billing Address"}</h4>
+                    <div className="text-[12px] text-[#3A3734] leading-relaxed">
+                      {order.billingAddress.email && <p className="text-[#8F8881] text-[12px] mb-1">{order.billingAddress.email}</p>}
+                      <p className="font-medium">{order.billingAddress.firstName ? `${order.billingAddress.firstName} ${order.billingAddress.lastName}` : order.billingAddress.name}</p>
+                      {order.billingAddress.company && <p>{order.billingAddress.company}</p>}
+                      <p>{order.billingAddress.phone}</p>
+                      <p>{order.billingAddress.address}</p>
+                      {order.billingAddress.address2 && <p>{order.billingAddress.address2}</p>}
+                      <p>{order.billingAddress.district}</p>
+                    </div>
+                    <div className="border-t border-[#ECE6DF]"/>
+                  </>
+                )}
+                <h4 className="text-[11px] uppercase tracking-[0.14em] font-semibold text-[#8F8881]">
+                  {order.billingAddress && (order.billingAddress.name !== order.shippingAddress.name || order.billingAddress.address !== order.shippingAddress.address || order.billingAddress.phone !== order.shippingAddress.phone)
+                    ? (lang==="zh"?"送貨地址":"Shipping Address")
+                    : (lang==="zh"?"配送地址":"Shipping Address")}
+                </h4>
                 <div className="text-[12px] text-[#3A3734] leading-relaxed">
-                  <p className="font-medium">{order.shippingAddress.name}</p>
+                  {order.shippingAddress.email && <p className="text-[#8F8881] text-[12px] mb-1">{order.shippingAddress.email}</p>}
+                  <p className="font-medium">{order.shippingAddress.firstName ? `${order.shippingAddress.firstName} ${order.shippingAddress.lastName}` : order.shippingAddress.name}</p>
+                  {order.shippingAddress.company && <p>{order.shippingAddress.company}</p>}
                   <p>{order.shippingAddress.phone}</p>
                   <p>{order.shippingAddress.address}</p>
+                  {order.shippingAddress.address2 && <p>{order.shippingAddress.address2}</p>}
                   <p>{order.shippingAddress.district}</p>
                 </div>
               </div>

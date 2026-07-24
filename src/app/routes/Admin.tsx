@@ -632,6 +632,7 @@ export function AdminPage() {
                 <tr>
                   <th className="p-3">{lang === "zh" ? "訂單編號" : "Order ID"}</th>
                   <th className="p-3">{lang === "zh" ? "客戶" : "User"}</th>
+                  <th className="p-3">{lang === "zh" ? "送貨地址" : "Shipping"}</th>
                   <th className="p-3">{lang === "zh" ? "商品數" : "Items"}</th>
                   <th className="p-3">{lang === "zh" ? "總額 HKD" : "Total HKD"}</th>
                   <th className="p-3">{lang === "zh" ? "優惠券" : "Coupon"}</th>
@@ -647,7 +648,20 @@ export function AdminPage() {
                 return (
                   <tr key={o.id} className="border-t border-[#F2ECE4] hover:bg-[#FBF6F0]">
                     <td className="p-3 font-mono text-[11px]">{o.id}</td>
-                    <td className="p-3">{orderUser?.username || o.userId}<br /><span className="text-[10px] text-[#8F8881]">{orderUser?.email}</span></td>
+                    <td className="p-3">{orderUser?.username || o.userId}<br /><span className="text-[10px] text-[#8F8881]">{orderUser?.email || o.shippingAddress?.email}</span></td>
+                    <td className="p-3 text-[11px]">
+                      {o.shippingAddress ? (
+                        <div>
+                          <p className="font-medium">{o.shippingAddress.firstName ? `${o.shippingAddress.firstName} ${o.shippingAddress.lastName}` : o.shippingAddress.name}</p>
+                          <p className="text-[10px] text-[#8F8881]">{o.shippingAddress.phone}</p>
+                          <p className="text-[10px] text-[#8F8881] truncate max-w-[150px]">{o.shippingAddress.address}</p>
+                          <p className="text-[10px] text-[#8F8881]">{o.shippingAddress.district}</p>
+                          {o.billingAddress && (o.billingAddress.name !== o.shippingAddress.name || o.billingAddress.address !== o.shippingAddress.address) && (
+                            <span className="text-[9px] bg-[#FFF7ED] border border-[#FED7AA] px-1 mt-1 inline-block">{lang === "zh" ? "帳單≠送貨" : "Bill≠Ship"}</span>
+                          )}
+                        </div>
+                      ) : "-"}
+                    </td>
                     <td className="p-3">{o.items.length}</td>
                     <td className="p-3 font-medium font-mono">HK${o.totalHKD}</td>
                     <td className="p-3">{o.couponCode || "-"}</td>
@@ -660,7 +674,45 @@ export function AdminPage() {
                     </td>
                     <td className="p-3 text-[11px]">{new Date(o.createdAt).toLocaleDateString()}</td>
                     <td className="p-3">
-                      <button onClick={() => { alert(`Order Details:\n${o.items.map(i => `  ${i.productId} x${i.qty}`).join("\n")}\nAddress: ${o.shippingAddress?.name}, ${o.shippingAddress?.address}, ${o.shippingAddress?.district}`) }} className="underline text-[#8F8881] text-[10px]">
+                      <button onClick={() => {
+                        const items_list = o.items.map(i => `  ${i.productId} x${i.qty}`).join("\n")
+                        const shipping = o.shippingAddress
+                        const billing = o.billingAddress
+                        const isSame = !billing || (billing.name === shipping?.name && billing.address === shipping?.address && billing.phone === shipping?.phone)
+                        const zh = lang === "zh"
+                        let details = `${zh?"訂單編號":"Order"}: ${o.id}\n\n`
+                        details += `📦 ${zh?"商品":"Items"}:\n${items_list}\n\n`
+                        if (isSame) {
+                          details += `🏠 ${zh?"帳單及送貨地址":"Billing & Shipping Address"}:\n`
+                          details += `  ${shipping?.email || ""}\n`
+                          details += `  ${shipping?.firstName || ""} ${shipping?.lastName || shipping?.name || ""}\n`
+                          if (shipping?.company) details += `  ${shipping.company}\n`
+                          details += `  ${shipping?.phone || ""}\n`
+                          details += `  ${shipping?.address || ""}\n`
+                          if (shipping?.address2) details += `  ${shipping.address2}\n`
+                          details += `  ${shipping?.district || ""}\n`
+                        } else {
+                          details += `💳 ${zh?"帳單地址":"Billing Address"}:\n`
+                          details += `  ${billing?.email || ""}\n`
+                          details += `  ${billing?.firstName || ""} ${billing?.lastName || billing?.name || ""}\n`
+                          if (billing?.company) details += `  ${billing.company}\n`
+                          details += `  ${billing?.phone || ""}\n`
+                          details += `  ${billing?.address || ""}\n`
+                          if (billing?.address2) details += `  ${billing.address2}\n`
+                          details += `  ${billing?.district || ""}\n\n`
+                          details += `🚚 ${zh?"送貨地址":"Shipping Address"}:\n`
+                          details += `  ${shipping?.firstName || ""} ${shipping?.lastName || shipping?.name || ""}\n`
+                          if (shipping?.company) details += `  ${shipping.company}\n`
+                          details += `  ${shipping?.phone || ""}\n`
+                          details += `  ${shipping?.address || ""}\n`
+                          if (shipping?.address2) details += `  ${shipping.address2}\n`
+                          details += `  ${shipping?.district || ""}\n`
+                        }
+                        if (o.notes) {
+                          details += `\n📝 ${zh?"訂單備註":"Order Notes"}:\n  ${o.notes}\n`
+                        }
+                        alert(details)
+                      }} className="underline text-[#8F8881] text-[10px]">
                         {lang === "zh" ? "查看" : "View"}
                       </button>
                     </td>

@@ -120,12 +120,30 @@ export interface Order {
   pointsEarned: number
   pointsUsed: number
   shippingAddress: {
+    email: string
+    firstName: string
+    lastName: string
+    company?: string
     name: string
     phone: string
     address: string
+    address2?: string
     district: string
     region: string
   }
+  billingAddress?: {
+    email: string
+    firstName: string
+    lastName: string
+    company?: string
+    name: string
+    phone: string
+    address: string
+    address2?: string
+    district: string
+    region: string
+  }
+  notes?: string
   createdAt: string
 }
 
