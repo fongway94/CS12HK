@@ -13,7 +13,7 @@ import { showToast } from "../../components/ui/Toast"
 export function CheckoutPage() {
   const { items, couponCode, clear } = useCartStore()
   const { currency, lang } = useAppStore()
-  const { user, login, register } = useAuthStore()
+  const { user, login } = useAuthStore()
   const nav = useNavigate()
   const [giftTiers, setGiftTiers] = useState<GiftTier[]>([])
   const [couponObj, setCouponObj] = useState<Coupon|null>(null)
@@ -68,7 +68,19 @@ export function CheckoutPage() {
         if(raw) {
           const addrs = JSON.parse(raw)
           const def = addrs.find((a: any) => a.isDefault) || addrs[0]
-          if(def) setAddress(prev => ({ ...prev, name: def.name, phone: def.phone, address: def.address, district: def.district, region: "HKD" }))
+          if(def) setAddress(prev => ({
+            ...prev,
+            email: user.email,
+            firstName: def.firstName || "",
+            lastName: def.lastName || "",
+            company: def.company || "",
+            name: def.name || "",
+            phone: def.phone || "",
+            address: def.address || "",
+            address2: def.address2 || "",
+            district: def.district || prev.district,
+            region: "HKD"
+          }))
         }
       } catch {}
     }
@@ -83,9 +95,12 @@ export function CheckoutPage() {
     } catch {}
   },[])
 
-  // Keep email synced with user state
+  // Keep email and newsletter synced with user state
   useEffect(() => {
-    if (user) setAddress(prev => ({ ...prev, email: user.email }))
+    if (user) {
+      setAddress(prev => ({ ...prev, email: user.email }))
+      setNewsletter(user.newsletter)
+    }
   }, [user])
 
   const isBirthday = user ? checkBirthdayMonth(user.birthday) : false
@@ -261,6 +276,7 @@ export function CheckoutPage() {
           district: address.district,
           region: address.region
         },
+        notes: orderNotes.trim() || undefined,
         createdAt: new Date().toISOString()
       }
       await db.createOrder(order)
@@ -522,7 +538,14 @@ export function CheckoutPage() {
             {/* Newsletter for logged-in users */}
             {user && (
               <label className="flex items-start gap-2 cursor-pointer pt-2">
-                <input type="checkbox" checked={newsletter} onChange={e=>setNewsletter(e.target.checked)} className="accent-[var(--brand-accent)] w-4 h-4 mt-[2px]"/>
+                <input type="checkbox" checked={newsletter} onChange={async e => {
+                  const checked = e.target.checked
+                  setNewsletter(checked)
+                  // Update user's newsletter preference
+                  try {
+                    await getDBClient().updateUser(user.id, { newsletter: checked })
+                  } catch {}
+                }} className="accent-[var(--brand-accent)] w-4 h-4 mt-[2px]"/>
                 <span className="text-[12px] text-[#5C5651]">{zh?"訂閱電子報 — 接收最新優惠及產品資訊":"Subscribe to newsletter — receive latest offers and product updates"}</span>
               </label>
             )}

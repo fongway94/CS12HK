@@ -133,6 +133,14 @@ export function OrderDetailPage() {
               </div>
             )}
 
+            {/* Order Notes */}
+            {order.notes && (
+              <div className="mt-6 pt-6 border-t border-[#F2ECE4]">
+                <h3 className="text-[11px] uppercase tracking-[0.14em] font-semibold text-[#8F8881] mb-3">{lang==="zh"?"訂單備註":"Order Notes"}</h3>
+                <div className="bg-[#FBF6F0] border border-[#ECE6DF] p-4 text-[12px] text-[#3A3734] leading-relaxed">{order.notes}</div>
+              </div>
+            )}
+
             {/* Payment Info */}
             <div className="mt-6 pt-6 border-t border-[#F2ECE4]">
               <h3 className="text-[11px] uppercase tracking-[0.14em] font-semibold text-[#8F8881] mb-3">{lang==="zh"?"付款資訊":"Payment Information"}</h3>

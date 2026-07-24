@@ -143,6 +143,7 @@ export interface Order {
     district: string
     region: string
   }
+  notes?: string
   createdAt: string
 }
 
