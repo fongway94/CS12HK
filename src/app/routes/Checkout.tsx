@@ -17,7 +17,18 @@ export function CheckoutPage() {
   const nav = useNavigate()
   const [giftTiers, setGiftTiers] = useState<GiftTier[]>([])
   const [couponObj, setCouponObj] = useState<Coupon|null>(null)
-  const [address, setAddress] = useState({ email: user?.email || "", name:"", phone:"", address:"", district: lang==="zh"?"香港島":"Hong Kong Island", region:"HKD" })
+  const [address, setAddress] = useState({
+    email: user?.email || "",
+    firstName: "",
+    lastName: "",
+    company: "",
+    name: "",
+    phone: "",
+    address: "",
+    address2: "",
+    district: lang==="zh"?"香港島":"Hong Kong Island",
+    region:"HKD"
+  })
   const [orderNotes, setOrderNotes] = useState("")
   const [usePoints, setUsePoints] = useState(0)
   const [isPlacing, setIsPlacing] = useState(false)
@@ -64,6 +75,7 @@ export function CheckoutPage() {
 
   const isBirthday = user ? checkBirthdayMonth(user.birthday) : false
   const birthdayMultiplier = isBirthday ? 2 : 1
+  const zh = lang === "zh"
 
   const getItemPrice = (item: any) => {
     const v = item.variant
@@ -105,12 +117,13 @@ export function CheckoutPage() {
 
   const validate = (): string[] => {
     const errs: string[] = []
-    if (!address.email.trim()) errs.push(lang==="zh"?"請填寫電郵地址":"Please enter email address")
-    else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(address.email.trim())) errs.push(lang==="zh"?"請填寫有效的電郵地址":"Please enter a valid email address")
-    if (!address.name.trim()) errs.push(lang==="zh"?"請填寫收件人姓名":"Please enter recipient name")
-    if (!address.phone.trim()) errs.push(lang==="zh"?"請填寫電話號碼":"Please enter phone number")
-    if (!address.address.trim()) errs.push(lang==="zh"?"請填寫地址":"Please enter address")
-    if (!user && createAccount && newPassword.length < 6) errs.push(lang==="zh"?"密碼至少需要6個字符":"Password must be at least 6 characters")
+    if (!address.email.trim()) errs.push(zh?"請填寫電郵地址":"Please enter email address")
+    else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(address.email.trim())) errs.push(zh?"請填寫有效的電郵地址":"Please enter a valid email address")
+    if (!address.firstName.trim()) errs.push(zh?"請填寫名字":"Please enter first name")
+    if (!address.lastName.trim()) errs.push(zh?"請填寫姓氏":"Please enter last name")
+    if (!address.phone.trim()) errs.push(zh?"請填寫電話號碼":"Please enter phone number")
+    if (!address.address.trim()) errs.push(zh?"請填寫地址":"Please enter address")
+    if (!user && createAccount && newPassword.length < 6) errs.push(zh?"密碼至少需要6個字符":"Password must be at least 6 characters")
     return errs
   }
 
@@ -199,9 +212,13 @@ export function CheckoutPage() {
         pointsUsed: isGuest ? 0 : usePoints,
         shippingAddress: {
           email: address.email.trim(),
-          name: address.name,
+          firstName: address.firstName,
+          lastName: address.lastName,
+          company: address.company || undefined,
+          name: `${address.firstName} ${address.lastName}`.trim(),
           phone: address.phone,
           address: address.address,
+          address2: address.address2 || undefined,
           district: address.district,
           region: address.region
         },
@@ -266,8 +283,6 @@ export function CheckoutPage() {
     ? ["香港島","九龍","新界","離島"]
     : ["Hong Kong Island","Kowloon","New Territories","Outlying Islands"]
 
-  const zh = lang === "zh"
-
   return (
     <main className="w-[min(calc(100%-24px),1200px)] mx-auto py-6 md:py-8">
       <h1 className="font-serif text-[28px] md:text-[32px] mb-6">{zh?"結帳":"Checkout"}</h1>
@@ -329,26 +344,44 @@ export function CheckoutPage() {
               {user && <p className="text-[10px] text-[#BBB5AD] mt-1">{zh?"已登入帳戶的電郵":"Logged in account email"}</p>}
             </div>
 
-            {/* Name + Phone */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            {/* First Name + Last Name (side by side) */}
+            <div className="grid grid-cols-2 gap-4">
               <div>
-                <label className="text-[11px] uppercase tracking-[0.12em] text-[#8F8881]">{zh?"收件人姓名":"Recipient Name"} *</label>
-                <input placeholder={zh?"陳小明":"John Smith"} value={address.name} onChange={e=>setAddress({...address,name:e.target.value})} className="w-full border border-[#ECE6DF] h-11 px-3 mt-1"/>
+                <label className="text-[11px] uppercase tracking-[0.12em] text-[#8F8881]">{zh?"名字":"First Name"} *</label>
+                <input placeholder={zh?"小明":"John"} value={address.firstName} onChange={e=>setAddress({...address,firstName:e.target.value})} className="w-full border border-[#ECE6DF] h-11 px-3 mt-1"/>
               </div>
               <div>
-                <label className="text-[11px] uppercase tracking-[0.12em] text-[#8F8881]">{zh?"電話":"Phone"} *</label>
-                <input placeholder="+852 9123 4567" value={address.phone} onChange={e=>setAddress({...address,phone:e.target.value})} className="w-full border border-[#ECE6DF] h-11 px-3 mt-1"/>
+                <label className="text-[11px] uppercase tracking-[0.12em] text-[#8F8881]">{zh?"姓氏":"Last Name"} *</label>
+                <input placeholder={zh?"陳":"Smith"} value={address.lastName} onChange={e=>setAddress({...address,lastName:e.target.value})} className="w-full border border-[#ECE6DF] h-11 px-3 mt-1"/>
               </div>
             </div>
 
-            {/* Address */}
+            {/* Company (optional) */}
             <div>
-              <label className="text-[11px] uppercase tracking-[0.12em] text-[#8F8881]">{zh?"地址":"Address"} *</label>
-              <input placeholder={zh?"街道名稱及門牌號碼":"Street address, building, floor"} value={address.address} onChange={e=>setAddress({...address,address:e.target.value})} className="w-full border border-[#ECE6DF] h-11 px-3 mt-1"/>
+              <label className="text-[11px] uppercase tracking-[0.12em] text-[#8F8881]">{zh?"公司名稱 (選填)":"Company Name (optional)"}</label>
+              <input placeholder={zh?"公司/機構名稱":"Company / Organization"} value={address.company} onChange={e=>setAddress({...address,company:e.target.value})} className="w-full border border-[#ECE6DF] h-11 px-3 mt-1"/>
             </div>
 
-            {/* District */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            {/* Country/Region */}
+            <div>
+              <label className="text-[11px] uppercase tracking-[0.12em] text-[#8F8881]">{zh?"國家/地區":"Country / Region"} *</label>
+              <input value={zh?"香港":"Hong Kong"} disabled className="w-full border border-[#ECE6DF] h-11 px-3 mt-1 bg-[#FBF6F0] text-[#5C5651] font-medium"/>
+            </div>
+
+            {/* Street Address */}
+            <div>
+              <label className="text-[11px] uppercase tracking-[0.12em] text-[#8F8881]">{zh?"街道地址":"Street Address"} *</label>
+              <input placeholder={zh?"門牌號碼及街道名稱":"House number and street name"} value={address.address} onChange={e=>setAddress({...address,address:e.target.value})} className="w-full border border-[#ECE6DF] h-11 px-3 mt-1"/>
+            </div>
+
+            {/* Address Line 2 (optional) */}
+            <div>
+              <label className="text-[11px] uppercase tracking-[0.12em] text-[#8F8881]">{zh?"地址（第二行）(選填)":"Apartment, suite, etc. (optional)"}</label>
+              <input placeholder={zh?"樓層、室數等":"Apartment, suite, unit, floor, etc."} value={address.address2} onChange={e=>setAddress({...address,address2:e.target.value})} className="w-full border border-[#ECE6DF] h-11 px-3 mt-1"/>
+            </div>
+
+            {/* District + Phone */}
+            <div className="grid grid-cols-2 gap-4">
               <div>
                 <label className="text-[11px] uppercase tracking-[0.12em] text-[#8F8881]">{zh?"地區":"District"} *</label>
                 <select value={address.district} onChange={e=>setAddress({...address,district:e.target.value})} className="w-full border border-[#ECE6DF] h-11 px-3 mt-1">
@@ -356,8 +389,8 @@ export function CheckoutPage() {
                 </select>
               </div>
               <div>
-                <label className="text-[11px] uppercase tracking-[0.12em] text-[#8F8881]">{zh?"國家/地區":"Country/Region"}</label>
-                <input value={zh?"香港":"Hong Kong"} disabled className="w-full border border-[#ECE6DF] h-11 px-3 mt-1 bg-[#FBF6F0] text-[#8F8881]"/>
+                <label className="text-[11px] uppercase tracking-[0.12em] text-[#8F8881]">{zh?"電話":"Phone"} *</label>
+                <input placeholder="+852 9123 4567" value={address.phone} onChange={e=>setAddress({...address,phone:e.target.value})} className="w-full border border-[#ECE6DF] h-11 px-3 mt-1"/>
               </div>
             </div>
 

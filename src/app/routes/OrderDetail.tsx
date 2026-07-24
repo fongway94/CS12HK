@@ -159,9 +159,12 @@ export function OrderDetailPage() {
               <div className="mt-6 pt-6 border-t border-[#ECE6DF] space-y-4">
                 <h4 className="text-[11px] uppercase tracking-[0.14em] font-semibold text-[#8F8881]">{lang==="zh"?"配送地址":"Shipping Address"}</h4>
                 <div className="text-[12px] text-[#3A3734] leading-relaxed">
-                  <p className="font-medium">{order.shippingAddress.name}</p>
+                  {order.shippingAddress.email && <p className="text-[#8F8881] text-[12px] mb-1">{order.shippingAddress.email}</p>}
+                  <p className="font-medium">{order.shippingAddress.firstName ? `${order.shippingAddress.firstName} ${order.shippingAddress.lastName}` : order.shippingAddress.name}</p>
+                  {order.shippingAddress.company && <p>{order.shippingAddress.company}</p>}
                   <p>{order.shippingAddress.phone}</p>
                   <p>{order.shippingAddress.address}</p>
+                  {order.shippingAddress.address2 && <p>{order.shippingAddress.address2}</p>}
                   <p>{order.shippingAddress.district}</p>
                 </div>
               </div>
