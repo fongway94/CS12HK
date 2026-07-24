@@ -8,6 +8,12 @@ import { GiftTier, Coupon } from "../../lib/db/types"
 import { calcSubtotal, getGiftTier, calcCouponDiscount, calcShipping } from "../../lib/promotions/engine"
 import { formatPrice } from "../../lib/currency"
 import { showToast } from "../../components/ui/Toast"
+import {
+  SavedAddress,
+  loadAddresses,
+  getSelectedAddress,
+  setSelectedAddressId,
+} from "../../lib/addresses"
 
 export function CartPage() {
   const { items, updateQty, removeItem, couponCode, setCoupon, clear } = useCartStore()
@@ -17,10 +23,42 @@ export function CartPage() {
   const [couponInput, setCouponInput] = useState(couponCode||"")
   const [couponObj, setCouponObj] = useState<Coupon|null>(null)
   const [couponMsg, setCouponMsg] = useState("")
+  const [addresses, setAddresses] = useState<SavedAddress[]>([])
+  const [selectedAddress, setSelectedAddress] = useState<SavedAddress | null>(null)
+  const [showAddressSwitcher, setShowAddressSwitcher] = useState(false)
 
   useEffect(()=>{ getDBClient().getGiftTiers().then(setGiftTiers)
     if(couponCode){ getDBClient().getCouponByCode(couponCode).then(c=>{ if(c) setCouponObj(c) }) }
   },[])
+
+  // Load address book when user is available
+  useEffect(() => {
+    if (!user) {
+      setAddresses([])
+      setSelectedAddress(null)
+      return
+    }
+    const addrs = loadAddresses(user.id)
+    setAddresses(addrs)
+    setSelectedAddress(getSelectedAddress(user.id))
+  }, [user])
+
+  const canSwitchAddress = addresses.length > 1
+
+  const handleSelectAddress = (id: string) => {
+    if (!user) return
+    const found = addresses.find(a => a.id === id)
+    if (!found) return
+    setSelectedAddressId(user.id, found.id)
+    setSelectedAddress(found)
+    setShowAddressSwitcher(false)
+    showToast(
+      "success",
+      lang==="zh"
+        ? `已切換至「${found.addressName}」`
+        : `Switched to "${found.addressName}"`
+    )
+  }
 
   const subtotal = useMemo(()=>{
     return calcSubtotal(items.map(i=>({ priceHKD: i.product.price_hkd, priceUSD: i.product.price_usd, qty: i.qty })))
@@ -72,14 +110,13 @@ export function CartPage() {
       <section>
         <h1 className="font-serif text-[32px] mb-6">{lang==="zh"?"購物車":"Cart"} ({items.length})</h1>
         <div className="border-t border-[#ECE6DF]">
-          {items.map((item, idx) => {
+          {items.map((item) => {
             const { product, qty, variant, variantId } = item
             const displayProduct = variant || product
             const displayName = lang==="zh"?displayProduct.name_zh:displayProduct.name_en
             const displayPriceHKD = displayProduct.price_hkd
             const displayPriceUSD = displayProduct.price_usd
             const displayImages = variant?.image ? [variant.image, ...product.images.slice(1)] : product.images
-            const displaySKU = variant?.sku || product.sku
             const uniqueKey = `${product.id}-${variantId || "base"}`
             return (
               <div key={uniqueKey} className="py-6 border-b border-[#F2ECE4] flex gap-4">
@@ -123,6 +160,62 @@ export function CartPage() {
 
       <aside className="bg-white border border-[#ECE6DF] p-6 h-fit md:sticky md:top-[100px]">
         <h3 className="text-[12px] tracking-[0.18em] uppercase font-semibold mb-4">{lang==="zh"?"訂單摘要":"Order Summary"}</h3>
+
+        {/* Delivery address section */}
+        {user && (
+          <div className="mb-5 pb-4 border-b border-[#F2ECE4]">
+            <div className="flex items-center justify-between mb-2">
+              <h4 className="text-[10px] tracking-[0.18em] uppercase font-semibold text-[#8F8881]">
+                {lang==="zh"?"送貨地址":"Delivery Address"}
+              </h4>
+              {canSwitchAddress && (
+                <button
+                  onClick={() => setShowAddressSwitcher(true)}
+                  className="text-[11px] underline text-[var(--brand-accent)]"
+                >
+                  {lang==="zh"?"切換地址":"Switch Address"}
+                </button>
+              )}
+            </div>
+
+            {selectedAddress ? (
+              <div className="text-[12px] text-[#5C5651] leading-relaxed">
+                <p className="font-medium text-[var(--brand-accent)]">
+                  {selectedAddress.addressName}
+                  {selectedAddress.isDefault && (
+                    <span className="ml-1 text-[9px] bg-[var(--brand-accent)] text-white px-1 py-[1px]">
+                      {lang==="zh"?"預設":"Default"}
+                    </span>
+                  )}
+                </p>
+                <p>{selectedAddress.name || `${selectedAddress.firstName} ${selectedAddress.lastName}`.trim()}</p>
+                <p>{selectedAddress.phone}</p>
+                <p>{selectedAddress.address}{selectedAddress.address2 ? `, ${selectedAddress.address2}` : ""}</p>
+                <p>{selectedAddress.district}</p>
+              </div>
+            ) : (
+              <div className="text-[12px] text-[#8F8881]">
+                <p>{lang==="zh"?"尚未儲存地址":"No saved address"}</p>
+                <p className="mt-1 text-[11px]">
+                  {lang==="zh"?"可於結帳時填寫，或前往 ":"Fill in at checkout, or set one in "}
+                  <Link to="/account" className="underline text-[var(--brand-accent)]">
+                    {lang==="zh"?"帳戶設定":"Account Settings"}
+                  </Link>
+                </p>
+              </div>
+            )}
+
+            {/* Single address — no switch available */}
+            {addresses.length === 1 && (
+              <p className="text-[10px] text-[#BBB5AD] mt-2">
+                {lang==="zh"
+                  ? "僅有一個已儲存地址，無法切換"
+                  : "Only one saved address — nothing to switch"}
+              </p>
+            )}
+          </div>
+        )}
+
         <div className="space-y-3 text-[13px]">
           <div className="flex justify-between"><span>{lang==="zh"?"小計":"Subtotal"}</span><span>{formatPrice(subtotal.hkd, subtotal.usd, currency)}</span></div>
           {couponCalc.valid && couponCalc.discountHKD>0 && <div className="flex justify-between text-green-700"><span>{lang==="zh"?"折扣":"Discount"} {couponObj?.code}</span><span>-{formatPrice(couponCalc.discountHKD, couponCalc.discountUSD, currency)}</span></div>}
@@ -148,6 +241,70 @@ export function CartPage() {
           <p>{lang==="zh"?"• 信用卡 / FPS / PayMe / Apple Pay 支援":"• Credit Card / FPS / PayMe / Apple Pay supported"}</p>
         </div>
       </aside>
+
+      {/* Address switcher dialog */}
+      {showAddressSwitcher && canSwitchAddress && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4">
+          <div className="bg-white w-full max-w-md border border-[#ECE6DF] shadow-xl p-6 max-h-[80vh] overflow-y-auto">
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="font-serif text-[22px]">
+                {lang==="zh"?"選擇送貨地址":"Choose Delivery Address"}
+              </h3>
+              <button
+                onClick={() => setShowAddressSwitcher(false)}
+                className="text-[#8F8881] text-[18px] leading-none px-2"
+                aria-label="Close"
+              >
+                ×
+              </button>
+            </div>
+            <div className="space-y-3">
+              {addresses.map(a => {
+                const isActive = selectedAddress?.id === a.id
+                return (
+                  <button
+                    key={a.id}
+                    onClick={() => handleSelectAddress(a.id)}
+                    className={`w-full text-left border p-4 transition ${
+                      isActive
+                        ? "border-[var(--brand-accent)] bg-[#FBF6F0]"
+                        : "border-[#F2ECE4] hover:border-[var(--brand-accent)]"
+                    }`}
+                  >
+                    <div className="flex items-start justify-between gap-2">
+                      <div className="text-[12px] text-[#5C5651]">
+                        <p className="font-semibold text-[var(--brand-accent)]">
+                          {a.addressName}
+                          {a.isDefault && (
+                            <span className="ml-1 text-[9px] bg-[var(--brand-accent)] text-white px-1 py-[1px]">
+                              {lang==="zh"?"預設":"Default"}
+                            </span>
+                          )}
+                        </p>
+                        <p className="mt-1">{a.name || `${a.firstName} ${a.lastName}`.trim()}</p>
+                        <p>{a.phone}</p>
+                        <p>{a.address}{a.address2 ? `, ${a.address2}` : ""}</p>
+                        <p>{a.district}</p>
+                      </div>
+                      {isActive && (
+                        <span className="text-[11px] text-[var(--brand-accent)] font-medium shrink-0">
+                          ✓ {lang==="zh"?"目前":"Current"}
+                        </span>
+                      )}
+                    </div>
+                  </button>
+                )
+              })}
+            </div>
+            <p className="text-[11px] text-[#8F8881] mt-4">
+              {lang==="zh"?"管理地址請前往 ":"Manage addresses in "}
+              <Link to="/account" className="underline text-[var(--brand-accent)]" onClick={()=>setShowAddressSwitcher(false)}>
+                {lang==="zh"?"帳戶設定 → 地址管理":"Account Settings → Addresses"}
+              </Link>
+            </p>
+          </div>
+        </div>
+      )}
     </main>
   )
 }
