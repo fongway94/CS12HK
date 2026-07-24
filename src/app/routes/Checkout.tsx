@@ -34,6 +34,22 @@ export function CheckoutPage() {
   const [isPlacing, setIsPlacing] = useState(false)
   const [errors, setErrors] = useState<string[]>([])
 
+  // Ship to different address
+  const [shipToDifferent, setShipToDifferent] = useState(false)
+  const [shippingAddr, setShippingAddr] = useState({
+    firstName: "",
+    lastName: "",
+    company: "",
+    phone: "",
+    address: "",
+    address2: "",
+    district: lang==="zh"?"香港島":"Hong Kong Island",
+    region: "HKD"
+  })
+
+  // Newsletter subscription
+  const [newsletter, setNewsletter] = useState(true)
+
   // Returning customer login state
   const [showLogin, setShowLogin] = useState(false)
   const [loginEmail, setLoginEmail] = useState("")
@@ -123,6 +139,13 @@ export function CheckoutPage() {
     if (!address.phone.trim()) errs.push(zh?"請填寫電話號碼":"Please enter phone number")
     if (!address.address.trim()) errs.push(zh?"請填寫地址":"Please enter address")
     if (!user && newPassword.length < 6) errs.push(zh?"帳戶密碼至少需要6個字符":"Account password must be at least 6 characters")
+    // Validate shipping address if delivering to different address
+    if (shipToDifferent) {
+      if (!shippingAddr.firstName.trim()) errs.push(zh?"請填寫送貨收件人名字":"Please enter shipping recipient first name")
+      if (!shippingAddr.lastName.trim()) errs.push(zh?"請填寫送貨收件人姓氏":"Please enter shipping recipient last name")
+      if (!shippingAddr.phone.trim()) errs.push(zh?"請填寫送貨電話":"Please enter shipping phone number")
+      if (!shippingAddr.address.trim()) errs.push(zh?"請填寫送貨地址":"Please enter shipping address")
+    }
     return errs
   }
 
@@ -168,7 +191,7 @@ export function CheckoutPage() {
           username: address.email.trim().split("@")[0],
           passwordHash: newPassword,
           role: "customer",
-          newsletter: true,
+          newsletter: newsletter,
           points: 0,
           pointsHistory: [],
           createdAt: new Date().toISOString(),
@@ -203,7 +226,18 @@ export function CheckoutPage() {
         status: "paid",
         pointsEarned,
         pointsUsed: usePoints,
-        shippingAddress: {
+        shippingAddress: shipToDifferent ? {
+          email: address.email.trim(),
+          firstName: shippingAddr.firstName,
+          lastName: shippingAddr.lastName,
+          company: shippingAddr.company || undefined,
+          name: `${shippingAddr.firstName} ${shippingAddr.lastName}`.trim(),
+          phone: shippingAddr.phone,
+          address: shippingAddr.address,
+          address2: shippingAddr.address2 || undefined,
+          district: shippingAddr.district,
+          region: shippingAddr.region
+        } : {
           email: address.email.trim(),
           firstName: address.firstName,
           lastName: address.lastName,
@@ -385,13 +419,71 @@ export function CheckoutPage() {
               </div>
             </div>
 
-            {/* Order notes */}
-            <div>
-              <label className="text-[11px] uppercase tracking-[0.12em] text-[#8F8881]">{zh?"訂單備註 (選填)":"Order Notes (optional)"}</label>
+            {/* Ship to a different address? */}
+            <div className="pt-2">
+              <label className="flex items-center gap-2 cursor-pointer">
+                <input type="checkbox" checked={shipToDifferent} onChange={e=>setShipToDifferent(e.target.checked)} className="accent-[var(--brand-accent)] w-4 h-4"/>
+                <span className="text-[13px]">{zh?"送貨至其他地址？":"Ship to a different address?"}</span>
+              </label>
+            </div>
+
+            {shipToDifferent && (
+              <div className="border border-[#ECE6DF] bg-[#FBF6F0] p-5 space-y-4 text-[13px]">
+                <h3 className="font-serif text-[16px] text-[#3A3734]">{zh?"送貨地址":"Shipping Address"}</h3>
+
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <label className="text-[11px] uppercase tracking-[0.12em] text-[#8F8881]">{zh?"名字":"First Name"} *</label>
+                    <input value={shippingAddr.firstName} onChange={e=>setShippingAddr({...shippingAddr,firstName:e.target.value})} className="w-full border border-[#ECE6DF] h-11 px-3 mt-1 bg-white"/>
+                  </div>
+                  <div>
+                    <label className="text-[11px] uppercase tracking-[0.12em] text-[#8F8881]">{zh?"姓氏":"Last Name"} *</label>
+                    <input value={shippingAddr.lastName} onChange={e=>setShippingAddr({...shippingAddr,lastName:e.target.value})} className="w-full border border-[#ECE6DF] h-11 px-3 mt-1 bg-white"/>
+                  </div>
+                </div>
+
+                <div>
+                  <label className="text-[11px] uppercase tracking-[0.12em] text-[#8F8881]">{zh?"公司名稱 (選填)":"Company Name (optional)"}</label>
+                  <input value={shippingAddr.company} onChange={e=>setShippingAddr({...shippingAddr,company:e.target.value})} className="w-full border border-[#ECE6DF] h-11 px-3 mt-1 bg-white"/>
+                </div>
+
+                <div>
+                  <label className="text-[11px] uppercase tracking-[0.12em] text-[#8F8881]">{zh?"國家/地區":"Country / Region"} *</label>
+                  <input value={zh?"香港":"Hong Kong"} disabled className="w-full border border-[#ECE6DF] h-11 px-3 mt-1 bg-[#F2ECE4] text-[#5C5651] font-medium"/>
+                </div>
+
+                <div>
+                  <label className="text-[11px] uppercase tracking-[0.12em] text-[#8F8881]">{zh?"街道地址":"Street Address"} *</label>
+                  <input placeholder={zh?"門牌號碼及街道名稱":"House number and street name"} value={shippingAddr.address} onChange={e=>setShippingAddr({...shippingAddr,address:e.target.value})} className="w-full border border-[#ECE6DF] h-11 px-3 mt-1 bg-white"/>
+                </div>
+
+                <div>
+                  <label className="text-[11px] uppercase tracking-[0.12em] text-[#8F8881]">{zh?"地址（第二行）(選填)":"Apartment, suite, etc. (optional)"}</label>
+                  <input placeholder={zh?"樓層、室數等":"Apartment, suite, unit, floor, etc."} value={shippingAddr.address2} onChange={e=>setShippingAddr({...shippingAddr,address2:e.target.value})} className="w-full border border-[#ECE6DF] h-11 px-3 mt-1 bg-white"/>
+                </div>
+
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <label className="text-[11px] uppercase tracking-[0.12em] text-[#8F8881]">{zh?"地區":"District"} *</label>
+                    <select value={shippingAddr.district} onChange={e=>setShippingAddr({...shippingAddr,district:e.target.value})} className="w-full border border-[#ECE6DF] h-11 px-3 mt-1 bg-white">
+                      {districts.map(d=><option key={d}>{d}</option>)}
+                    </select>
+                  </div>
+                  <div>
+                    <label className="text-[11px] uppercase tracking-[0.12em] text-[#8F8881]">{zh?"電話":"Phone"} *</label>
+                    <input placeholder="+852 9123 4567" value={shippingAddr.phone} onChange={e=>setShippingAddr({...shippingAddr,phone:e.target.value})} className="w-full border border-[#ECE6DF] h-11 px-3 mt-1 bg-white"/>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* Order remarks */}
+            <div className="pt-2">
+              <label className="text-[11px] uppercase tracking-[0.12em] text-[#8F8881]">{zh?"訂單備註 (選填)":"Order Remarks (optional)"}</label>
               <textarea
                 value={orderNotes}
                 onChange={e=>setOrderNotes(e.target.value)}
-                placeholder={zh?"如有特別要求請在此填寫":"Any special delivery instructions?"}
+                placeholder={zh?"如有特別要求請在此填寫":"Notes about your order, e.g. special delivery instructions"}
                 rows={3}
                 className="w-full border border-[#ECE6DF] px-3 py-2 mt-1 text-[13px] resize-none"
               />
@@ -399,15 +491,28 @@ export function CheckoutPage() {
 
             {/* Account creation section (only for non-logged-in users) */}
             {!user && (
-              <div className="pt-4 border-t border-[#F2ECE4]">
-                <h3 className="font-serif text-[18px] mb-2">{zh?"帳戶資訊":"Account Information"}</h3>
-                <p className="text-[12px] text-[#8F8881] mb-4">{zh?"建立帳戶以追蹤訂單及賺取積分。您的帳戶將自動建立。":"An account will be created automatically so you can track orders and earn points."}</p>
+              <div className="pt-4 border-t border-[#F2ECE4] space-y-4">
                 <div>
-                  <label className="text-[11px] uppercase tracking-[0.12em] text-[#8F8881]">{zh?"帳戶密碼":"Account Password"} *</label>
-                  <input type="password" value={newPassword} onChange={e=>setNewPassword(e.target.value)} placeholder={zh?"至少6個字符":"At least 6 characters"} className="w-full border border-[#ECE6DF] h-11 px-3 mt-1"/>
-                  <p className="text-[10px] text-[#BBB5AD] mt-1">{zh?"您的帳戶將自動建立，此訂單會直接連結到您的帳戶":"Your account will be created automatically and this order will be linked to it"}</p>
+                  <h3 className="font-serif text-[18px] mb-2">{zh?"帳戶資訊":"Account Information"}</h3>
+                  <p className="text-[12px] text-[#8F8881] mb-4">{zh?"建立帳戶以追蹤訂單及賺取積分。您的帳戶將自動建立。":"An account will be created automatically so you can track orders and earn points."}</p>
+                  <div>
+                    <label className="text-[11px] uppercase tracking-[0.12em] text-[#8F8881]">{zh?"帳戶密碼":"Account Password"} *</label>
+                    <input type="password" value={newPassword} onChange={e=>setNewPassword(e.target.value)} placeholder={zh?"至少6個字符":"At least 6 characters"} className="w-full border border-[#ECE6DF] h-11 px-3 mt-1"/>
+                  </div>
                 </div>
+                <label className="flex items-start gap-2 cursor-pointer">
+                  <input type="checkbox" checked={newsletter} onChange={e=>setNewsletter(e.target.checked)} className="accent-[var(--brand-accent)] w-4 h-4 mt-[2px]"/>
+                  <span className="text-[12px] text-[#5C5651]">{zh?"訂閱電子報 — 接收最新優惠及產品資訊":"Subscribe to newsletter — receive latest offers and product updates"}</span>
+                </label>
               </div>
+            )}
+
+            {/* Newsletter for logged-in users */}
+            {user && (
+              <label className="flex items-start gap-2 cursor-pointer pt-2">
+                <input type="checkbox" checked={newsletter} onChange={e=>setNewsletter(e.target.checked)} className="accent-[var(--brand-accent)] w-4 h-4 mt-[2px]"/>
+                <span className="text-[12px] text-[#5C5651]">{zh?"訂閱電子報 — 接收最新優惠及產品資訊":"Subscribe to newsletter — receive latest offers and product updates"}</span>
+              </label>
             )}
           </div>
         </section>
