@@ -95,11 +95,31 @@ export function CheckoutPage() {
     } catch {}
   },[])
 
-  // Keep email and newsletter synced with user state
+  // Keep email, newsletter and address synced with user state
   useEffect(() => {
     if (user) {
       setAddress(prev => ({ ...prev, email: user.email }))
       setNewsletter(user.newsletter)
+      try {
+        const raw = localStorage.getItem(`cs12_addresses_${user.id}`)
+        if(raw) {
+          const addrs = JSON.parse(raw)
+          const def = addrs.find((a: any) => a.isDefault) || addrs[0]
+          if(def) setAddress(prev => ({
+            ...prev,
+            email: user.email,
+            firstName: def.firstName || prev.firstName,
+            lastName: def.lastName || prev.lastName,
+            company: def.company || prev.company,
+            name: def.name || prev.name,
+            phone: def.phone || prev.phone,
+            address: def.address || prev.address,
+            address2: def.address2 || prev.address2,
+            district: def.district || prev.district,
+            region: "HKD"
+          }))
+        }
+      } catch {}
     }
   }, [user])
 
@@ -308,6 +328,40 @@ export function CheckoutPage() {
           isFirstOrder: false,
           pointsHistory: [...(orderUser.pointsHistory||[]), ...pointsHistoryEntries]
         })
+        // Save billing address to address book
+        try {
+          const key = `cs12_addresses_${orderUser.id}`
+          const existingRaw = localStorage.getItem(key)
+          let addrs = []
+          if (existingRaw) {
+            addrs = JSON.parse(existingRaw)
+          }
+          const newAddr = {
+            id: "addr_" + Date.now(),
+            firstName: address.firstName,
+            lastName: address.lastName,
+            company: address.company,
+            name: `${address.firstName} ${address.lastName}`.trim(),
+            phone: address.phone,
+            address: address.address,
+            address2: address.address2,
+            district: address.district,
+            region: address.region,
+            isDefault: addrs.length === 0
+          }
+          
+          const duplicate = addrs.find((a: any) => 
+            a.phone === newAddr.phone && 
+            a.address === newAddr.address && 
+            a.district === newAddr.district
+          )
+          
+          if (!duplicate) {
+            addrs.push(newAddr)
+            localStorage.setItem(key, JSON.stringify(addrs))
+          }
+        } catch(e) {}
+        
         // Refresh user in auth store
         useAuthStore.getState().fetchMe()
       }

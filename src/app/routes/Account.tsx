@@ -16,8 +16,8 @@ export function AccountPage() {
   const [orders, setOrders] = useState<Order[]>([])
   const [tab, setTab] = useState<AccountTab>("overview")
   const [editingBirthday, setEditingBirthday] = useState("")
-  const [addresses, setAddresses] = useState<{ id: string; name: string; phone: string; address: string; district: string; isDefault: boolean }[]>([])
-  const [editingAddress, setEditingAddress] = useState<{ name: string; phone: string; address: string; district: string } | null>(null)
+  const [addresses, setAddresses] = useState<{ id: string; firstName?: string; lastName?: string; company?: string; name: string; phone: string; address: string; address2?: string; district: string; isDefault: boolean }[]>([])
+  const [editingAddress, setEditingAddress] = useState<{ firstName: string; lastName: string; company: string; phone: string; address: string; address2: string; district: string } | null>(null)
   const [editEmail, setEditEmail] = useState("")
   const [editUsername, setEditUsername] = useState("")
   const nav = useNavigate()
@@ -65,12 +65,21 @@ export function AccountPage() {
   const saveAddresses = (addrs: typeof addresses) => { setAddresses(addrs); localStorage.setItem(`cs12_addresses_${user.id}`, JSON.stringify(addrs)) }
   const addAddress = () => {
     if (!editingAddress) return
-    const newAddr = { id: "addr_" + Date.now(), ...editingAddress, isDefault: addresses.length === 0 }
+    const newAddr = { 
+      id: "addr_" + Date.now(), 
+      ...editingAddress, 
+      name: `${editingAddress.firstName} ${editingAddress.lastName}`.trim(),
+      isDefault: addresses.length === 0 
+    }
     saveAddresses([...addresses, newAddr])
     setEditingAddress(null)
     showToast("success", lang==="zh"?"地址已新增":"Address added")
   }
   const deleteAddress = (id: string) => { saveAddresses(addresses.filter(a => a.id !== id)) }
+  const setDefaultAddress = (id: string) => {
+    saveAddresses(addresses.map(a => ({ ...a, isDefault: a.id === id })))
+    showToast("success", lang==="zh"?"已設為預設地址":"Set as default address")
+  }
 
   const sidebarItems: { key: AccountTab; label_zh: string; label_en: string; badge?: number | string }[] = [
     { key: "overview", label_zh: "帳戶總覽", label_en: "Overview" },
@@ -271,26 +280,39 @@ export function AccountPage() {
             <div className="bg-white border border-[#ECE6DF] p-6">
               <h4 className="text-[12px] tracking-[0.18em] uppercase font-semibold mb-4">{lang==="zh"?"地址管理":"Addresses"} ({addresses.length})</h4>
               {addresses.length === 0
-                ? <p className="text-[12px] text-[#8F8881]">{lang==="zh"?"尚未新增地址。":"No addresses saved yet."}</p>
+                ? <p className="text-[12px] text-[#8F8881]">{lang==="zh"?"尚未新增地址。您在結帳後，系統會自動儲存您的地址。":"No addresses saved yet. Your address will be saved automatically after checkout."}</p>
                 : <div className="space-y-3">{addresses.map(a => (
-                    <div key={a.id} className="border border-[#F2ECE4] p-4 flex justify-between">
+                    <div key={a.id} className={`border p-4 flex justify-between ${a.isDefault ? "border-[var(--brand-accent)] bg-[#FBF6F0]" : "border-[#F2ECE4]"}`}>
                       <div className="text-[12px]">
-                        <p className="font-semibold">{a.name} {a.isDefault && <span className="text-[10px] bg-[var(--brand-accent)] text-white px-1 ml-1">{lang==="zh"?"預設":"Default"}</span>}</p>
+                        <p className="font-semibold">{a.name || `${a.firstName || ''} ${a.lastName || ''}`.trim()} {a.isDefault && <span className="text-[10px] bg-[var(--brand-accent)] text-white px-1 ml-1">{lang==="zh"?"預設":"Default"}</span>}</p>
+                        {a.company && <p className="text-[#5C5651]">{a.company}</p>}
                         <p className="text-[#5C5651]">{a.phone}</p>
-                        <p className="text-[#5C5651]">{a.address}, {a.district}</p>
+                        <p className="text-[#5C5651]">{a.address}</p>
+                        {a.address2 && <p className="text-[#5C5651]">{a.address2}</p>}
+                        <p className="text-[#5C5651]">{a.district}</p>
                       </div>
-                      <button onClick={()=>deleteAddress(a.id)} className="text-[11px] underline text-[#8F8881] self-start">{lang==="zh"?"刪除":"Delete"}</button>
+                      <div className="flex flex-col items-end gap-2">
+                        {!a.isDefault && (
+                          <button onClick={()=>setDefaultAddress(a.id)} className="text-[11px] underline text-[var(--brand-accent)]">{lang==="zh"?"設為預設":"Set Default"}</button>
+                        )}
+                        <button onClick={()=>deleteAddress(a.id)} className="text-[11px] underline text-[#8F8881]">{lang==="zh"?"刪除":"Delete"}</button>
+                      </div>
                     </div>
                   ))}</div>}
             </div>
             {!editingAddress ? (
-              <button onClick={()=>setEditingAddress({ name: user.username, phone: "", address: "", district: lang==="zh"?"香港島":"Hong Kong Island" })} className="bg-[var(--brand-accent)] text-white px-6 h-10 text-[11px] tracking-[0.14em] uppercase">+ {lang==="zh"?"新增地址":"Add Address"}</button>
+              <button onClick={()=>setEditingAddress({ firstName: "", lastName: "", company: "", phone: "", address: "", address2: "", district: lang==="zh"?"香港島":"Hong Kong Island" })} className="bg-[var(--brand-accent)] text-white px-6 h-10 text-[11px] tracking-[0.14em] uppercase">+ {lang==="zh"?"新增地址":"Add Address"}</button>
             ) : (
               <div className="bg-white border border-[#ECE6DF] p-6 space-y-3">
                 <h4 className="text-[12px] tracking-[0.18em] uppercase font-semibold">{lang==="zh"?"新增地址":"Add Address"}</h4>
-                <input placeholder={lang==="zh"?"收件人姓名":"Recipient name"} value={editingAddress.name} onChange={e=>setEditingAddress({...editingAddress, name: e.target.value})} className="w-full border border-[#ECE6DF] h-10 px-3 text-[13px]"/>
+                <div className="grid grid-cols-2 gap-3">
+                  <input placeholder={lang==="zh"?"名字":"First name"} value={editingAddress.firstName} onChange={e=>setEditingAddress({...editingAddress, firstName: e.target.value})} className="w-full border border-[#ECE6DF] h-10 px-3 text-[13px]"/>
+                  <input placeholder={lang==="zh"?"姓氏":"Last name"} value={editingAddress.lastName} onChange={e=>setEditingAddress({...editingAddress, lastName: e.target.value})} className="w-full border border-[#ECE6DF] h-10 px-3 text-[13px]"/>
+                </div>
+                <input placeholder={lang==="zh"?"公司名稱 (選填)":"Company (optional)"} value={editingAddress.company} onChange={e=>setEditingAddress({...editingAddress, company: e.target.value})} className="w-full border border-[#ECE6DF] h-10 px-3 text-[13px]"/>
                 <input placeholder={lang==="zh"?"電話":"Phone"} value={editingAddress.phone} onChange={e=>setEditingAddress({...editingAddress, phone: e.target.value})} className="w-full border border-[#ECE6DF] h-10 px-3 text-[13px]"/>
                 <input placeholder={lang==="zh"?"地址":"Address"} value={editingAddress.address} onChange={e=>setEditingAddress({...editingAddress, address: e.target.value})} className="w-full border border-[#ECE6DF] h-10 px-3 text-[13px]"/>
+                <input placeholder={lang==="zh"?"樓層、室數等 (選填)":"Apartment, suite, etc. (optional)"} value={editingAddress.address2} onChange={e=>setEditingAddress({...editingAddress, address2: e.target.value})} className="w-full border border-[#ECE6DF] h-10 px-3 text-[13px]"/>
                 <select value={editingAddress.district} onChange={e=>setEditingAddress({...editingAddress, district: e.target.value})} className="w-full border border-[#ECE6DF] h-10 px-3 text-[13px]">
                   {(lang==="zh"?["香港島","九龍","新界","離島"]:["Hong Kong Island","Kowloon","New Territories","Outlying Islands"]).map(d=><option key={d}>{d}</option>)}
                 </select>
