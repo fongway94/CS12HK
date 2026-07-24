@@ -224,6 +224,8 @@ export function CheckoutPage() {
           id: "u_" + Date.now(),
           email: address.email.trim(),
           username: address.email.trim().split("@")[0],
+          firstName: address.firstName.trim(),
+          lastName: address.lastName.trim(),
           passwordHash: newPassword,
           role: "customer",
           newsletter: newsletter,
