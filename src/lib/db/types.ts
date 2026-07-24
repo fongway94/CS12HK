@@ -267,6 +267,10 @@ export interface SiteSettings {
   textColor: string
   mutedTextColor: string
   borderColor: string
+  // CS12 brand gold used for the black/dark UI accents (buttons, links,
+  // badges, highlighted headings) across the site. Defaults to the CS12
+  // logo gold (#9E7428).
+  brandAccentColor: string
   // Kept for backward-compatibility with older saved settings / DB rows.
   // New code should prefer the language-specific fields below.
   fontFamily: string
@@ -345,6 +349,7 @@ export const DEFAULT_SITE_SETTINGS: SiteSettings = {
   textColor: "#111111",
   mutedTextColor: "#8F8881",
   borderColor: "#ECE6DF",
+  brandAccentColor: "#9E7428",
   fontFamily: "Instrument Sans",
   fontFamilySerif: "Cormorant Garamond",
 

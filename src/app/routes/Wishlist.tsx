@@ -35,7 +35,7 @@ export function WishlistPage() {
           <Heart size={48} className="mx-auto text-[#ECE6DF] mb-4" />
           <h2 className="font-serif text-[24px] mb-2">{lang === "zh" ? "願望清單是空的" : "Your wishlist is empty"}</h2>
           <p className="text-[13px] text-[#8F8881] mb-6">{lang === "zh" ? "瀏覽產品並點擊 ♡ 加入收藏" : "Browse products and tap ♡ to save favorites"}</p>
-          <Link to="/shop" className="inline-flex bg-[#9E7428] text-white px-8 h-[44px] items-center text-[11px] tracking-[0.18em] uppercase">
+          <Link to="/shop" className="inline-flex bg-[var(--brand-accent)] text-white px-8 h-[44px] items-center text-[11px] tracking-[0.18em] uppercase">
             {lang === "zh" ? "去選購" : "Go Shopping"}
           </Link>
         </div>

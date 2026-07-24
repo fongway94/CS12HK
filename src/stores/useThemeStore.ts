@@ -20,6 +20,7 @@ function applyCSS(settings: SiteSettings) {
   root.style.setProperty("--primary", settings.primaryColor)
   root.style.setProperty("--secondary", settings.secondaryColor)
   root.style.setProperty("--accent", settings.accentColor)
+  root.style.setProperty("--brand-accent", settings.brandAccentColor || settings.primaryColor)
   root.style.setProperty("--font-base", `${settings.fontSizeBase}px`)
   // Most UI type uses fixed Tailwind px utilities. Combine the base-size setting
   // (16px is the design baseline) and the multiplier so both Admin controls

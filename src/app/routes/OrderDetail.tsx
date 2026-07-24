@@ -35,7 +35,7 @@ export function OrderDetailPage() {
     pending: { label_zh: "待付款", label_en: "Pending", icon: Clock, color: "text-yellow-600 bg-yellow-50 border-yellow-200" },
     paid: { label_zh: "已付款", label_en: "Paid", icon: CheckCircle, color: "text-green-600 bg-green-50 border-green-200" },
     shipped: { label_zh: "已出貨", label_en: "Shipped", icon: Truck, color: "text-blue-600 bg-blue-50 border-blue-200" },
-    delivered: { label_zh: "已妥投", label_en: "Delivered", icon: Package, color: "text-[#9E7428] bg-[#9E7428] text-white border-[#9E7428]" },
+    delivered: { label_zh: "已妥投", label_en: "Delivered", icon: Package, color: "text-[var(--brand-accent)] bg-[var(--brand-accent)] text-white border-[var(--brand-accent)]" },
     cancelled: { label_zh: "已取消", label_en: "Cancelled", icon: XCircle, color: "text-red-600 bg-red-50 border-red-200" }
   }
 
@@ -167,7 +167,7 @@ export function OrderDetailPage() {
               </div>
 
               {order.giftTier && (
-                <div className="mt-4 pt-4 border-t border-[#ECE6DF] bg-[#9E7428] text-white p-3 text-[11px] rounded">
+                <div className="mt-4 pt-4 border-t border-[#ECE6DF] bg-[var(--brand-accent)] text-white p-3 text-[11px] rounded">
                   🎁 {lang==="zh"?order.giftTier==="tier2_3000"?"滿 HK$3,000 禮遇 (10件禮品)":"滿 HK$2,000 禮遇 (6件禮品)":order.giftTier==="tier2_3000"?"Spend HK$3,000 Tier (10 gifts)":"Spend HK$2,000 Tier (6 gifts)"}
                 </div>
               )}
@@ -198,9 +198,9 @@ export function OrderDetailPage() {
               const isCurrent = order.status === step.key
               return (
                 <div key={step.key} className="relative pl-14 pb-8 flex items-start">
-                  <div className={`absolute left-6 top-1 w-3 h-3 rounded-full border-2 transition-all ${isActive ? "bg-[#9E7428] border-[#9E7428]" : "bg-white border-[#ECE6DF]"} ${isCurrent ? "ring-2 ring-[#9E7428] ring-offset-2" : ""}`}></div>
+                  <div className={`absolute left-6 top-1 w-3 h-3 rounded-full border-2 transition-all ${isActive ? "bg-[var(--brand-accent)] border-[var(--brand-accent)]" : "bg-white border-[#ECE6DF]"} ${isCurrent ? "ring-2 ring-[var(--brand-accent)] ring-offset-2" : ""}`}></div>
                   <div className="ml-4">
-                    <p className={`font-semibold ${isActive ? "text-[#9E7428]" : "text-[#8F8881]"}`}>{lang==="zh"?step.label_zh:step.label_en}</p>
+                    <p className={`font-semibold ${isActive ? "text-[var(--brand-accent)]" : "text-[#8F8881]"}`}>{lang==="zh"?step.label_zh:step.label_en}</p>
                     {step.time && <p className="text-[11px] text-[#8F8881] mt-0.5">{new Date(step.time).toLocaleString()}</p>}
                   </div>
                 </div>

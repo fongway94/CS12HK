@@ -92,7 +92,7 @@ export function AccountPage() {
     }
     return (
       <div className="mt-2 text-[13px]">
-        <p>{lang==="zh"?"生日":"Birthday"}: {user.birthday} {isBirthdayMonth && <span className="bg-[#9E7428] text-white px-2 py-[1px] text-[10px] ml-2">{lang==="zh"?"本月生日！":"BIRTHDAY MONTH"}</span>}</p>
+        <p>{lang==="zh"?"生日":"Birthday"}: {user.birthday} {isBirthdayMonth && <span className="bg-[var(--brand-accent)] text-white px-2 py-[1px] text-[10px] ml-2">{lang==="zh"?"本月生日！":"BIRTHDAY MONTH"}</span>}</p>
         {isBirthdayMonth ? (
           <p className="mt-2 text-[#825F59]">{lang==="zh"?"生日月份尊享 10% OFF 優惠碼 BIRTHDAY10 已自動激活，購物即可使用！另獲 200 積分獎勵。":"Your birthday 10% OFF code BIRTHDAY10 is active! Plus 200 bonus points on your birthday month order."}</p>
         ) : (
@@ -106,7 +106,7 @@ export function AccountPage() {
     <main className="w-[min(calc(100%-24px),1440px)] mx-auto py-6 md:py-10 grid grid-cols-1 md:grid-cols-[260px_1fr] gap-6 md:gap-10">
       <aside className="bg-white border border-[#ECE6DF] p-6 h-fit">
         <div className="text-center border-b border-[#F2ECE4] pb-6 mb-6">
-          <div className="w-16 h-16 rounded-full bg-[#9E7428] text-white mx-auto flex items-center justify-center font-serif text-[24px]">{user.username[0].toUpperCase()}</div>
+          <div className="w-16 h-16 rounded-full bg-[var(--brand-accent)] text-white mx-auto flex items-center justify-center font-serif text-[24px]">{user.username[0].toUpperCase()}</div>
           <h3 className="font-serif text-[18px] mt-3">{user.username}</h3>
           <p className="text-[11px] text-[#8F8881]">{user.email}</p>
           <span className="mt-2 inline-block text-[10px] tracking-[0.14em] uppercase bg-[#F7F3EB] px-2 py-1">{user.tier} • {user.points} {lang==="zh"?"積分":"Points"}</span>
@@ -114,7 +114,7 @@ export function AccountPage() {
         <ul className="space-y-1 text-[12px]">
           {sidebarItems.map(item => (
             <li key={item.key}>
-              <button onClick={()=>setTab(item.key)} className={`w-full text-left px-3 py-2 flex justify-between items-center rounded transition ${tab===item.key ? "bg-[#9E7428] text-white font-semibold" : "text-[#5C5651] hover:bg-[#FBF6F0]"}`}>
+              <button onClick={()=>setTab(item.key)} className={`w-full text-left px-3 py-2 flex justify-between items-center rounded transition ${tab===item.key ? "bg-[var(--brand-accent)] text-white font-semibold" : "text-[#5C5651] hover:bg-[#FBF6F0]"}`}>
                 <span>{lang==="zh"?item.label_zh:item.label_en}</span>
                 {item.badge !== undefined && <span className="text-[10px]">{item.badge}</span>}
               </button>
@@ -122,7 +122,7 @@ export function AccountPage() {
           ))}
         </ul>
         {user.role==="admin" && <button onClick={()=>nav("/admin")} className="mt-4 w-full bg-[#825F59] text-white h-8 text-[11px] tracking-[0.14em] uppercase">Admin Panel</button>}
-        <button onClick={()=>{logout(); nav("/")}} className="mt-4 w-full border border-[#9E7428] h-9 text-[11px] uppercase">{lang==="zh"?"登出":"Logout"}</button>
+        <button onClick={()=>{logout(); nav("/")}} className="mt-4 w-full border border-[var(--brand-accent)] h-9 text-[11px] uppercase">{lang==="zh"?"登出":"Logout"}</button>
       </aside>
 
       <section className="space-y-6 md:space-y-8">
@@ -172,7 +172,7 @@ export function AccountPage() {
                       <div><p className="font-semibold text-[13px]">{o.id}</p><p className="text-[11px] text-[#8F8881]">{new Date(o.createdAt).toLocaleDateString()} • {o.items.length} items</p></div>
                       <div className="text-right">
                         <p className="text-[14px] font-medium">{formatPrice(o.totalHKD, o.totalUSD, currency)}</p>
-                        <span className={`text-[10px] tracking-[0.12em] uppercase px-2 py-[1px] ${o.status==="paid"?"bg-green-100 text-green-700":o.status==="shipped"?"bg-blue-100 text-blue-700":o.status==="delivered"?"bg-[#9E7428] text-white":o.status==="cancelled"?"bg-red-100 text-red-700":"bg-[#F2ECE4] text-[#8F8881]"}`}>{o.status}</span>
+                        <span className={`text-[10px] tracking-[0.12em] uppercase px-2 py-[1px] ${o.status==="paid"?"bg-green-100 text-green-700":o.status==="shipped"?"bg-blue-100 text-blue-700":o.status==="delivered"?"bg-[var(--brand-accent)] text-white":o.status==="cancelled"?"bg-red-100 text-red-700":"bg-[#F2ECE4] text-[#8F8881]"}`}>{o.status}</span>
                       </div>
                     </div>
                     <div className="mt-3 pt-3 border-t border-[#F2ECE4] text-[11px] text-[#5C5651]">
@@ -218,7 +218,7 @@ export function AccountPage() {
             <div className={`border p-6 ${isBirthdayMonth ? "bg-[#FFF7ED] border-[#FED7AA]" : "bg-[#FBF6F0] border-[#ECE6DF]"}`}>
               <h3 className="font-serif text-[24px]">🎂 {lang==="zh"?"生日禮遇":"Birthday Special"}</h3>
               {isBirthdayMonth && (
-                <div className="mt-4 bg-[#9E7428] text-white p-4 text-[12px]">
+                <div className="mt-4 bg-[var(--brand-accent)] text-white p-4 text-[12px]">
                   <p className="font-semibold">{lang==="zh"?"🎉 生日快樂！本月尊享以下禮遇：":"🎉 Happy Birthday! This month you enjoy:"}</p>
                   <ul className="mt-2 space-y-1 text-[#BBB5AD]">
                     <li>{lang==="zh"?"• BIRTHDAY10 優惠碼 10% OFF（已自動激活）":"• BIRTHDAY10 code — 10% OFF (auto-activated)"}</li>
@@ -239,11 +239,11 @@ export function AccountPage() {
               </div>
               <div className="mt-4 flex gap-3">
                 <input type="date" value={editingBirthday} onChange={e=>setEditingBirthday(e.target.value)} className="border border-[#ECE6DF] h-10 px-3 text-[13px]"/>
-                <button onClick={handleSaveBirthday} className="bg-[#9E7428] text-white px-6 h-10 text-[11px] tracking-[0.14em] uppercase">{lang==="zh"?"儲存":"Save"}</button>
+                <button onClick={handleSaveBirthday} className="bg-[var(--brand-accent)] text-white px-6 h-10 text-[11px] tracking-[0.14em] uppercase">{lang==="zh"?"儲存":"Save"}</button>
               </div>
             </div>
             <div className="bg-white border border-[#ECE6DF] p-6 text-[12px] leading-relaxed text-[#5C5651]">
-              <h4 className="font-semibold text-[13px] text-[#9E7428] mb-3">{lang==="zh"?"生日禮遇條款":"Birthday Rewards Terms"}</h4>
+              <h4 className="font-semibold text-[13px] text-[var(--brand-accent)] mb-3">{lang==="zh"?"生日禮遇條款":"Birthday Rewards Terms"}</h4>
               <ul className="list-disc pl-5 space-y-1">
                 {lang==="zh" ? (
                   <>
@@ -275,7 +275,7 @@ export function AccountPage() {
                 : <div className="space-y-3">{addresses.map(a => (
                     <div key={a.id} className="border border-[#F2ECE4] p-4 flex justify-between">
                       <div className="text-[12px]">
-                        <p className="font-semibold">{a.name} {a.isDefault && <span className="text-[10px] bg-[#9E7428] text-white px-1 ml-1">{lang==="zh"?"預設":"Default"}</span>}</p>
+                        <p className="font-semibold">{a.name} {a.isDefault && <span className="text-[10px] bg-[var(--brand-accent)] text-white px-1 ml-1">{lang==="zh"?"預設":"Default"}</span>}</p>
                         <p className="text-[#5C5651]">{a.phone}</p>
                         <p className="text-[#5C5651]">{a.address}, {a.district}</p>
                       </div>
@@ -284,7 +284,7 @@ export function AccountPage() {
                   ))}</div>}
             </div>
             {!editingAddress ? (
-              <button onClick={()=>setEditingAddress({ name: user.username, phone: "", address: "", district: lang==="zh"?"香港島":"Hong Kong Island" })} className="bg-[#9E7428] text-white px-6 h-10 text-[11px] tracking-[0.14em] uppercase">+ {lang==="zh"?"新增地址":"Add Address"}</button>
+              <button onClick={()=>setEditingAddress({ name: user.username, phone: "", address: "", district: lang==="zh"?"香港島":"Hong Kong Island" })} className="bg-[var(--brand-accent)] text-white px-6 h-10 text-[11px] tracking-[0.14em] uppercase">+ {lang==="zh"?"新增地址":"Add Address"}</button>
             ) : (
               <div className="bg-white border border-[#ECE6DF] p-6 space-y-3">
                 <h4 className="text-[12px] tracking-[0.18em] uppercase font-semibold">{lang==="zh"?"新增地址":"Add Address"}</h4>
@@ -295,7 +295,7 @@ export function AccountPage() {
                   {(lang==="zh"?["香港島","九龍","新界","離島"]:["Hong Kong Island","Kowloon","New Territories","Outlying Islands"]).map(d=><option key={d}>{d}</option>)}
                 </select>
                 <div className="flex gap-2">
-                  <button onClick={addAddress} className="bg-[#9E7428] text-white px-6 h-10 text-[11px] uppercase">{lang==="zh"?"儲存":"Save"}</button>
+                  <button onClick={addAddress} className="bg-[var(--brand-accent)] text-white px-6 h-10 text-[11px] uppercase">{lang==="zh"?"儲存":"Save"}</button>
                   <button onClick={()=>setEditingAddress(null)} className="border border-[#ECE6DF] px-6 h-10 text-[11px] uppercase">{lang==="zh"?"取消":"Cancel"}</button>
                 </div>
               </div>
@@ -311,7 +311,7 @@ export function AccountPage() {
               <div className="space-y-3">
                 <div><label className="text-[11px] uppercase text-[#8F8881]">{lang==="zh"?"用戶名":"Username"}</label><input value={editUsername} onChange={e=>setEditUsername(e.target.value)} className="w-full border border-[#ECE6DF] h-10 px-3 text-[13px] mt-1"/></div>
                 <div><label className="text-[11px] uppercase text-[#8F8881]">{lang==="zh"?"電子郵件":"Email"}</label><input value={editEmail} onChange={e=>setEditEmail(e.target.value)} className="w-full border border-[#ECE6DF] h-10 px-3 text-[13px] mt-1"/></div>
-                <button onClick={handleSaveProfile} className="bg-[#9E7428] text-white px-6 h-10 text-[11px] tracking-[0.14em] uppercase">{lang==="zh"?"儲存更改":"Save Changes"}</button>
+                <button onClick={handleSaveProfile} className="bg-[var(--brand-accent)] text-white px-6 h-10 text-[11px] tracking-[0.14em] uppercase">{lang==="zh"?"儲存更改":"Save Changes"}</button>
               </div>
             </div>
             <div className="bg-white border border-[#ECE6DF] p-6">
@@ -325,7 +325,7 @@ export function AccountPage() {
                 <input type="password" placeholder={lang==="zh"?"目前密碼":"Current password"} className="w-full border border-[#ECE6DF] h-10 px-3 text-[13px]"/>
                 <input type="password" placeholder={lang==="zh"?"新密碼":"New password"} className="w-full border border-[#ECE6DF] h-10 px-3 text-[13px]"/>
                 <input type="password" placeholder={lang==="zh"?"確認新密碼":"Confirm new password"} className="w-full border border-[#ECE6DF] h-10 px-3 text-[13px]"/>
-                <button onClick={()=>showToast("info", lang==="zh"?"密碼更改功能即將推出":"Password change coming soon")} className="bg-[#9E7428] text-white px-6 h-10 text-[11px] tracking-[0.14em] uppercase">{lang==="zh"?"更改密碼":"Change Password"}</button>
+                <button onClick={()=>showToast("info", lang==="zh"?"密碼更改功能即將推出":"Password change coming soon")} className="bg-[var(--brand-accent)] text-white px-6 h-10 text-[11px] tracking-[0.14em] uppercase">{lang==="zh"?"更改密碼":"Change Password"}</button>
               </div>
             </div>
           </div>

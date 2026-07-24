@@ -45,15 +45,15 @@ export function ExclusivePage() {
                 : <>Exclusive recovery sets from HK$1,198<br/>Spend HK$2,000 — receive 6-piece deluxe gift set<br/>Spend HK$3,000 — receive 10-piece deluxe gift set</>}
             </p>
             <div className="mt-6 flex flex-wrap gap-2 text-[11px]">
-              <span className="bg-[#9E7428] text-white px-3 py-1.5 rounded-[2px]">
+              <span className="bg-[var(--brand-accent)] text-white px-3 py-1.5 rounded-[2px]">
                 {expired ? (lang==="zh" ? "已結束" : "Ended") : `${lang==="zh" ? "倒數" : "Countdown"}: ${countdown}`}
               </span>
-              <span className="border border-[#9E7428] px-3 py-1.5 rounded-[2px]">
+              <span className="border border-[var(--brand-accent)] px-3 py-1.5 rounded-[2px]">
                 {lang==="zh" ? "限時至 2026-07-31" : "Limited until Jul 31, 2026"}
               </span>
             </div>
             <div className="mt-6">
-              <Link to="/shop" className="inline-flex bg-[#9E7428] text-white px-8 h-[42px] items-center text-[10px] tracking-[0.18em] uppercase font-bold hover:bg-[#8F6824] transition rounded-[2px]">
+              <Link to="/shop" className="inline-flex bg-[var(--brand-accent)] text-white px-8 h-[42px] items-center text-[10px] tracking-[0.18em] uppercase font-bold hover:bg-[color-mix(in_srgb,var(--brand-accent)_85%,black)] transition rounded-[2px]">
                 {lang==="zh" ? "立即選購" : "Shop Now"}
               </Link>
             </div>
@@ -97,7 +97,7 @@ export function ExclusivePage() {
       </section>
 
       {/* GWP Section */}
-      <section className="bg-[#9E7428] text-white py-12 md:py-16">
+      <section className="bg-[var(--brand-accent)] text-white py-12 md:py-16">
         <div className="w-[min(calc(100%-24px),1440px)] mx-auto">
           <h2 className="font-serif text-[28px] md:text-[32px] mb-8 md:mb-10 text-center">
             {lang==="zh" ? "官網限定滿購禮遇" : "Online Exclusive — Gift With Purchase"}

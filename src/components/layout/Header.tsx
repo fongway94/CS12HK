@@ -196,14 +196,14 @@ export function Header() {
           <div className="flex items-center gap-[10px] text-[#BBB5AD] select-none font-semibold">
             <button
               onClick={() => setLang("zh")}
-              className={`transition-colors hover:text-[#9E7428] ${lang === "zh" ? "text-[#9E7428] underline font-bold" : ""}`}
+              className={`transition-colors hover:text-[var(--brand-accent)] ${lang === "zh" ? "text-[var(--brand-accent)] underline font-bold" : ""}`}
             >
               繁體
             </button>
             <span className="opacity-35 text-[9px]">/</span>
             <button
               onClick={() => setLang("en")}
-              className={`transition-colors hover:text-[#9E7428] ${lang === "en" ? "text-[#9E7428] underline font-bold" : ""}`}
+              className={`transition-colors hover:text-[var(--brand-accent)] ${lang === "en" ? "text-[var(--brand-accent)] underline font-bold" : ""}`}
             >
               EN
             </button>
@@ -214,7 +214,7 @@ export function Header() {
             <button
               onClick={() => setCurrency("HKD")}
               className={`px-1.5 py-0.5 rounded-[2px] text-[9.5px] font-semibold transition-all duration-200 border ${
-                currency === "HKD" ? "border-[#9E7428] bg-[#9E7428] text-white" : "border-transparent text-[#8F8881]"
+                currency === "HKD" ? "border-[var(--brand-accent)] bg-[var(--brand-accent)] text-white" : "border-transparent text-[#8F8881]"
               }`}
             >
               HKD
@@ -222,7 +222,7 @@ export function Header() {
             <button
               onClick={() => setCurrency("USD")}
               className={`px-1.5 py-0.5 rounded-[2px] text-[9.5px] font-semibold transition-all duration-200 border ${
-                currency === "USD" ? "border-[#9E7428] bg-[#9E7428] text-white" : "border-transparent text-[#8F8881]"
+                currency === "USD" ? "border-[var(--brand-accent)] bg-[var(--brand-accent)] text-white" : "border-transparent text-[#8F8881]"
               }`}
             >
               USD
@@ -241,11 +241,11 @@ export function Header() {
               aria-label="Toggle Navigation Menu"
             >
               {mobileOpen ? (
-                <X size={20} className="text-[#9E7428]" />
+                <X size={20} className="text-[var(--brand-accent)]" />
               ) : (
                 <>
-                  <i className="block h-[1.5px] w-[22px] bg-[#9E7428] rounded-full transition-transform"></i>
-                  <i className="block h-[1.5px] w-[16px] bg-[#9E7428] rounded-full transition-transform"></i>
+                  <i className="block h-[1.5px] w-[22px] bg-[var(--brand-accent)] rounded-full transition-transform"></i>
+                  <i className="block h-[1.5px] w-[16px] bg-[var(--brand-accent)] rounded-full transition-transform"></i>
                 </>
               )}
             </button>
@@ -261,7 +261,7 @@ export function Header() {
               {/* Search Toggle Button */}
               <button
                 onClick={() => setSearchOpen(!searchOpen)}
-                className="hidden md:flex items-center text-[#8F8881] hover:text-[#9E7428] transition duration-250"
+                className="hidden md:flex items-center text-[#8F8881] hover:text-[var(--brand-accent)] transition duration-250"
                 aria-label="Search"
               >
                 <Search size={17} />
@@ -271,14 +271,14 @@ export function Header() {
               <div className="hidden md:flex items-center gap-[6px] text-[10px] text-[#BBB5AD] select-none font-medium">
                 <button
                   onClick={() => setLang("zh")}
-                  className={`transition-colors hover:text-[#9E7428] ${lang === "zh" ? "text-[#9E7428] font-semibold" : ""}`}
+                  className={`transition-colors hover:text-[var(--brand-accent)] ${lang === "zh" ? "text-[var(--brand-accent)] font-semibold" : ""}`}
                 >
                   繁
                 </button>
                 <span className="opacity-35 text-[9px]">/</span>
                 <button
                   onClick={() => setLang("en")}
-                  className={`transition-colors hover:text-[#9E7428] ${lang === "en" ? "text-[#9E7428] font-semibold" : ""}`}
+                  className={`transition-colors hover:text-[var(--brand-accent)] ${lang === "en" ? "text-[var(--brand-accent)] font-semibold" : ""}`}
                 >
                   EN
                 </button>
@@ -289,7 +289,7 @@ export function Header() {
                 <button
                   onClick={() => setCurrency("HKD")}
                   className={`px-2 py-1 rounded-[2px] text-[10px] font-medium transition-all duration-200 border ${
-                    currency === "HKD" ? "border-[#9E7428] bg-[#9E7428] text-white" : "border-transparent text-[#8F8881] hover:text-[#9E7428]"
+                    currency === "HKD" ? "border-[var(--brand-accent)] bg-[var(--brand-accent)] text-white" : "border-transparent text-[#8F8881] hover:text-[var(--brand-accent)]"
                   }`}
                 >
                   HKD
@@ -297,7 +297,7 @@ export function Header() {
                 <button
                   onClick={() => setCurrency("USD")}
                   className={`px-2 py-1 rounded-[2px] text-[10px] font-medium transition-all duration-200 border ${
-                    currency === "USD" ? "border-[#9E7428] bg-[#9E7428] text-white" : "border-transparent text-[#8F8881] hover:text-[#9E7428]"
+                    currency === "USD" ? "border-[var(--brand-accent)] bg-[var(--brand-accent)] text-white" : "border-transparent text-[#8F8881] hover:text-[var(--brand-accent)]"
                   }`}
                 >
                   USD
@@ -307,7 +307,7 @@ export function Header() {
               {/* User Account / Profile */}
               <Link
                 to={user ? "/account" : "/login"}
-                className="hidden md:inline-flex items-center gap-1.5 text-[10px] tracking-[0.18em] uppercase text-[#3A3734] hover:text-[#9E7428] transition duration-200 font-medium"
+                className="hidden md:inline-flex items-center gap-1.5 text-[10px] tracking-[0.18em] uppercase text-[#3A3734] hover:text-[var(--brand-accent)] transition duration-200 font-medium"
               >
                 <User size={15} />
                 {user ? (lang === "zh" ? "帳戶" : "Account") : (lang === "zh" ? "登入" : "Login")}
@@ -316,7 +316,7 @@ export function Header() {
               {/* Wishlist Button */}
               <Link
                 to="/wishlist"
-                className="relative flex items-center p-1.5 text-[#9E7428] hover:scale-105 transition"
+                className="relative flex items-center p-1.5 text-[var(--brand-accent)] hover:scale-105 transition"
                 aria-label="Wishlist"
               >
                 <Heart size={18} />
@@ -330,12 +330,12 @@ export function Header() {
               {/* Shopping Bag Button */}
               <button
                 onClick={() => setMiniCartOpen(true)}
-                className="relative flex items-center p-1.5 text-[#9E7428] hover:scale-105 transition"
+                className="relative flex items-center p-1.5 text-[var(--brand-accent)] hover:scale-105 transition"
                 aria-label="Open Shopping Cart"
               >
                 <ShoppingBag size={20} />
                 {count > 0 && (
-                  <span className={`absolute top-0 right-0 bg-[#9E7428] text-white text-[8px] w-[17px] h-[17px] rounded-full flex items-center justify-center font-bold shadow-md ${badgePop ? "badge-pop" : ""}`}>
+                  <span className={`absolute top-0 right-0 bg-[var(--brand-accent)] text-white text-[8px] w-[17px] h-[17px] rounded-full flex items-center justify-center font-bold shadow-md ${badgePop ? "badge-pop" : ""}`}>
                     {count}
                   </span>
                 )}
@@ -362,7 +362,7 @@ export function Header() {
                     onClick={() => {
                       if (item.path) handleNavigation(item.path)
                     }}
-                    className="flex items-center gap-1 hover:text-[#9E7428] transition duration-200 py-3 text-left focus:outline-none"
+                    className="flex items-center gap-1 hover:text-[var(--brand-accent)] transition duration-200 py-3 text-left focus:outline-none"
                   >
                     <span>{label}</span>
                     {hasChildren && <ChevronDown size={12} className="opacity-60 group-hover:rotate-180 transition-transform duration-300" />}
@@ -378,7 +378,7 @@ export function Header() {
                             <button
                               key={subLabel}
                               onClick={() => handleNavigation(sub.path)}
-                              className="px-5 py-2.5 text-left text-[11.5px] tracking-[0.14em] text-[#5C5651] hover:text-[#9E7428] hover:bg-[#FDFBF8] transition duration-200 border-l-[2px] border-transparent hover:border-[#9E7428] font-medium"
+                              className="px-5 py-2.5 text-left text-[11.5px] tracking-[0.14em] text-[#5C5651] hover:text-[var(--brand-accent)] hover:bg-[#FDFBF8] transition duration-200 border-l-[2px] border-transparent hover:border-[var(--brand-accent)] font-medium"
                             >
                               {subLabel}
                             </button>
@@ -411,10 +411,10 @@ export function Header() {
                 value={searchQuery}
                 onChange={e => setSearchQuery(e.target.value)}
                 placeholder={lang === "zh" ? "搜尋產品名稱、系列、護理功效..." : "Search products, series, facial care..."}
-                className="flex-1 border border-[#ECE6DF] h-11 px-4 text-[13px] rounded-[3px] bg-white outline-none focus:border-[#9E7428] transition duration-200"
+                className="flex-1 border border-[#ECE6DF] h-11 px-4 text-[13px] rounded-[3px] bg-white outline-none focus:border-[var(--brand-accent)] transition duration-200"
               />
-              <button type="submit" className="bg-[#9E7428] text-white px-6 h-11 text-[11px] tracking-[0.18em] uppercase font-semibold hover:bg-[#8F6824] transition duration-200 rounded-[3px]">{lang === "zh" ? "搜尋" : "Search"}</button>
-              <button type="button" onClick={() => setSearchOpen(false)} className="border border-[#ECE6DF] px-4 h-11 text-[11px] text-[#8F8881] hover:text-[#9E7428] transition rounded-[3px]">{lang === "zh" ? "取消" : "Cancel"}</button>
+              <button type="submit" className="bg-[var(--brand-accent)] text-white px-6 h-11 text-[11px] tracking-[0.18em] uppercase font-semibold hover:bg-[color-mix(in_srgb,var(--brand-accent)_85%,black)] transition duration-200 rounded-[3px]">{lang === "zh" ? "搜尋" : "Search"}</button>
+              <button type="button" onClick={() => setSearchOpen(false)} className="border border-[#ECE6DF] px-4 h-11 text-[11px] text-[#8F8881] hover:text-[var(--brand-accent)] transition rounded-[3px]">{lang === "zh" ? "取消" : "Cancel"}</button>
             </form>
           </div>
         )}
@@ -430,7 +430,7 @@ export function Header() {
           onClick={() => setMobileOpen(false)}
         >
           {/* Blur Backdrop */}
-          <div className="fixed inset-0 bg-[#9E7428]/55 backdrop-blur-sm transition-opacity" />
+          <div className="fixed inset-0 bg-[color-mix(in_srgb,var(--brand-accent)_55%,transparent)] backdrop-blur-sm transition-opacity" />
 
           {/* Drawer Panel */}
           <div
@@ -443,7 +443,7 @@ export function Header() {
               <button
                 onClick={() => setMobileOpen(false)}
                 aria-label="Close menu"
-                className="p-1.5 text-[#9E7428] hover:opacity-60 transition"
+                className="p-1.5 text-[var(--brand-accent)] hover:opacity-60 transition"
               >
                 <X size={22} />
               </button>
@@ -459,7 +459,7 @@ export function Header() {
                   placeholder={lang === "zh" ? "搜尋關鍵字..." : "Search..."}
                   className="flex-1 text-[12px] bg-transparent outline-none text-[#111]"
                 />
-                <button type="submit" className="text-[#8F8881] hover:text-[#9E7428]">
+                <button type="submit" className="text-[#8F8881] hover:text-[var(--brand-accent)]">
                   <Search size={15} />
                 </button>
               </form>
@@ -482,7 +482,7 @@ export function Header() {
                               handleNavigation(item.path)
                             }
                           }}
-                          className="text-[13px] tracking-[0.12em] uppercase font-semibold text-[#3A3734] hover:text-[#9E7428] text-left flex-1 py-2"
+                          className="text-[13px] tracking-[0.12em] uppercase font-semibold text-[#3A3734] hover:text-[var(--brand-accent)] text-left flex-1 py-2"
                         >
                           {label}
                         </button>
@@ -494,7 +494,7 @@ export function Header() {
                           >
                             <ChevronDown
                               size={16}
-                              className={`text-[#8F8881] transition-transform duration-300 ${isExpanded ? "rotate-180 text-[#9E7428]" : ""}`}
+                              className={`text-[#8F8881] transition-transform duration-300 ${isExpanded ? "rotate-180 text-[var(--brand-accent)]" : ""}`}
                             />
                           </button>
                         )}
@@ -509,7 +509,7 @@ export function Header() {
                               <button
                                 key={subLabel}
                                 onClick={() => handleNavigation(sub.path)}
-                                className="block text-left text-[12px] tracking-[0.08em] text-[#5C5651] hover:text-[#9E7428] w-full py-2 font-medium"
+                                className="block text-left text-[12px] tracking-[0.08em] text-[#5C5651] hover:text-[var(--brand-accent)] w-full py-2 font-medium"
                               >
                                 {subLabel}
                               </button>
@@ -526,7 +526,7 @@ export function Header() {
                   <Link
                     to="/wishlist"
                     onClick={() => setMobileOpen(false)}
-                    className="block text-[13px] tracking-[0.12em] uppercase font-semibold text-[#3A3734] hover:text-[#9E7428] py-2"
+                    className="block text-[13px] tracking-[0.12em] uppercase font-semibold text-[#3A3734] hover:text-[var(--brand-accent)] py-2"
                   >
                     {lang === "zh" ? "願望清單" : "Wishlist"} {wishlistItems.length > 0 && `(${wishlistItems.length})`}
                   </Link>
@@ -537,7 +537,7 @@ export function Header() {
                   <Link
                     to={user ? "/account" : "/login"}
                     onClick={() => setMobileOpen(false)}
-                    className="block text-[13px] tracking-[0.12em] uppercase font-semibold text-[#3A3734] hover:text-[#9E7428] py-2"
+                    className="block text-[13px] tracking-[0.12em] uppercase font-semibold text-[#3A3734] hover:text-[var(--brand-accent)] py-2"
                   >
                     {user ? (lang === "zh" ? "我的會員帳戶" : "My Account") : (lang === "zh" ? "會員登入 / 註冊" : "Login / Register")}
                   </Link>
@@ -562,8 +562,8 @@ export function Header() {
               <div className="flex justify-between items-center text-[11px] text-[#8F8881]">
                 <span>{lang === "zh" ? "選擇語言：" : "Language:"}</span>
                 <div className="flex gap-3">
-                  <button onClick={() => { setLang("zh"); setMobileOpen(false) }} className={`${lang === "zh" ? "text-[#9E7428] font-bold underline" : ""}`}>繁體中文</button>
-                  <button onClick={() => { setLang("en"); setMobileOpen(false) }} className={`${lang === "en" ? "text-[#9E7428] font-bold underline" : ""}`}>English</button>
+                  <button onClick={() => { setLang("zh"); setMobileOpen(false) }} className={`${lang === "zh" ? "text-[var(--brand-accent)] font-bold underline" : ""}`}>繁體中文</button>
+                  <button onClick={() => { setLang("en"); setMobileOpen(false) }} className={`${lang === "en" ? "text-[var(--brand-accent)] font-bold underline" : ""}`}>English</button>
                 </div>
               </div>
 
