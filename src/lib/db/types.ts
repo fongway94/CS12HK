@@ -69,8 +69,8 @@ export interface User {
   id: string
   email: string
   username: string
-  firstName?: string
-  lastName?: string
+  firstName: string
+  lastName: string
   passwordHash?: string // in real DB hashed
   role: "customer" | "admin"
   birthday?: string // ISO date YYYY-MM-DD

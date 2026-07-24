@@ -88,6 +88,8 @@ export function LoginPage() {
 }
 
 export function RegisterPage() {
+  const [firstName,setFirstName]=useState("")
+  const [lastName,setLastName]=useState("")
   const [email,setEmail]=useState("")
   const [password,setPassword]=useState("")
   const [confirmPassword,setConfirmPassword]=useState("")
@@ -109,7 +111,7 @@ export function RegisterPage() {
       setError(lang==="zh"?"密碼不一致":"Passwords do not match")
       return
     }
-    const res = await register({ email, password, birthday: birthday||undefined, newsletter })
+    const res = await register({ email, password, firstName, lastName, birthday: birthday||undefined, newsletter })
     if(res.success) {
       showToast("success", lang==="zh"?"註冊成功！歡迎加入CS12":"Welcome to CS12! Registration successful.")
       nav("/account")
@@ -122,6 +124,10 @@ export function RegisterPage() {
       <h1 className="font-serif text-[36px] text-center mb-2">{lang==="zh"?"註冊":"Register"}</h1>
       <p className="text-center text-[12px] text-[#8F8881] mb-8">{lang==="zh"?"建立您的CS12帳戶":"Create your CS12 account"}</p>
       <form onSubmit={submit} className="space-y-4 bg-white border border-[#ECE6DF] p-8">
+        <div className="grid grid-cols-2 gap-4">
+          <div><label className="text-[11px] uppercase tracking-[0.14em]">{lang==="zh"?"名字":"First Name"} *</label><input value={firstName} onChange={e=>setFirstName(e.target.value)} className="mt-1 w-full border border-[#ECE6DF] h-11 px-3" required/></div>
+          <div><label className="text-[11px] uppercase tracking-[0.14em]">{lang==="zh"?"姓氏":"Last Name"} *</label><input value={lastName} onChange={e=>setLastName(e.target.value)} className="mt-1 w-full border border-[#ECE6DF] h-11 px-3" required/></div>
+        </div>
         <div><label className="text-[11px] uppercase tracking-[0.14em]">{lang==="zh"?"電子郵件":"Email"} *</label><input type="email" value={email} onChange={e=>setEmail(e.target.value)} className="mt-1 w-full border border-[#ECE6DF] h-11 px-3" required/></div>
         <div><label className="text-[11px] uppercase tracking-[0.14em]">{lang==="zh"?"密碼":"Password"} *</label><input type="password" value={password} onChange={e=>setPassword(e.target.value)} className="mt-1 w-full border border-[#ECE6DF] h-11 px-3" required minLength={6}/><p className="text-[10px] text-[#8F8881] mt-1">{lang==="zh"?"至少6個字符":"At least 6 characters"}</p></div>
         <div><label className="text-[11px] uppercase tracking-[0.14em]">{lang==="zh"?"確認密碼":"Confirm Password"} *</label><input type="password" value={confirmPassword} onChange={e=>setConfirmPassword(e.target.value)} className="mt-1 w-full border border-[#ECE6DF] h-11 px-3" required/></div>

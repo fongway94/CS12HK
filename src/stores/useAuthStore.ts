@@ -7,7 +7,7 @@ interface AuthState {
   user: User | null
   isLoading: boolean
   login: (email: string, password: string) => Promise<{ success: boolean; error?: string }>
-  register: (data: { email: string; password: string; birthday?: string; newsletter: boolean }) => Promise<{ success: boolean; error?: string }>
+  register: (data: { email: string; password: string; firstName: string; lastName: string; birthday?: string; newsletter: boolean }) => Promise<{ success: boolean; error?: string }>
   logout: () => void
   fetchMe: () => Promise<void>
 }
@@ -44,7 +44,7 @@ export const useAuthStore = create<AuthState>((set) => ({
     }
   },
 
-  register: async ({ email, password, birthday, newsletter }) => {
+  register: async ({ email, password, firstName, lastName, birthday, newsletter }) => {
     set({ isLoading: true })
     try {
       const db = getDBClient()
@@ -54,6 +54,8 @@ export const useAuthStore = create<AuthState>((set) => ({
         id: "u_" + Date.now(),
         email,
         username: email.split("@")[0],
+        firstName,
+        lastName,
         passwordHash: password,
         role: "customer",
         birthday,
