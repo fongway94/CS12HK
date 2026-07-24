@@ -120,6 +120,7 @@ export interface Order {
   pointsEarned: number
   pointsUsed: number
   shippingAddress: {
+    email: string
     name: string
     phone: string
     address: string
