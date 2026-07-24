@@ -243,7 +243,7 @@ export function AccountPage() {
               </div>
             </div>
             <div className="bg-white border border-[#ECE6DF] p-6 text-[12px] leading-relaxed text-[#5C5651]">
-              <h4 className="font-semibold text-[13px] text-[var(--brand-accent)] mb-3">{lang==="zh"?"生日禮遇條款":"Birthday Rewards Terms"}</h4>
+              <h4 className="font-semibold text-[13px] text-[var(--primary)] mb-3">{lang==="zh"?"生日禮遇條款":"Birthday Rewards Terms"}</h4>
               <ul className="list-disc pl-5 space-y-1">
                 {lang==="zh" ? (
                   <>

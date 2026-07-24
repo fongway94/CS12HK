@@ -172,7 +172,7 @@ export function HomePage() {
               {lang === "zh" ? "2026 夏季修護焦點" : "Summer Restorative Focus"}
             </div>
             
-            <h1 className="font-serif text-[42px] sm:text-[54px] md:text-[62px] leading-[1.05] tracking-tight text-[var(--brand-accent)]">
+            <h1 className="font-serif text-[42px] sm:text-[54px] md:text-[62px] leading-[1.05] tracking-tight text-[var(--primary)]">
               {lang === "zh" ? <>開啟冰涼<br/>盛夏護膚之旅</> : <>Begin Your Summer<br/>Icy Cooling Ritual</>}
             </h1>
             
@@ -236,14 +236,14 @@ export function HomePage() {
                   <div className="flex items-start gap-2 border-b border-[#ECE6DF] pb-2">
                     <span className="text-[#825F59] font-bold">●</span>
                     <div>
-                      <p className="font-semibold text-[var(--brand-accent)]">{lang === "zh" ? "滿 HK$2,000 即贈 6 件療敏禮品" : "Spend HK$2,000, get 6-pc Deluxe Set"}</p>
+                      <p className="font-semibold text-[var(--primary)]">{lang === "zh" ? "滿 HK$2,000 即贈 6 件療敏禮品" : "Spend HK$2,000, get 6-pc Deluxe Set"}</p>
                       <p className="text-[11px] text-[#8F8881] mt-0.5">{lang === "zh" ? "包括：奇蹟面膜3片、抗敏安瓶5ml、#SOCALM 1精華水5ml、水漾防曬6ml" : "Incl: Miracle Mask x3, Ampoule 5ml, #SOCALM 1 5ml, Sun Protect 6ml"}</p>
                     </div>
                   </div>
                   <div className="flex items-start gap-2">
                     <span className="text-[#825F59] font-bold">●</span>
                     <div>
-                      <p className="font-semibold text-[var(--brand-accent)]">{lang === "zh" ? "滿 HK$3,000 即贈 10 件療敏禮品" : "Spend HK$3,000, get 10-pc Deluxe Set"}</p>
+                      <p className="font-semibold text-[var(--primary)]">{lang === "zh" ? "滿 HK$3,000 即贈 10 件療敏禮品" : "Spend HK$3,000, get 10-pc Deluxe Set"}</p>
                       <p className="text-[11px] text-[#8F8881] mt-0.5">{lang === "zh" ? "包括：奇蹟面膜6片、抗敏安瓶5mlx2粒、#SOCALM 1精華水5ml、水漾防曬6ml" : "Incl: Miracle Mask x6, Ampoule 5ml x2, #SOCALM 1 5ml, Sun Protect 6ml"}</p>
                     </div>
                   </div>
@@ -305,7 +305,7 @@ export function HomePage() {
           <div className="flex items-center bg-white p-8 sm:p-12 md:p-24">
             <div className="max-w-[480px] space-y-6">
               <p className="text-[10px] tracking-[0.25em] uppercase text-[#8F8881] font-bold">Hero 01 — CalmEX Series</p>
-              <h3 className="font-serif text-[38px] sm:text-[46px] leading-[1.1] text-[var(--brand-accent)]">
+              <h3 className="font-serif text-[38px] sm:text-[46px] leading-[1.1] text-[var(--primary)]">
                 {lang === "zh" ? <>抗敏奇蹟面膜<br/>Miracle Mask</> : <>Miracle Mask<br/>Anti-Allergy</>}
               </h3>
               <p className="text-[#3A3734] text-[13.5px] sm:text-[14.5px] leading-relaxed">
@@ -345,7 +345,7 @@ export function HomePage() {
           <div className="flex items-center p-8 sm:p-12 md:p-24 order-2 md:order-1">
             <div className="max-w-[480px] space-y-6">
               <p className="text-[10px] tracking-[0.25em] uppercase text-[#8F8881] font-bold">Hero 02 — Barrier Defense</p>
-              <h3 className="font-serif text-[38px] sm:text-[46px] leading-[1.1] text-[var(--brand-accent)]">
+              <h3 className="font-serif text-[38px] sm:text-[46px] leading-[1.1] text-[var(--primary)]">
                 {lang === "zh" ? <>強韌屏障 3 步曲<br/>#SOCALM Ritual</> : <>3-Step Barrier Ritual<br/>#SOCALM Series</>}
               </h3>
               <p className="text-[#3A3734] text-[13.5px] sm:text-[14.5px] leading-relaxed">
@@ -401,7 +401,7 @@ export function HomePage() {
           <p className="text-[10px] tracking-[0.3em] uppercase text-[#8F8881] font-bold">
             {lang === "zh" ? "敏感肌修復專家" : "Sensitive Skin Repair Specialist"}
           </p>
-          <h2 className="font-serif text-[38px] sm:text-[48px] md:text-[54px] leading-[1.1] font-light text-[var(--brand-accent)] tracking-tight">
+          <h2 className="font-serif text-[38px] sm:text-[48px] md:text-[54px] leading-[1.1] font-light text-[var(--primary)] tracking-tight">
             {lang === "zh" ? "為敏感肌而生的溫和醫研修護" : "Gentle Clinical Care Crafted for Sensitive Skin"}
           </h2>
           <div className="w-16 h-[1.5px] bg-[#825F59] mx-auto my-6"></div>
@@ -441,7 +441,7 @@ export function HomePage() {
                 />
               </div>
               <div>
-                <h4 className="font-serif text-[22px] text-[var(--brand-accent)]">#CalmEX</h4>
+                <h4 className="font-serif text-[22px] text-[var(--primary)]">#CalmEX</h4>
                 <p className="text-[11.5px] text-[#8F8881] mt-1 font-medium">{lang === "zh" ? "奇蹟修護 · 冰感鎮靜" : "Miracle Repair · Ice Soothing"}</p>
               </div>
             </Link>
@@ -456,7 +456,7 @@ export function HomePage() {
                 />
               </div>
               <div>
-                <h4 className="font-serif text-[22px] text-[var(--brand-accent)]">#SoCalm</h4>
+                <h4 className="font-serif text-[22px] text-[var(--primary)]">#SoCalm</h4>
                 <p className="text-[11.5px] text-[#8F8881] mt-1 font-medium">{lang === "zh" ? "3步強韌屏障" : "3-Step Barrier Strengthening"}</p>
               </div>
             </Link>
@@ -471,7 +471,7 @@ export function HomePage() {
                 />
               </div>
               <div>
-                <h4 className="font-serif text-[22px] text-[var(--brand-accent)]">#CellRevEX</h4>
+                <h4 className="font-serif text-[22px] text-[var(--primary)]">#CellRevEX</h4>
                 <p className="text-[11.5px] text-[#8F8881] mt-1 font-medium">{lang === "zh" ? "逆齡緊緻 · 活細胞更新" : "Anti-Aging · Cell Renewal"}</p>
               </div>
             </Link>
@@ -486,7 +486,7 @@ export function HomePage() {
                 />
               </div>
               <div>
-                <h4 className="font-serif text-[22px] text-[var(--brand-accent)]">{lang === "zh" ? "防曬護理" : "Sun Care"}</h4>
+                <h4 className="font-serif text-[22px] text-[var(--primary)]">{lang === "zh" ? "防曬護理" : "Sun Care"}</h4>
                 <p className="text-[11.5px] text-[#8F8881] mt-1 font-medium">{lang === "zh" ? "透氣物理防曬 · 零負擔" : "Lightweight Physical Defense"}</p>
               </div>
             </Link>
@@ -597,7 +597,7 @@ export function HomePage() {
               <BookOpen size={13} />
               {lang === "zh" ? "敏感肌修復指南" : "Sensitive Skin Care Tips"}
             </div>
-            <h2 className="font-serif text-[36px] sm:text-[46px] leading-[1.1] text-[var(--brand-accent)]">
+            <h2 className="font-serif text-[36px] sm:text-[46px] leading-[1.1] text-[var(--primary)]">
               {lang === "zh" ? <>敏感肌護膚<br/>黃金法則</> : <>The Golden Rules<br/>for Sensitive Skin</>}
             </h2>
             <p className="text-[#5C5651] text-[13.5px] sm:text-[14.5px] leading-relaxed">
@@ -662,7 +662,7 @@ export function HomePage() {
           
           {/* Form left */}
           <div className="space-y-6 md:pr-12">
-            <h3 className="font-serif text-[32px] sm:text-[42px] leading-tight text-[var(--brand-accent)]">
+            <h3 className="font-serif text-[32px] sm:text-[42px] leading-tight text-[var(--primary)]">
               {lang === "zh" ? <>訂閱 PRESTIGE<br/>Newsletter</> : <>Subscribe to our<br/>PRESTIGE Newsletter</>}
             </h3>
             <p className="text-[#5C5651] text-[13.5px] sm:text-[14.5px] leading-relaxed">
@@ -675,7 +675,7 @@ export function HomePage() {
             {newsletterSuccess ? (
               <div className="bg-[#FAF3E9] border border-[#EAD8BE] p-6 rounded-[3px] space-y-2 text-center md:text-left">
                 <div className="inline-flex p-1 bg-green-100 text-green-700 rounded-full mb-1"><Check size={16}/></div>
-                <h4 className="font-serif text-[18px] text-[var(--brand-accent)] font-semibold">{lang === "zh" ? "訂閱成功！" : "Successfully Subscribed!"}</h4>
+                <h4 className="font-serif text-[18px] text-[var(--primary)] font-semibold">{lang === "zh" ? "訂閱成功！" : "Successfully Subscribed!"}</h4>
                 <p className="text-[12px] text-[#5C5651]">
                   {lang === "zh" ? "我們已將獨家迎新優惠碼發送至您的電郵。首次購物滿 $1500 輸入 NEWCS12 即享 15% OFF！" : "Your unique welcome code has been sent. Enter NEWCS12 on first orders above $1500 to enjoy 15% OFF."}
                 </p>
@@ -729,7 +729,7 @@ export function HomePage() {
         <div className="bg-white border border-[#ECE6DF] p-8 text-center rounded-[3px] shadow-sm flex flex-col justify-between h-full">
           <div>
             <img src="https://cs12skincare.com.hk/wp-content/uploads/2026/03/1.png" className="w-14 h-16 mx-auto mb-4 object-contain" alt="15% Off"/>
-            <h4 className="font-serif text-[22px] text-[var(--brand-accent)] font-semibold">
+            <h4 className="font-serif text-[22px] text-[var(--primary)] font-semibold">
               {lang === "zh" ? "享 15% OFF" : "Save 15% OFF"}
             </h4>
             <p className="text-[12px] text-[#5C5651] mt-2.5 leading-relaxed max-w-[28ch] mx-auto">
@@ -746,7 +746,7 @@ export function HomePage() {
         <div className="bg-white border border-[#ECE6DF] p-8 text-center rounded-[3px] shadow-sm flex flex-col justify-between h-full">
           <div>
             <img src="https://cs12skincare.com.hk/wp-content/uploads/2026/03/2.png" className="w-14 h-16 mx-auto mb-4 object-contain" alt="Free Shipping"/>
-            <h4 className="font-serif text-[22px] text-[var(--brand-accent)] font-semibold">
+            <h4 className="font-serif text-[22px] text-[var(--primary)] font-semibold">
               {lang === "zh" ? "全官網免運費" : "Free Worldwide Shipping"}
             </h4>
             <p className="text-[12px] text-[#5C5651] mt-2.5 leading-relaxed max-w-[28ch] mx-auto">
@@ -851,7 +851,7 @@ export function HomePage() {
               </Link>
 
               <div className="text-center space-y-2 px-2">
-                <h4 className="font-serif text-[20px] text-[var(--brand-accent)] font-semibold">
+                <h4 className="font-serif text-[20px] text-[var(--primary)] font-semibold">
                   {lang === "zh" ? "夏季官網限定優惠" : "Summer Limited Offer"}
                 </h4>
                 <p className="text-[12px] text-[#5C5651] leading-relaxed">

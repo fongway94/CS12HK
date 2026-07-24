@@ -1342,7 +1342,7 @@ export function AdminPage() {
 
             {/* English fonts */}
             <div className="mb-6">
-              <p className="text-[10px] uppercase tracking-[0.14em] font-semibold text-[var(--brand-accent)] mb-3 pb-2 border-b border-[#F2ECE4]">EN {lang === "zh" ? "英文字型" : "English Fonts"}</p>
+              <p className="text-[10px] uppercase tracking-[0.14em] font-semibold text-[var(--primary)] mb-3 pb-2 border-b border-[#F2ECE4]">EN {lang === "zh" ? "英文字型" : "English Fonts"}</p>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-[12px]">
                 <div>
                   <label className="text-[10px] uppercase text-[#8F8881]">{lang === "zh" ? "英文 · 正文字型 (Sans-Serif)" : "English · Body Font (Sans-Serif)"}</label>
@@ -1384,7 +1384,7 @@ export function AdminPage() {
 
             {/* Chinese fonts */}
             <div>
-              <p className="text-[10px] uppercase tracking-[0.14em] font-semibold text-[var(--brand-accent)] mb-3 pb-2 border-b border-[#F2ECE4]">繁 {lang === "zh" ? "中文字型" : "Chinese Fonts"}</p>
+              <p className="text-[10px] uppercase tracking-[0.14em] font-semibold text-[var(--primary)] mb-3 pb-2 border-b border-[#F2ECE4]">繁 {lang === "zh" ? "中文字型" : "Chinese Fonts"}</p>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-[12px]">
                 <div>
                   <label className="text-[10px] uppercase text-[#8F8881]">{lang === "zh" ? "中文 · 正文字型 (無襯線)" : "Chinese · Body Font (Sans-Serif)"}</label>
