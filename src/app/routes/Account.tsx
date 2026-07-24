@@ -20,6 +20,8 @@ export function AccountPage() {
   const [editingAddress, setEditingAddress] = useState<{ firstName: string; lastName: string; company: string; phone: string; address: string; address2: string; district: string } | null>(null)
   const [editEmail, setEditEmail] = useState("")
   const [editUsername, setEditUsername] = useState("")
+  const [editFirstName, setEditFirstName] = useState("")
+  const [editLastName, setEditLastName] = useState("")
   const nav = useNavigate()
 
   useEffect(()=>{ fetchMe() },[])
@@ -29,6 +31,8 @@ export function AccountPage() {
       getDBClient().getOrdersByUserId(user.id).then(setOrders)
       setEditEmail(user.email)
       setEditUsername(user.username)
+      setEditFirstName(user.firstName || "")
+      setEditLastName(user.lastName || "")
       try { const raw = localStorage.getItem(`cs12_addresses_${user.id}`); if(raw) setAddresses(JSON.parse(raw)) } catch {}
     }
   },[user])
@@ -57,7 +61,7 @@ export function AccountPage() {
 
   const handleSaveProfile = async () => {
     const db = getDBClient()
-    await db.updateUser(user.id, { email: editEmail, username: editUsername })
+    await db.updateUser(user.id, { email: editEmail, username: editUsername, firstName: editFirstName, lastName: editLastName })
     await fetchMe()
     showToast("success", lang==="zh"?"個人資料已更新":"Profile updated")
   }
@@ -115,8 +119,8 @@ export function AccountPage() {
     <main className="w-[min(calc(100%-24px),1440px)] mx-auto py-6 md:py-10 grid grid-cols-1 md:grid-cols-[260px_1fr] gap-6 md:gap-10">
       <aside className="bg-white border border-[#ECE6DF] p-6 h-fit">
         <div className="text-center border-b border-[#F2ECE4] pb-6 mb-6">
-          <div className="w-16 h-16 rounded-full bg-[var(--brand-accent)] text-white mx-auto flex items-center justify-center font-serif text-[24px]">{user.username[0].toUpperCase()}</div>
-          <h3 className="font-serif text-[18px] mt-3">{user.username}</h3>
+          <div className="w-16 h-16 rounded-full bg-[var(--brand-accent)] text-white mx-auto flex items-center justify-center font-serif text-[24px]">{(user.firstName || user.username)[0].toUpperCase()}</div>
+          <h3 className="font-serif text-[18px] mt-3">{lang==="zh"?"歡迎, ":"Welcome, "}{user.firstName || user.username}</h3>
           <p className="text-[11px] text-[#8F8881]">{user.email}</p>
           <span className="mt-2 inline-block text-[10px] tracking-[0.14em] uppercase bg-[#F7F3EB] px-2 py-1">{user.tier} • {user.points} {lang==="zh"?"積分":"Points"}</span>
         </div>
@@ -331,6 +335,10 @@ export function AccountPage() {
             <div className="bg-white border border-[#ECE6DF] p-6">
               <h4 className="text-[12px] tracking-[0.18em] uppercase font-semibold mb-4">{lang==="zh"?"個人資料":"Profile"}</h4>
               <div className="space-y-3">
+                <div className="grid grid-cols-2 gap-3">
+                  <div><label className="text-[11px] uppercase text-[#8F8881]">{lang==="zh"?"名字":"First Name"}</label><input value={editFirstName} onChange={e=>setEditFirstName(e.target.value)} className="w-full border border-[#ECE6DF] h-10 px-3 text-[13px] mt-1"/></div>
+                  <div><label className="text-[11px] uppercase text-[#8F8881]">{lang==="zh"?"姓氏":"Last Name"}</label><input value={editLastName} onChange={e=>setEditLastName(e.target.value)} className="w-full border border-[#ECE6DF] h-10 px-3 text-[13px] mt-1"/></div>
+                </div>
                 <div><label className="text-[11px] uppercase text-[#8F8881]">{lang==="zh"?"用戶名":"Username"}</label><input value={editUsername} onChange={e=>setEditUsername(e.target.value)} className="w-full border border-[#ECE6DF] h-10 px-3 text-[13px] mt-1"/></div>
                 <div><label className="text-[11px] uppercase text-[#8F8881]">{lang==="zh"?"電子郵件":"Email"}</label><input value={editEmail} onChange={e=>setEditEmail(e.target.value)} className="w-full border border-[#ECE6DF] h-10 px-3 text-[13px] mt-1"/></div>
                 <button onClick={handleSaveProfile} className="bg-[var(--brand-accent)] text-white px-6 h-10 text-[11px] tracking-[0.14em] uppercase">{lang==="zh"?"儲存更改":"Save Changes"}</button>
