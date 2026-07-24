@@ -660,7 +660,42 @@ export function AdminPage() {
                     </td>
                     <td className="p-3 text-[11px]">{new Date(o.createdAt).toLocaleDateString()}</td>
                     <td className="p-3">
-                      <button onClick={() => { alert(`Order Details:\n${o.items.map(i => `  ${i.productId} x${i.qty}`).join("\n")}\nAddress: ${o.shippingAddress?.name}, ${o.shippingAddress?.address}, ${o.shippingAddress?.district}`) }} className="underline text-[#8F8881] text-[10px]">
+                      <button onClick={() => {
+                        const items_list = o.items.map(i => `  ${i.productId} x${i.qty}`).join("\n")
+                        const shipping = o.shippingAddress
+                        const billing = o.billingAddress
+                        const isSame = !billing || (billing.name === shipping?.name && billing.address === shipping?.address && billing.phone === shipping?.phone)
+                        const zh = lang === "zh"
+                        let details = `${zh?"訂單編號":"Order"}: ${o.id}\n\n`
+                        details += `📦 ${zh?"商品":"Items"}:\n${items_list}\n\n`
+                        if (isSame) {
+                          details += `🏠 ${zh?"帳單及送貨地址":"Billing & Shipping Address"}:\n`
+                          details += `  ${shipping?.email || ""}\n`
+                          details += `  ${shipping?.firstName || ""} ${shipping?.lastName || shipping?.name || ""}\n`
+                          if (shipping?.company) details += `  ${shipping.company}\n`
+                          details += `  ${shipping?.phone || ""}\n`
+                          details += `  ${shipping?.address || ""}\n`
+                          if (shipping?.address2) details += `  ${shipping.address2}\n`
+                          details += `  ${shipping?.district || ""}\n`
+                        } else {
+                          details += `💳 ${zh?"帳單地址":"Billing Address"}:\n`
+                          details += `  ${billing?.email || ""}\n`
+                          details += `  ${billing?.firstName || ""} ${billing?.lastName || billing?.name || ""}\n`
+                          if (billing?.company) details += `  ${billing.company}\n`
+                          details += `  ${billing?.phone || ""}\n`
+                          details += `  ${billing?.address || ""}\n`
+                          if (billing?.address2) details += `  ${billing.address2}\n`
+                          details += `  ${billing?.district || ""}\n\n`
+                          details += `🚚 ${zh?"送貨地址":"Shipping Address"}:\n`
+                          details += `  ${shipping?.firstName || ""} ${shipping?.lastName || shipping?.name || ""}\n`
+                          if (shipping?.company) details += `  ${shipping.company}\n`
+                          details += `  ${shipping?.phone || ""}\n`
+                          details += `  ${shipping?.address || ""}\n`
+                          if (shipping?.address2) details += `  ${shipping.address2}\n`
+                          details += `  ${shipping?.district || ""}\n`
+                        }
+                        alert(details)
+                      }} className="underline text-[#8F8881] text-[10px]">
                         {lang === "zh" ? "查看" : "View"}
                       </button>
                     </td>

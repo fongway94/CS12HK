@@ -249,6 +249,18 @@ export function CheckoutPage() {
           district: address.district,
           region: address.region
         },
+        billingAddress: {
+          email: address.email.trim(),
+          firstName: address.firstName,
+          lastName: address.lastName,
+          company: address.company || undefined,
+          name: `${address.firstName} ${address.lastName}`.trim(),
+          phone: address.phone,
+          address: address.address,
+          address2: address.address2 || undefined,
+          district: address.district,
+          region: address.region
+        },
         createdAt: new Date().toISOString()
       }
       await db.createOrder(order)
@@ -479,7 +491,7 @@ export function CheckoutPage() {
 
             {/* Order remarks */}
             <div className="pt-2">
-              <label className="text-[11px] uppercase tracking-[0.12em] text-[#8F8881]">{zh?"訂單備註 (選填)":"Order Remarks (optional)"}</label>
+              <label className="text-[11px] uppercase tracking-[0.12em] text-[#8F8881]">{zh?"訂單備註 (選填)":"Order Notes (optional)"}</label>
               <textarea
                 value={orderNotes}
                 onChange={e=>setOrderNotes(e.target.value)}
