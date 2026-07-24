@@ -631,7 +631,7 @@ export function HomePage() {
                     onClick={() => setActiveTipIndex(active ? null : index)}
                     className="w-full flex items-center justify-between px-6 py-4 text-left focus:outline-none"
                   >
-                    <span className="font-serif text-[16px] sm:text-[18px] font-semibold text-[var(--brand-accent)] tracking-wide">
+                    <span className="font-serif text-[16px] sm:text-[18px] font-semibold text-[var(--primary)] tracking-wide">
                       {title}
                     </span>
                     <span className={`text-[18px] text-[#8F8881] font-light transition-transform duration-300 ${active ? "rotate-45" : ""}`}>
